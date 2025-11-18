@@ -2,6 +2,7 @@ var DataTypes = require("sequelize").DataTypes;
 var _buku_tanah = require("./buku_tanah");
 var _dokumen = require("./dokumen");
 var _files = require("./files");
+var _karyawan = require("./karyawan");
 var _lokasi = require("./lokasi");
 var _pemilik = require("./pemilik");
 var _surat_ukur = require("./surat_ukur");
@@ -12,6 +13,7 @@ function initModels(sequelize) {
   var buku_tanah = _buku_tanah(sequelize, DataTypes);
   var dokumen = _dokumen(sequelize, DataTypes);
   var files = _files(sequelize, DataTypes);
+  var karyawan = _karyawan(sequelize, DataTypes);
   var lokasi = _lokasi(sequelize, DataTypes);
   var pemilik = _pemilik(sequelize, DataTypes);
   var surat_ukur = _surat_ukur(sequelize, DataTypes);
@@ -39,6 +41,7 @@ function initModels(sequelize) {
     buku_tanah,
     dokumen,
     files,
+    karyawan,
     lokasi,
     pemilik,
     surat_ukur,
