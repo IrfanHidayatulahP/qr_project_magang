@@ -17,11 +17,7 @@ module.exports = function(sequelize, DataTypes) {
       unique: "username"
     },
     password: {
-      type: DataTypes.STRING(25),
-      allowNull: false
-    },
-    role: {
-      type: DataTypes.ENUM('Admin','Staff'),
+      type: DataTypes.STRING(100),
       allowNull: false
     }
   }, {
