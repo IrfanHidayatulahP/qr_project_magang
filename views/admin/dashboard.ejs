@@ -1,0 +1,47 @@
+<%- include('../../partials/header.ejs') %>
+
+    <section class="hero">
+        <h1>Dashboard Admin</h1>
+        <p class="muted">Panel manajemen untuk Admin.</p>
+    </section>
+
+    <section class="grid">
+        <article class="card">
+            <h3>User Aktif</h3>
+            <p class="big">
+                <%= stats ? stats.activeUsers : '-' %>
+            </p>
+            <a href="/karyawan" class="link">Kelola Karyawan</a>
+        </article>
+
+        <article class="card">
+            <h3>Registrasi Baru</h3>
+            <p>
+                <%= stats ? stats.newRegistrationsThisWeek || 0 : 0 %>
+            </p>
+            <a href="/registrations" class="link">Lihat daftar</a>
+        </article>
+
+        <article class="card">
+            <h3>Backup DB</h3>
+            <p>Terakhir: <%= stats && stats.lastBackup ? stats.lastBackup : 'Belum ada' %>
+            </p>
+            <a href="/admin/backup" class="btn">Buat Backup</a>
+        </article>
+    </section>
+
+    <section class="panel">
+        <h2>Aktivitas Terakhir</h2>
+        <ul class="list">
+            <% if (logs && logs.length) { %>
+                <% logs.forEach(l=> { %>
+                    <li><small>
+                            <%= l.time %>
+                        </small> — <%= l.text %>
+                    </li>
+                    <% }) %>
+                        <% } else { %>
+                            <li>Belum ada aktivitas</li>
+                            <% } %>
+        </ul>
+    </section>

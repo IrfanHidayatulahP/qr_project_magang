@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyApp - Sidebar Layout</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Brand/Logo Area */
+        .sidebar-brand {
+            padding: 25px 20px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-bottom: 3px solid #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-brand .brand-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #fbbf24;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1e3a8a;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .sidebar-brand .brand-text {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Navigation Menu */
+        .sidebar-nav {
+            flex: 1;
+            padding: 25px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-section-title {
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 15px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+            padding-left: 24px;
+        }
+
+        .nav-link.active {
+            background-color: #fbbf24;
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+
+        /* User Area in Sidebar */
+        .sidebar-user {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #fbbf24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1e3a8a;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            display: block;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .user-role {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Top Header Bar */
+        .top-header {
+            margin-left: 260px;
+            background-color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            color: #666;
+            font-size: 13px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Not Authenticated State */
+        .sidebar-login {
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .login-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login {
+            background-color: #fbbf24;
+            color: #1e3a8a;
+        }
+
+        .btn-login:hover {
+            background-color: #f59e0b;
+            transform: translateY(-2px);
+        }
+
+        .btn-register {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-register:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                flex-direction: row;
+                padding-bottom: 20px;
+            }
+
+            .sidebar-brand {
+                flex: 0 0 auto;
+                border-right: 3px solid #fbbf24;
+                border-bottom: none;
+            }
+
+            .sidebar-nav {
+                flex-direction: row;
+                padding: 0;
+                flex-wrap: wrap;
+            }
+
+            .nav-link {
+                margin: 0;
+                flex: 1 1 auto;
+                min-width: 150px;
+            }
+
+            .sidebar-user {
+                flex: 0 0 100%;
+                border-top: 1px solid rgba(255, 255, 255, 0.2);
+                border-left: none;
+            }
+
+            .top-header,
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <div class="brand-icon">M</div>
+            <div class="brand-text">MyApp</div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-link active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <!-- Admin Section -->
+            <!-- Ganti kondisi sesuai dengan templating engine Anda -->
+            <div class="nav-section-title">Administrasi</div>
+            <a href="/admin/dashboard_admin" class="nav-link">
+                <i class="fas fa-shield-alt"></i>
+                <span>Admin Panel</span>
+            </a>
+
+            <!-- Staff Section -->
+            <div class="nav-section-title">Operasional</div>
+            <a href="/staff-area" class="nav-link">
+                <i class="fas fa-briefcase"></i>
+                <span>Area Staff</span>
+            </a>
+
+            <a href="/entry-data" class="nav-link">
+                <i class="fas fa-database"></i>
+                <span>Entry Data</span>
+            </a>
+
+            <a href="/laporan" class="nav-link">
+                <i class="fas fa-file-alt"></i>
+                <span>Laporan</span>
+            </a>
+        </nav>
+
+        <!-- User Info -->
+        <div class="sidebar-user">
+            <div class="user-info">
+                <div class="user-avatar">A</div>
+                <div class="user-details">
+                    <span class="user-name">Admin User</span>
+                    <span class="user-role">Administrator</span>
+                </div>
+            </div>
+            <a href="/logout" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- TOP HEADER -->
+    <header class="top-header">
+        <div class="header-title">Selamat datang di MyApp</div>
+        <div class="header-info">
+            <span><i class="fas fa-calendar"></i> Hari ini</span>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <h1>Konten Utama</h1>
+        <p>Konten aplikasi Anda akan ditampilkan di sini.</p>
+    </main>
+</body>
+
+</html>
