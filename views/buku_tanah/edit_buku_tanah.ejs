@@ -1,0 +1,59 @@
+<%- include('../../partials/header.ejs') %>
+
+
+    <section class="container">
+        <h1>Edit Buku Tanah</h1>
+
+
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+
+
+                <form action="/buku-tanah/edit/<%= buku.id_buku_tanah %>" method="post">
+                    <div class="form-group">
+                        <label>Dokumen</label>
+                        <select name="id_dokumen" required>
+                            <option value="">-- Pilih Dokumen --</option>
+                            <% if (dokumenOptions && dokumenOptions.length) { %>
+                                <% dokumenOptions.forEach(d=> { %>
+                                    <option value="<%= d.id_dokumen %>" <%=(buku.id_dokumen==d.id_dokumen) ? 'selected'
+                                        : '' %>><%= d.nama || ('#'+d.id_dokumen) %>
+                                    </option>
+                                    <% }) %>
+                                        <% } %>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>No Reg</label>
+                        <input type="text" name="no_reg" value="<%= buku.no_reg || '' %>" />
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Jumlah Lembar</label>
+                        <input type="number" name="jumlah_lembar" min="0"
+                            value="<%= buku.jumlah_lembar != null ? buku.jumlah_lembar : '' %>" />
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>No Peta</label>
+                        <input type="text" name="no_peta" value="<%= buku.no_peta || '' %>" />
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Keterangan</label>
+                        <textarea name="keterangan" rows="4"><%= buku.keterangan || '' %></textarea>
+                    </div>
+
+
+                    <button type="submit">Update</button>
+                    <a href="/buku-tanah">Batal</a>
+                </form>
+    </section>

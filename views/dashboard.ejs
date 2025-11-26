@@ -1,5 +1,4 @@
 <%- include('../partials/header.ejs') %>
-
     <section class="hero">
         <h1>Dashboard Admin</h1>
         <p class="muted">Panel manajemen untuk Admin.</p>
@@ -16,10 +15,11 @@
 
         <article class="card">
             <h3>Registrasi Baru</h3>
-            <p>
-                <%= stats ? stats.newRegistrationsThisWeek || 0 : 0 %>
-            </p>
-            <a href="/registrations" class="link">Lihat daftar</a>
+            <%# Menggunakan class 'big' agar konsisten dengan User Aktif %>
+                <p class="big">
+                    <%= stats ? stats.newRegistrationsThisWeek || 0 : 0 %>
+                </p>
+                <a href="/registrations" class="link">Lihat daftar</a>
         </article>
 
         <article class="card">

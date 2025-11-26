@@ -1,0 +1,64 @@
+<%- include('../../partials/header.ejs') %>
+
+
+    <section class="container">
+        <h1>Detail Buku Tanah</h1>
+
+
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+                <% if (success) { %>
+                    <div class="alert alert-success">
+                        <%= success %>
+                    </div>
+                    <% } %>
+
+
+                        <table>
+                            <tr>
+                                <th>ID</th>
+                                <td>
+                                    <%= buku.id_buku_tanah %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Dokumen ID</th>
+                                <td>
+                                    <%= buku.id_dokumen %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>No Reg</th>
+                                <td>
+                                    <%= buku.no_reg || '-' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Jumlah Lembar</th>
+                                <td>
+                                    <%= buku.jumlah_lembar !=null ? buku.jumlah_lembar : '-' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>No Peta</th>
+                                <td>
+                                    <%= buku.no_peta || '-' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Keterangan</th>
+                                <td>
+                                    <%= buku.keterangan || '-' %>
+                                </td>
+                            </tr>
+                        </table>
+
+
+                        <p>
+                            <a href="/buku-tanah/edit/<%= buku.id_buku_tanah %>">Edit</a> |
+                            <a href="/buku-tanah">Kembali</a>
+                        </p>
+    </section>

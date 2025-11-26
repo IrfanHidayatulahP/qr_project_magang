@@ -12,6 +12,7 @@ exports.showLogin = (req, res) => {
 exports.login = async (req, res) => {
     try {
         const { username, password } = req.body;
+
         if (!username || !password) {
             return res.render('login', {
                 error: 'Username dan password wajib',
@@ -19,7 +20,6 @@ exports.login = async (req, res) => {
             });
         }
 
-        // cari user berdasarkan username
         const karyawan = await db.karyawan.findOne({ where: { username } });
         if (!karyawan) {
             return res.render('login', {
@@ -36,50 +36,25 @@ exports.login = async (req, res) => {
             });
         }
 
-        // set session
-        req.session.username = karyawan.username;
+        // simpan session
         req.session.user = {
             id_karyawan: karyawan.id_karyawan,
             username: karyawan.username,
             nama_lengkap: karyawan.nama_lengkap
-            // jika nanti perlu role/status, tambahkan di sini
         };
 
-        // === siapkan stats & logs default supaya EJS tidak error ===
-        // Ambil jumlah karyawan sebagai contoh statistik sederhana
-        let activeUsers = 0;
-        try {
-            activeUsers = await db.karyawan.count();
-        } catch (e) {
-            // jika model/count bermasalah, tetap gunakan default 0
-            console.error('Gagal mengambil statistik karyawan:', e);
-            activeUsers = 0;
-        }
+        // setelah login sukses → REDIRECT
+        return res.redirect('/dashboard');
 
-        // Anda bisa ganti logic di bawah untuk mengambil data nyata (mis. dari tabel backups/logs)
-        const stats = {
-            activeUsers: activeUsers,
-            newRegistrationsThisWeek: 0, // kalau model menyimpan tanggal pendaftaran, ubah query
-            lastBackup: null // isi jika Anda punya pencatatan backup
-        };
-
-        const logs = []; // isi dari tabel logs jika tersedia
-
-        // render dashboard langsung tanpa redirect (menghindari 404)
-        return res.render('dashboard', {
-            user: req.session.user,
-            success: 'Login berhasil',
-            stats,
-            logs
-        });
     } catch (err) {
         console.error('Login error:', err);
         return res.render('login', {
             error: 'Terjadi kesalahan. Coba lagi.',
-            old: { username: (req.body && req.body.username) ? req.body.username : '' }
+            old: { username }
         });
     }
 };
+
 
 exports.logout = (req, res) => {
     req.session.destroy(err => {

@@ -1,0 +1,62 @@
+<%- include('../../partials/header.ejs') %>
+
+
+    <section class="container">
+        <h1>Tambah Buku Tanah</h1>
+
+
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+
+
+                <form action="/buku-tanah/create" method="post">
+                    <div class="form-group">
+                        <label>Dokumen</label>
+                        <select name="id_dokumen" required>
+                            <option value="">-- Pilih Dokumen --</option>
+                            <% if (dokumenOptions && dokumenOptions.length) { %>
+                                <% dokumenOptions.forEach(d=> { %>
+                                    <option value="<%= d.id_dokumen %>" <%=(old && old.id_dokumen==d.id_dokumen)
+                                        ? 'selected' : '' %>><%= d.nama || ('#'+d.id_dokumen) %>
+                                    </option>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <option value="">(Tidak ada dokumen)</option>
+                                            <% } %>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>No Reg</label>
+                        <input type="text" name="no_reg" value="<%= old && old.no_reg ? old.no_reg : '' %>" />
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Jumlah Lembar</label>
+                        <input type="number" name="jumlah_lembar" min="0"
+                            value="<%= old && old.jumlah_lembar ? old.jumlah_lembar : '' %>" />
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>No Peta</label>
+                        <input type="text" name="no_peta" value="<%= old && old.no_peta ? old.no_peta : '' %>" />
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Keterangan</label>
+                        <textarea name="keterangan"
+                            rows="4"><%= old && old.keterangan ? old.keterangan : '' %></textarea>
+                    </div>
+
+
+                    <button type="submit">Simpan</button>
+                    <a href="/buku-tanah">Batal</a>
+                </form>
+    </section>

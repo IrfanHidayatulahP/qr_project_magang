@@ -1,0 +1,76 @@
+<%- include('../../partials/header.ejs') %>
+
+
+    <section class="container">
+        <h1>Daftar Buku Tanah</h1>
+
+
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+                <% if (success) { %>
+                    <div class="alert alert-success">
+                        <%= success %>
+                    </div>
+                    <% } %>
+
+
+                        <div style="margin:16px 0">
+                            <a class="btn" href="/buku-tanah/create">+ Tambah Buku Tanah</a>
+                        </div>
+
+
+                        <form method="get" action="/buku-tanah" style="margin-bottom:12px">
+                            <input type="text" name="q" placeholder="Cari ID / No Reg / No Peta"
+                                value="<%= filter_q||'' %>" />
+                            <button type="submit">Cari</button>
+                        </form>
+
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>No Reg</th>
+                                    <th>Jumlah Lembar</th>
+                                    <th>No Peta</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (records && records.length) { %>
+                                    <% records.forEach(r=> { %>
+                                        <tr>
+                                            <td>
+                                                <%= r.id_buku_tanah %>
+                                            </td>
+                                            <td>
+                                                <%= r.no_reg || '-' %>
+                                            </td>
+                                            <td>
+                                                <%= (r.jumlah_lembar !=null) ? r.jumlah_lembar : '-' %>
+                                            </td>
+                                            <td>
+                                                <%= r.no_peta || '-' %>
+                                            </td>
+                                            <td>
+                                                <a href="/buku-tanah/<%= r.id_buku_tanah %>">Detail</a> |
+                                                <a href="/buku-tanah/edit/<%= r.id_buku_tanah %>">Edit</a> |
+                                                <form action="/buku-tanah/delete/<%= r.id_buku_tanah %>" method="post"
+                                                    style="display:inline"
+                                                    onsubmit="return confirm('Hapus data ini?');">
+                                                    <button type="submit">Hapus</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="5">Belum ada data</td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+    </section>
