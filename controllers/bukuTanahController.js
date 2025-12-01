@@ -1,4 +1,3 @@
-// controllers/bukuTanahController.js
 const db = require('../config/db');
 const { Op } = require('sequelize');
 
@@ -39,7 +38,9 @@ exports.showIndex = async (req, res) => {
 
         if (q) {
             if (isValidId(q)) {
-                const r = await BukuTanah.findByPk(Number(q));
+                const r = await BukuTanah.findByPk(Number(q), {
+                    attributes: { exclude: ['createdAt', 'updatedAt'] }
+                });
                 records = r ? [r] : [];
             } else {
                 records = await BukuTanah.findAll({
@@ -51,13 +52,15 @@ exports.showIndex = async (req, res) => {
                         ]
                     },
                     order: [['id_buku_tanah', 'DESC']],
-                    limit: 1000
+                    limit: 1000,
+                    attributes: { exclude: ['createdAt', 'updatedAt'] }
                 });
             }
         } else {
             records = await BukuTanah.findAll({
                 order: [['id_buku_tanah', 'DESC']],
-                limit: 1000
+                limit: 1000,
+                attributes: { exclude: ['createdAt', 'updatedAt'] }
             });
         }
 
@@ -68,7 +71,7 @@ exports.showIndex = async (req, res) => {
         return res.render('buku_tanah/list_buku_tanah', {
             records: recordsPlain,
             user: req.session?.user || null,
-            nama_lengkap: req.session?.user?.nama_lengkap || '',
+            nama_karyawan: req.session?.user?.nama_karyawan || '',
             filter_q: q,
             error: req.query.error || null,
             success: req.query.success || null
@@ -87,14 +90,18 @@ exports.showCreateForm = async (req, res) => {
         // ambil daftar dokumen jika tersedia
         let dokumenOptions = [];
         if (Dokumen) {
-            const all = await Dokumen.findAll({ order: [['id_dokumen', 'ASC']], limit: 1000 });
+            const all = await Dokumen.findAll({
+                order: [['id_dokumen', 'ASC']],
+                limit: 1000,
+                attributes: { exclude: ['createdAt', 'updatedAt'] }
+            });
             dokumenOptions = all.map(d => (d && typeof d.toJSON === 'function' ? d.toJSON() : d));
         }
 
         return res.render('buku_tanah/tambah_buku_tanah', {
             dokumenOptions,
             user: req.session?.user || null,
-            nama_lengkap: req.session?.user?.nama_lengkap || '',
+            nama_karyawan: req.session?.user?.nama_karyawan || '',
             error: req.query.error || null,
             success: req.query.success || null,
             old: {}
@@ -110,37 +117,87 @@ exports.create = async (req, res) => {
     if (!ensureModelOrRespond(res)) return;
     const t = await db.sequelize.transaction();
     try {
-        const { id_dokumen, no_reg, jumlah_lembar, no_peta, keterangan } = req.body;
+        // ambil field yang sesuai model
+        const {
+            id_dokumen,
+            no_reg,
+            no_peta,
+            jenis_hak,
+            luas_tanah,
+            nama_pemilik_asal,
+            tahun_terbit,
+            keterangan,
+            status_buku
+        } = req.body;
 
         if (!id_dokumen || String(id_dokumen).trim() === '') {
             await t.rollback();
             return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('Pilih dokumen'));
         }
 
-        const jumlah = jumlah_lembar ? Number(jumlah_lembar) : null;
-        if (jumlah !== null && (!Number.isFinite(jumlah) || jumlah < 0)) {
-            await t.rollback();
-            return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('jumlah_lembar harus angka >= 0'));
+        // parse luas_tanah menjadi number (decimal)
+        let luas = null;
+        if (typeof luas_tanah !== 'undefined' && luas_tanah !== '' && luas_tanah !== null) {
+            const parsed = Number(String(luas_tanah).replace(',', '.'));
+            if (!Number.isFinite(parsed) || parsed < 0) {
+                await t.rollback();
+                return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('luas_tanah harus angka >= 0'));
+            }
+            luas = parsed;
         }
 
         // optional: cek dokumen ada
         if (Dokumen) {
-            const doc = await Dokumen.findByPk(Number(id_dokumen));
+            const doc = await Dokumen.findByPk(Number(id_dokumen), { attributes: { exclude: ['createdAt', 'updatedAt'] } });
             if (!doc) {
                 await t.rollback();
                 return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('Dokumen tidak ditemukan'));
             }
         }
 
+        // tahun_terbit: terima tahun (YYYY) atau tanggal; simpan sebagai Date (atau null)
+        let tahunVal = null;
+        if (typeof tahun_terbit !== 'undefined' && tahun_terbit !== '' && tahun_terbit !== null) {
+            // jika hanya angka 4 digit, buat Date 'YYYY-01-01'
+            const y = String(tahun_terbit).trim();
+            if (/^\d{4}$/.test(y)) {
+                tahunVal = new Date(`${y}-01-01`);
+            } else {
+                const d = new Date(y);
+                if (!isNaN(d.getTime())) tahunVal = d;
+                else tahunVal = null;
+            }
+        }
+
         const payload = {
             id_dokumen: Number(id_dokumen),
             no_reg: no_reg || null,
-            jumlah_lembar: jumlah,
             no_peta: no_peta || null,
-            keterangan: keterangan || null
+            jenis_hak: jenis_hak || null,
+            luas_tanah: luas,
+            nama_pemilik_asal: nama_pemilik_asal || null,
+            tahun_terbit: tahunVal,
+            keterangan: keterangan || null,
+            status_buku: status_buku || 'Aktif'
         };
 
-        await BukuTanah.create(payload, { transaction: t });
+        // create — batasi fields & gunakan silent agar Sequelize tidak menambahkan timestamps saat INSERT
+        await BukuTanah.create(payload, {
+            transaction: t,
+            fields: [
+                'id_dokumen',
+                'no_reg',
+                'no_peta',
+                'jenis_hak',
+                'luas_tanah',
+                'nama_pemilik_asal',
+                'tahun_terbit',
+                'keterangan',
+                'status_buku'
+            ],
+            silent: true
+        });
+
         await t.commit();
         return res.redirect('/buku-tanah?success=' + encodeURIComponent('Buku Tanah berhasil ditambahkan'));
     } catch (err) {
@@ -158,14 +215,16 @@ exports.showEditForm = async (req, res) => {
         const id = req.params.id;
         if (!isValidId(id)) return res.status(400).send('Parameter id tidak valid');
 
-        const record = await BukuTanah.findByPk(Number(id));
+        const record = await BukuTanah.findByPk(Number(id), {
+            attributes: { exclude: ['createdAt', 'updatedAt'] }
+        });
         if (!record) return res.status(404).send('Data buku tanah tidak ditemukan');
 
         const recordPlain = record && typeof record.toJSON === 'function' ? record.toJSON() : record;
 
         let dokumenOptions = [];
         if (Dokumen) {
-            const all = await Dokumen.findAll({ order: [['id_dokumen', 'ASC']], limit: 1000 });
+            const all = await Dokumen.findAll({ order: [['id_dokumen', 'ASC']], limit: 1000, attributes: { exclude: ['createdAt', 'updatedAt'] } });
             dokumenOptions = all.map(d => (d && typeof d.toJSON === 'function' ? d.toJSON() : d));
         }
 
@@ -173,7 +232,7 @@ exports.showEditForm = async (req, res) => {
             buku: recordPlain,
             dokumenOptions,
             user: req.session?.user || null,
-            nama_lengkap: req.session?.user?.nama_lengkap || '',
+            nama_karyawan: req.session?.user?.nama_karyawan || '',
             error: req.query.error || null,
             success: req.query.success || null
         });
@@ -194,35 +253,79 @@ exports.update = async (req, res) => {
             return res.status(400).send('ID tidak valid');
         }
 
-        const item = await BukuTanah.findByPk(Number(id));
+        const item = await BukuTanah.findByPk(Number(id), { attributes: { exclude: ['createdAt', 'updatedAt'] } });
         if (!item) {
             await t.rollback();
             return res.status(404).send('Data buku tanah tidak ditemukan');
         }
 
-        const { id_dokumen, no_reg, jumlah_lembar, no_peta, keterangan } = req.body;
+        const {
+            id_dokumen,
+            no_reg,
+            no_peta,
+            jenis_hak,
+            luas_tanah,
+            nama_pemilik_asal,
+            tahun_terbit,
+            keterangan,
+            status_buku
+        } = req.body;
 
         if (typeof id_dokumen !== 'undefined' && String(id_dokumen).trim() === '') {
             await t.rollback();
             return res.redirect('/buku-tanah/edit/' + id + '?error=' + encodeURIComponent('Pilih dokumen'));
         }
 
-        const jumlah = typeof jumlah_lembar !== 'undefined'
-            ? (jumlah_lembar === '' ? null : Number(jumlah_lembar))
-            : item.jumlah_lembar;
-
-        if (jumlah !== null && (!Number.isFinite(jumlah) || jumlah < 0)) {
-            await t.rollback();
-            return res.redirect('/buku-tanah/edit/' + id + '?error=' + encodeURIComponent('jumlah_lembar harus angka >= 0'));
+        // parse luas_tanah jika diinput
+        if (typeof luas_tanah !== 'undefined') {
+            if (luas_tanah === '' || luas_tanah === null) {
+                item.luas_tanah = null;
+            } else {
+                const parsed = Number(String(luas_tanah).replace(',', '.'));
+                if (!Number.isFinite(parsed) || parsed < 0) {
+                    await t.rollback();
+                    return res.redirect('/buku-tanah/edit/' + id + '?error=' + encodeURIComponent('luas_tanah harus angka >= 0'));
+                }
+                item.luas_tanah = parsed;
+            }
         }
 
-        if (typeof id_dokumen !== 'undefined') item.id_dokumen = Number(id_dokumen);
+        if (typeof id_dokumen !== 'undefined') item.id_dokumen = id_dokumen === '' ? item.id_dokumen : Number(id_dokumen);
         if (typeof no_reg !== 'undefined') item.no_reg = no_reg || null;
-        item.jumlah_lembar = jumlah;
         if (typeof no_peta !== 'undefined') item.no_peta = no_peta || null;
+        if (typeof jenis_hak !== 'undefined') item.jenis_hak = jenis_hak || null;
+        if (typeof nama_pemilik_asal !== 'undefined') item.nama_pemilik_asal = nama_pemilik_asal || null;
+        if (typeof tahun_terbit !== 'undefined') {
+            const y = String(tahun_terbit).trim();
+            if (y === '') {
+                item.tahun_terbit = null;
+            } else if (/^\d{4}$/.test(y)) {
+                item.tahun_terbit = new Date(`${y}-01-01`);
+            } else {
+                const d = new Date(y);
+                item.tahun_terbit = isNaN(d.getTime()) ? item.tahun_terbit : d;
+            }
+        }
         if (typeof keterangan !== 'undefined') item.keterangan = keterangan || null;
+        if (typeof status_buku !== 'undefined') item.status_buku = status_buku || item.status_buku;
 
-        await item.save({ transaction: t });
+        // simpan dengan fields explicit & silent agar tidak menambahkan createdAt/updatedAt jika kolom tidak tersedia
+        await item.save({
+            transaction: t,
+            fields: [
+                'id_dokumen',
+                'no_reg',
+                'no_peta',
+                'jenis_hak',
+                'luas_tanah',
+                'nama_pemilik_asal',
+                'tahun_terbit',
+                'keterangan',
+                'status_buku'
+            ],
+            silent: true
+        });
+
         await t.commit();
         return res.redirect('/buku-tanah?success=' + encodeURIComponent('Buku Tanah berhasil diupdate'));
     } catch (err) {
@@ -243,7 +346,7 @@ exports.delete = async (req, res) => {
             return res.status(400).send('ID tidak valid');
         }
 
-        const record = await BukuTanah.findByPk(Number(id));
+        const record = await BukuTanah.findByPk(Number(id), { attributes: { exclude: ['createdAt', 'updatedAt'] } });
         if (!record) {
             await t.rollback();
             return res.redirect('/buku-tanah?error=' + encodeURIComponent('Data tidak ditemukan'));
@@ -266,7 +369,7 @@ exports.showDetail = async (req, res) => {
         const id = req.params.id;
         if (!isValidId(id)) return res.redirect('/buku-tanah?error=' + encodeURIComponent('ID tidak valid'));
 
-        const record = await BukuTanah.findByPk(Number(id));
+        const record = await BukuTanah.findByPk(Number(id), { attributes: { exclude: ['createdAt', 'updatedAt'] } });
         if (!record) return res.status(404).send('Data tidak ditemukan');
 
         const recordPlain = typeof record.toJSON === 'function' ? record.toJSON() : record;
@@ -274,7 +377,7 @@ exports.showDetail = async (req, res) => {
         return res.render('buku_tanah/detail_buku_tanah', {
             buku: recordPlain,
             user: req.session?.user || null,
-            nama_lengkap: req.session?.user?.nama_lengkap || '',
+            nama_karyawan: req.session?.user?.nama_karyawan || '',
             error: req.query.error || null,
             success: req.query.success || null
         });

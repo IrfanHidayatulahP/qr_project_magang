@@ -1,9 +1,7 @@
 <%- include('../../partials/header.ejs') %>
 
-
     <section class="container">
         <h1>Daftar Buku Tanah</h1>
-
 
         <% if (error) { %>
             <div class="alert alert-error">
@@ -16,11 +14,9 @@
                     </div>
                     <% } %>
 
-
                         <div style="margin:16px 0">
                             <a class="btn" href="/buku-tanah/create">+ Tambah Buku Tanah</a>
                         </div>
-
 
                         <form method="get" action="/buku-tanah" style="margin-bottom:12px">
                             <input type="text" name="q" placeholder="Cari ID / No Reg / No Peta"
@@ -28,14 +24,15 @@
                             <button type="submit">Cari</button>
                         </form>
 
-
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>No Reg</th>
-                                    <th>Jumlah Lembar</th>
+                                    <th>Jenis Hak</th>
+                                    <th>Luas (m²)</th>
                                     <th>No Peta</th>
+                                    <th>Status</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -50,10 +47,16 @@
                                                 <%= r.no_reg || '-' %>
                                             </td>
                                             <td>
-                                                <%= (r.jumlah_lembar !=null) ? r.jumlah_lembar : '-' %>
+                                                <%= r.jenis_hak || '-' %>
+                                            </td>
+                                            <td>
+                                                <%= (r.luas_tanah !=null) ? r.luas_tanah : '-' %>
                                             </td>
                                             <td>
                                                 <%= r.no_peta || '-' %>
+                                            </td>
+                                            <td>
+                                                <%= r.status_buku || '-' %>
                                             </td>
                                             <td>
                                                 <a href="/buku-tanah/<%= r.id_buku_tanah %>">Detail</a> |
@@ -68,7 +71,7 @@
                                         <% }) %>
                                             <% } else { %>
                                                 <tr>
-                                                    <td colspan="5">Belum ada data</td>
+                                                    <td colspan="7">Belum ada data</td>
                                                 </tr>
                                                 <% } %>
                             </tbody>

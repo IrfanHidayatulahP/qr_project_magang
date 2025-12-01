@@ -7,21 +7,31 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    nama_lengkap: {
-      type: DataTypes.STRING(255),
+    nama_pemilik: {
+      type: DataTypes.STRING(200),
       allowNull: false
-    },
-    no_identitas: {
-      type: DataTypes.STRING(100),
-      allowNull: true
     },
     alamat: {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    no_hp: {
+    nik: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      unique: "ux_nik"
+    },
+    telepon: {
       type: DataTypes.STRING(50),
       allowNull: true
+    },
+    email: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: 1
     }
   }, {
     sequelize,
@@ -34,6 +44,14 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "id_pemilik" },
+        ]
+      },
+      {
+        name: "ux_nik",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "nik" },
         ]
       },
     ]

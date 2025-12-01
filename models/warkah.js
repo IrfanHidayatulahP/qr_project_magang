@@ -13,57 +13,65 @@ module.exports = function(sequelize, DataTypes) {
       references: {
         model: 'dokumen',
         key: 'id_dokumen'
-      }
+      },
+      unique: "fk_warkah_doc"
     },
-    no_warkah: {
-      type: DataTypes.STRING(150),
-      allowNull: true
-    },
-    no_di: {
-      type: DataTypes.STRING(50),
-      allowNull: true
-    },
-    id_lokasi: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'lokasi',
-        key: 'id_lokasi'
-      }
-    },
-    jenis_arsip: {
+    nomor_di_208: {
       type: DataTypes.STRING(100),
       allowNull: true
     },
-    info_arsip: {
-      type: DataTypes.STRING(255),
+    kode_klasifikasi: {
+      type: DataTypes.STRING(20),
       allowNull: true
     },
-    jumlah_lembar: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    jangka_simpan: {
+    jenis_arsip_vital: {
       type: DataTypes.STRING(100),
       allowNull: true
     },
-    berkas_fisik: {
-      type: DataTypes.ENUM('Asli','Copy'),
+    jangka_simpan_aktif: {
+      type: DataTypes.STRING(100),
       allowNull: true
     },
-    metode_perlindungan: {
-      type: DataTypes.STRING(150),
+    jangka_simpan_inaktif: {
+      type: DataTypes.STRING(100),
       allowNull: true
     },
-    keterangan: {
+    jangka_simpan_keterangan: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    uraian_bt: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    uraian_su: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    uraian_warkah_detail: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    uraian_informasi_arsip_fix: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    tingkat_perkembangan_bt: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    tingkat_perkembangan_su: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    tingkat_perkembangan_fix: {
       type: DataTypes.TEXT,
       allowNull: true
     }
   }, {
     sequelize,
     tableName: 'warkah',
-    hasTrigger: true,
-    timestamps: false,
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",
@@ -74,31 +82,25 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "fk_wk_doc",
+        name: "ux_id_dokumen",
+        unique: true,
         using: "BTREE",
         fields: [
           { name: "id_dokumen" },
         ]
       },
       {
-        name: "fk_wk_lok",
+        name: "idx_nomor_di_208",
         using: "BTREE",
         fields: [
-          { name: "id_lokasi" },
+          { name: "nomor_di_208" },
         ]
       },
       {
-        name: "no_warkah",
+        name: "idx_kode_klasifikasi",
         using: "BTREE",
         fields: [
-          { name: "no_warkah" },
-        ]
-      },
-      {
-        name: "no_di",
-        using: "BTREE",
-        fields: [
-          { name: "no_di" },
+          { name: "kode_klasifikasi" },
         ]
       },
     ]

@@ -15,6 +15,14 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(150),
       allowNull: false
     },
+    nomor_hak: {
+      type: DataTypes.STRING(150),
+      allowNull: true
+    },
+    jenis_hak: {
+      type: DataTypes.ENUM('HM','HGB','HP','HGU','Pengelolaan','Lainnya'),
+      allowNull: true
+    },
     tanggal: {
       type: DataTypes.DATEONLY,
       allowNull: true
@@ -43,6 +51,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.DECIMAL(12,2),
       allowNull: true
     },
+    luas_tanah: {
+      type: DataTypes.DECIMAL(10,2),
+      allowNull: true
+    },
     id_lokasi: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -60,16 +72,18 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     media: {
-      type: DataTypes.STRING(100),
-      allowNull: true
+      type: DataTypes.ENUM('Kertas','Digital','Microfilm'),
+      allowNull: true,
+      defaultValue: "Kertas"
     },
-    jumlah: {
+    jumlah_lembar: {
       type: DataTypes.INTEGER,
       allowNull: true
     },
     tingkat_perkembangan: {
-      type: DataTypes.STRING(100),
-      allowNull: true
+      type: DataTypes.ENUM('Asli','Copy','Salinan'),
+      allowNull: true,
+      defaultValue: "Asli"
     },
     no_boks_definitif: {
       type: DataTypes.STRING(100),
@@ -87,11 +101,17 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.ENUM('Lengkap','Rusak','Hilang'),
       allowNull: true,
       defaultValue: "Lengkap"
+    },
+    metode_perlindungan: {
+      type: DataTypes.ENUM('Vaulting','Cloud','Physical'),
+      allowNull: true,
+      defaultValue: "Vaulting"
     }
   }, {
     sequelize,
     tableName: 'dokumen',
-    timestamps: false,
+    hasTrigger: true,
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",
@@ -102,12 +122,13 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "ux_tipedok_nodok",
+        name: "ux_tipedok_nodok_nomorhak",
         unique: true,
         using: "BTREE",
         fields: [
           { name: "tipe_dokumen" },
           { name: "no_dokumen" },
+          { name: "nomor_hak" },
         ]
       },
       {
@@ -143,6 +164,56 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "no_dokumen" },
+        ]
+      },
+      {
+        name: "idx_tanggal",
+        using: "BTREE",
+        fields: [
+          { name: "tanggal" },
+        ]
+      },
+      {
+        name: "idx_nomor_hak",
+        using: "BTREE",
+        fields: [
+          { name: "nomor_hak" },
+        ]
+      },
+      {
+        name: "idx_jenis_hak",
+        using: "BTREE",
+        fields: [
+          { name: "jenis_hak" },
+        ]
+      },
+      {
+        name: "idx_desa_kecamatan",
+        using: "BTREE",
+        fields: [
+          { name: "desa" },
+          { name: "kecamatan" },
+        ]
+      },
+      {
+        name: "idx_dokumen_status",
+        using: "BTREE",
+        fields: [
+          { name: "status" },
+        ]
+      },
+      {
+        name: "idx_dokumen_media",
+        using: "BTREE",
+        fields: [
+          { name: "media" },
+        ]
+      },
+      {
+        name: "idx_dokumen_tanggal",
+        using: "BTREE",
+        fields: [
+          { name: "tanggal" },
         ]
       },
     ]

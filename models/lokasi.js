@@ -25,16 +25,27 @@ module.exports = function(sequelize, DataTypes) {
     },
     kode_lokasi: {
       type: DataTypes.STRING(150),
-      allowNull: true
+      allowNull: true,
+      unique: "ux_kode_lokasi"
     },
     notes: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    kapasitas: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0
+    },
+    terpakai: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0
     }
   }, {
     sequelize,
     tableName: 'lokasi',
-    timestamps: false,
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",
@@ -42,6 +53,29 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "id_lokasi" },
+        ]
+      },
+      {
+        name: "ux_kode_lokasi",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "kode_lokasi" },
+        ]
+      },
+      {
+        name: "idx_ruangan_rak",
+        using: "BTREE",
+        fields: [
+          { name: "ruangan" },
+          { name: "no_rak" },
+        ]
+      },
+      {
+        name: "idx_lokasi_ruangan",
+        using: "BTREE",
+        fields: [
+          { name: "ruangan" },
         ]
       },
     ]

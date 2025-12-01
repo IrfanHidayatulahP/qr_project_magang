@@ -7,23 +7,36 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    nama_lengkap: {
-      type: DataTypes.STRING(100),
+    nama_karyawan: {
+      type: DataTypes.STRING(200),
       allowNull: false
     },
     username: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.STRING(100),
       allowNull: false,
-      unique: "username"
+      unique: "ux_username"
+    },
+    email: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    jabatan: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: 1
     },
     password: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING(255),
       allowNull: false
     }
   }, {
     sequelize,
     tableName: 'karyawan',
-    timestamps: false,
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",
@@ -34,7 +47,7 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "username",
+        name: "ux_username",
         unique: true,
         using: "BTREE",
         fields: [

@@ -1,16 +1,13 @@
 <%- include('../../partials/header.ejs') %>
 
-
     <section class="container">
         <h1>Edit Buku Tanah</h1>
-
 
         <% if (error) { %>
             <div class="alert alert-error">
                 <%= error %>
             </div>
             <% } %>
-
 
                 <form action="/buku-tanah/edit/<%= buku.id_buku_tanah %>" method="post">
                     <div class="form-group">
@@ -27,31 +24,59 @@
                         </select>
                     </div>
 
-
                     <div class="form-group">
                         <label>No Reg</label>
                         <input type="text" name="no_reg" value="<%= buku.no_reg || '' %>" />
                     </div>
 
-
                     <div class="form-group">
-                        <label>Jumlah Lembar</label>
-                        <input type="number" name="jumlah_lembar" min="0"
-                            value="<%= buku.jumlah_lembar != null ? buku.jumlah_lembar : '' %>" />
+                        <label>Jenis Hak</label>
+                        <select name="jenis_hak">
+                            <% const hakOptions=['HM','HGB','HP','HGU','Pengelolaan','Lainnya']; %>
+                                <% hakOptions.forEach(h=> { %>
+                                    <option value="<%= h %>" <%=(buku.jenis_hak===h) ? 'selected' : '' %>><%= h %>
+                                    </option>
+                                    <% }) %>
+                        </select>
                     </div>
 
+                    <div class="form-group">
+                        <label>Luas Tanah (m&sup2;)</label>
+                        <input type="text" name="luas_tanah"
+                            value="<%= buku.luas_tanah != null ? buku.luas_tanah : '' %>" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nama Pemilik Asal</label>
+                        <input type="text" name="nama_pemilik_asal" value="<%= buku.nama_pemilik_asal || '' %>" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tahun Terbit (YYYY)</label>
+                        <input type="text" name="tahun_terbit"
+                            value="<%= buku.tahun_terbit ? (new Date(buku.tahun_terbit)).getFullYear() : '' %>" />
+                    </div>
 
                     <div class="form-group">
                         <label>No Peta</label>
                         <input type="text" name="no_peta" value="<%= buku.no_peta || '' %>" />
                     </div>
 
-
                     <div class="form-group">
                         <label>Keterangan</label>
                         <textarea name="keterangan" rows="4"><%= buku.keterangan || '' %></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <label>Status Buku</label>
+                        <select name="status_buku">
+                            <% const statusOptions=['Aktif','Non-Aktif','Mutasi','Hapus']; %>
+                                <% statusOptions.forEach(s=> { %>
+                                    <option value="<%= s %>" <%=(buku.status_buku===s) ? 'selected' : '' %>><%= s %>
+                                    </option>
+                                    <% }) %>
+                        </select>
+                    </div>
 
                     <button type="submit">Update</button>
                     <a href="/buku-tanah">Batal</a>

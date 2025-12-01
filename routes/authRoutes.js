@@ -1,9 +1,8 @@
-// routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
 const auth = require('../controllers/authController');
 const { ensureAuthenticated } = require('../middlewares/authMiddleware');
-const db = require('../config/db'); // <-- PENTING: tambahkan require db di sini
+const db = require('../config/db'); // pastikan eksport model karyawan
 
 // login / register routes
 router.get('/login', auth.showLogin);
@@ -15,16 +14,14 @@ router.post('/register', auth.register);
 
 // dashboard route (ambil stats minimal lalu render)
 router.get('/dashboard', ensureAuthenticated, async (req, res) => {
-    // deklarasi awal supaya tidak ReferenceError
     let activeUsers = 0;
     let stats = { activeUsers: 0, newRegistrationsThisWeek: 0, lastBackup: null };
     let logs = [];
 
     try {
-        // ambil jumlah karyawan jika model tersedia dan punya method count()
         if (db && db.karyawan && typeof db.karyawan.count === 'function') {
             try {
-                activeUsers = await db.karyawan.count();
+                activeUsers = await db.karyawan.count({ where: { is_active: true } });
             } catch (innerErr) {
                 console.error('Gagal hitung karyawan (inner):', innerErr);
                 activeUsers = 0;
@@ -33,7 +30,6 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
             activeUsers = 0;
         }
 
-        // susun stats & logs (ubah query bila punya tabel terkait)
         stats = {
             activeUsers,
             newRegistrationsThisWeek: 0,
@@ -47,7 +43,6 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
             logs
         });
     } catch (err) {
-        // fallback aman agar EJS tidak crash
         console.error('Error render dashboard (outer):', err);
         stats = { activeUsers: 0, newRegistrationsThisWeek: 0, lastBackup: null };
         logs = [];

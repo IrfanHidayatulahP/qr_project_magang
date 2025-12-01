@@ -393,16 +393,17 @@
             <form action="/register" method="post" novalidate id="registerForm">
                 <!-- Nama Lengkap -->
                 <div class="form-group">
-                    <label for="nama_lengkap">Nama Lengkap</label>
-                    <input id="nama_lengkap" name="nama_lengkap" type="text" placeholder="Masukkan nama lengkap Anda"
-                        value="" required autocomplete="name" />
+                    <label for="nama_karyawan">Nama Lengkap</label>
+                    <input id="nama_karyawan" name="nama_karyawan" type="text" placeholder="Masukkan nama lengkap Anda"
+                        value="<%= (old && old.nama_karyawan) ? old.nama_karyawan : '' %>" required
+                        autocomplete="name" />
                 </div>
 
                 <!-- Username -->
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input id="username" name="username" type="text" placeholder="Pilih username yang unik" value=""
-                        required autocomplete="username" />
+                    <input id="username" name="username" type="text" placeholder="Pilih username yang unik"
+                        value="<%= (old && old.username) ? old.username : '' %>" required autocomplete="username" />
                 </div>
 
                 <!-- Password & Confirm Password -->

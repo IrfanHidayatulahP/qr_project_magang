@@ -15,27 +15,43 @@ module.exports = function(sequelize, DataTypes) {
         key: 'id_dokumen'
       }
     },
-    no_survey: {
+    nomor_hak: {
       type: DataTypes.STRING(150),
+      allowNull: false,
+      unique: "ux_nomor_hak"
+    },
+    jenis_hak: {
+      type: DataTypes.ENUM('HM','HGB','HP','HGU','Pengelolaan','Lainnya'),
+      allowNull: true
+    },
+    luas_tanah: {
+      type: DataTypes.DECIMAL(10,2),
+      allowNull: true
+    },
+    batas_timur: {
+      type: DataTypes.STRING(200),
+      allowNull: true
+    },
+    batas_barat: {
+      type: DataTypes.STRING(200),
+      allowNull: true
+    },
+    batas_utara: {
+      type: DataTypes.STRING(200),
+      allowNull: true
+    },
+    batas_selatan: {
+      type: DataTypes.STRING(200),
       allowNull: true
     },
     koordinat: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    metode_perlindungan: {
-      type: DataTypes.STRING(150),
-      allowNull: true
-    },
-    keterangan: {
       type: DataTypes.TEXT,
       allowNull: true
     }
   }, {
     sequelize,
     tableName: 'surat_ukur',
-    hasTrigger: true,
-    timestamps: false,
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",
@@ -46,17 +62,18 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
+        name: "ux_nomor_hak",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "nomor_hak" },
+        ]
+      },
+      {
         name: "fk_su_doc",
         using: "BTREE",
         fields: [
           { name: "id_dokumen" },
-        ]
-      },
-      {
-        name: "no_survey",
-        using: "BTREE",
-        fields: [
-          { name: "no_survey" },
         ]
       },
     ]

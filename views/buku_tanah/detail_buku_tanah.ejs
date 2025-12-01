@@ -1,9 +1,7 @@
 <%- include('../../partials/header.ejs') %>
 
-
     <section class="container">
         <h1>Detail Buku Tanah</h1>
-
 
         <% if (error) { %>
             <div class="alert alert-error">
@@ -15,7 +13,6 @@
                         <%= success %>
                     </div>
                     <% } %>
-
 
                         <table>
                             <tr>
@@ -37,9 +34,27 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th>Jumlah Lembar</th>
+                                <th>Jenis Hak</th>
                                 <td>
-                                    <%= buku.jumlah_lembar !=null ? buku.jumlah_lembar : '-' %>
+                                    <%= buku.jenis_hak || '-' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Luas Tanah (m&sup2;)</th>
+                                <td>
+                                    <%= buku.luas_tanah !=null ? buku.luas_tanah : '-' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Nama Pemilik Asal</th>
+                                <td>
+                                    <%= buku.nama_pemilik_asal || '-' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Tahun Terbit</th>
+                                <td>
+                                    <%= buku.tahun_terbit ? (new Date(buku.tahun_terbit)).getFullYear() : '-' %>
                                 </td>
                             </tr>
                             <tr>
@@ -54,8 +69,13 @@
                                     <%= buku.keterangan || '-' %>
                                 </td>
                             </tr>
+                            <tr>
+                                <th>Status Buku</th>
+                                <td>
+                                    <%= buku.status_buku || '-' %>
+                                </td>
+                            </tr>
                         </table>
-
 
                         <p>
                             <a href="/buku-tanah/edit/<%= buku.id_buku_tanah %>">Edit</a> |

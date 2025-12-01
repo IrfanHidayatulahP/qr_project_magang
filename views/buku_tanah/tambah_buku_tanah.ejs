@@ -1,16 +1,13 @@
 <%- include('../../partials/header.ejs') %>
 
-
     <section class="container">
         <h1>Tambah Buku Tanah</h1>
-
 
         <% if (error) { %>
             <div class="alert alert-error">
                 <%= error %>
             </div>
             <% } %>
-
 
                 <form action="/buku-tanah/create" method="post">
                     <div class="form-group">
@@ -19,8 +16,9 @@
                             <option value="">-- Pilih Dokumen --</option>
                             <% if (dokumenOptions && dokumenOptions.length) { %>
                                 <% dokumenOptions.forEach(d=> { %>
-                                    <option value="<%= d.id_dokumen %>" <%=(old && old.id_dokumen==d.id_dokumen)
-                                        ? 'selected' : '' %>><%= d.nama || ('#'+d.id_dokumen) %>
+                                    <option value="<%= d.id_dokumen %>" <%=(old &&
+                                        String(old.id_dokumen)===String(d.id_dokumen)) ? 'selected' : '' %>><%= d.nama
+                                            || ('#'+d.id_dokumen) %>
                                     </option>
                                     <% }) %>
                                         <% } else { %>
@@ -29,25 +27,45 @@
                         </select>
                     </div>
 
-
                     <div class="form-group">
                         <label>No Reg</label>
                         <input type="text" name="no_reg" value="<%= old && old.no_reg ? old.no_reg : '' %>" />
                     </div>
 
-
                     <div class="form-group">
-                        <label>Jumlah Lembar</label>
-                        <input type="number" name="jumlah_lembar" min="0"
-                            value="<%= old && old.jumlah_lembar ? old.jumlah_lembar : '' %>" />
+                        <label>Jenis Hak</label>
+                        <select name="jenis_hak">
+                            <option value="">-- Pilih Jenis Hak (opsional) --</option>
+                            <% const hakOptions=['HM','HGB','HP','HGU','Pengelolaan','Lainnya']; %>
+                                <% hakOptions.forEach(h=> { %>
+                                    <option value="<%= h %>" <%=(old && old.jenis_hak===h) ? 'selected' : '' %>><%= h %>
+                                    </option>
+                                    <% }) %>
+                        </select>
                     </div>
 
+                    <div class="form-group">
+                        <label>Luas Tanah (m&sup2;)</label>
+                        <input type="text" name="luas_tanah" placeholder="Contoh: 120.50"
+                            value="<%= old && old.luas_tanah ? old.luas_tanah : '' %>" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nama Pemilik Asal</label>
+                        <input type="text" name="nama_pemilik_asal"
+                            value="<%= old && old.nama_pemilik_asal ? old.nama_pemilik_asal : '' %>" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tahun Terbit (YYYY)</label>
+                        <input type="text" name="tahun_terbit" placeholder="Contoh: 1998 atau 1998-01-01"
+                            value="<%= old && old.tahun_terbit ? old.tahun_terbit : '' %>" />
+                    </div>
 
                     <div class="form-group">
                         <label>No Peta</label>
                         <input type="text" name="no_peta" value="<%= old && old.no_peta ? old.no_peta : '' %>" />
                     </div>
-
 
                     <div class="form-group">
                         <label>Keterangan</label>
@@ -55,6 +73,17 @@
                             rows="4"><%= old && old.keterangan ? old.keterangan : '' %></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <label>Status Buku</label>
+                        <select name="status_buku">
+                            <% const statusOptions=['Aktif','Non-Aktif','Mutasi','Hapus']; %>
+                                <% statusOptions.forEach(s=> { %>
+                                    <option value="<%= s %>" <%=(old && old.status_buku===s) ? 'selected' : (s==='Aktif'
+                                        ? 'selected' : '' ) %>><%= s %>
+                                    </option>
+                                    <% }) %>
+                        </select>
+                    </div>
 
                     <button type="submit">Simpan</button>
                     <a href="/buku-tanah">Batal</a>
