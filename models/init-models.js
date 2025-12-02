@@ -5,7 +5,6 @@ var _dokumen = require("./dokumen");
 var _dokumen_history = require("./dokumen_history");
 var _karyawan = require("./karyawan");
 var _lokasi = require("./lokasi");
-var _pemilik = require("./pemilik");
 var _surat_ukur = require("./surat_ukur");
 var _unit = require("./unit");
 var _warkah = require("./warkah");
@@ -17,7 +16,6 @@ function initModels(sequelize) {
   var dokumen_history = _dokumen_history(sequelize, DataTypes);
   var karyawan = _karyawan(sequelize, DataTypes);
   var lokasi = _lokasi(sequelize, DataTypes);
-  var pemilik = _pemilik(sequelize, DataTypes);
   var surat_ukur = _surat_ukur(sequelize, DataTypes);
   var unit = _unit(sequelize, DataTypes);
   var warkah = _warkah(sequelize, DataTypes);
@@ -40,8 +38,6 @@ function initModels(sequelize) {
   karyawan.hasMany(dokumen_history, { as: "dokumen_histories", foreignKey: "id_user"});
   dokumen.belongsTo(lokasi, { as: "id_lokasi_lokasi", foreignKey: "id_lokasi"});
   lokasi.hasMany(dokumen, { as: "dokumens", foreignKey: "id_lokasi"});
-  dokumen.belongsTo(pemilik, { as: "id_pemilik_pemilik", foreignKey: "id_pemilik"});
-  pemilik.hasMany(dokumen, { as: "dokumens", foreignKey: "id_pemilik"});
   dokumen.belongsTo(unit, { as: "id_unit_unit", foreignKey: "id_unit"});
   unit.hasMany(dokumen, { as: "dokumens", foreignKey: "id_unit"});
 
@@ -52,7 +48,6 @@ function initModels(sequelize) {
     dokumen_history,
     karyawan,
     lokasi,
-    pemilik,
     surat_ukur,
     unit,
     warkah,

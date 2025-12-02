@@ -27,26 +27,6 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.DATEONLY,
       allowNull: true
     },
-    id_pemilik: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'pemilik',
-        key: 'id_pemilik'
-      }
-    },
-    desa: {
-      type: DataTypes.STRING(150),
-      allowNull: true
-    },
-    kecamatan: {
-      type: DataTypes.STRING(150),
-      allowNull: true
-    },
-    kota: {
-      type: DataTypes.STRING(150),
-      allowNull: true
-    },
     area_m2: {
       type: DataTypes.DECIMAL(12,2),
       allowNull: true
@@ -132,20 +112,6 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "idx_owner",
-        using: "BTREE",
-        fields: [
-          { name: "id_pemilik" },
-        ]
-      },
-      {
-        name: "idx_village",
-        using: "BTREE",
-        fields: [
-          { name: "desa" },
-        ]
-      },
-      {
         name: "fk_doc_location",
         using: "BTREE",
         fields: [
@@ -185,14 +151,6 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "jenis_hak" },
-        ]
-      },
-      {
-        name: "idx_desa_kecamatan",
-        using: "BTREE",
-        fields: [
-          { name: "desa" },
-          { name: "kecamatan" },
         ]
       },
       {

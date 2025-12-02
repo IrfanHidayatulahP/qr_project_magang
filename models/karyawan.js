@@ -16,6 +16,10 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       unique: "ux_username"
     },
+    password: {
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
     email: {
       type: DataTypes.STRING(100),
       allowNull: true
@@ -28,10 +32,6 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       allowNull: true,
       defaultValue: 1
-    },
-    password: {
-      type: DataTypes.STRING(255),
-      allowNull: false
     }
   }, {
     sequelize,
