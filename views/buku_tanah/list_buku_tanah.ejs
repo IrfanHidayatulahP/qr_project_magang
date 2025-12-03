@@ -1,79 +1,261 @@
 <%- include('../../partials/header.ejs') %>
 
-    <section class="container">
-        <h1>Daftar Buku Tanah</h1>
+    <div id="konten-halaman-buku-tanah" style="display: none;">
 
-        <% if (error) { %>
-            <div class="alert alert-error">
-                <%= error %>
+        <style>
+            .container-fluid {
+                width: 100%;
+            }
+
+            .header-action {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+                color: #1e3a8a;
+                font-weight: bold;
+            }
+
+            /* Table Styles */
+            .table-wrapper {
+                overflow-x: auto;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 0;
+            }
+
+            .table th,
+            .table td {
+                padding: 12px 15px;
+                text-align: left;
+                border-bottom: 1px solid #e5e7eb;
+                font-size: 14px;
+            }
+
+            .table th {
+                background-color: #f8fafc;
+                font-weight: 600;
+                color: #1e3a8a;
+                white-space: nowrap;
+            }
+
+            .table tr:hover {
+                background-color: #f1f5f9;
+            }
+
+            /* Form Elements */
+            .search-form {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            input[type="text"] {
+                padding: 8px 12px;
+                border: 1px solid #d1d5db;
+                border-radius: 4px;
+                width: 300px;
+            }
+
+            button {
+                padding: 8px 16px;
+                background-color: #1e40af;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            button:hover {
+                background-color: #1e3a8a;
+            }
+
+            /* Alerts */
+            .alert {
+                padding: 15px;
+                border-radius: 6px;
+                margin-bottom: 20px;
+                font-size: 14px;
+            }
+
+            .alert-error {
+                background-color: #fee2e2;
+                color: #991b1b;
+                border: 1px solid #fecaca;
+            }
+
+            .alert-success {
+                background-color: #dcfce7;
+                color: #166534;
+                border: 1px solid #bbf7d0;
+            }
+
+            /* Actions */
+            .btn-add {
+                display: inline-block;
+                padding: 8px 16px;
+                background-color: #1e40af;
+                color: white;
+                text-decoration: none;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+
+            .btn-add:hover {
+                background-color: #1e3a8a;
+            }
+
+            .action-links a {
+                text-decoration: none;
+                margin-right: 5px;
+                font-weight: 500;
+            }
+
+            .link-detail {
+                color: #1e40af;
+            }
+
+            .link-edit {
+                color: #d97706;
+            }
+
+            .btn-delete {
+                color: #dc2626;
+                background: none;
+                border: none;
+                padding: 0;
+                cursor: pointer;
+                font-weight: 500;
+            }
+        </style>
+
+        <section class="container-fluid">
+
+            <div class="header-action">
+                <h1 class="page-title">Daftar Buku Tanah</h1>
+                <a class="btn-add" href="/buku-tanah/create">
+                    <i class="fas fa-plus"></i> Tambah Buku Tanah
+                </a>
             </div>
-            <% } %>
-                <% if (success) { %>
-                    <div class="alert alert-success">
-                        <%= success %>
-                    </div>
-                    <% } %>
 
-                        <div style="margin:16px 0">
-                            <a class="btn" href="/buku-tanah/create">+ Tambah Buku Tanah</a>
+            <% if (typeof error !=='undefined' && error) { %>
+                <div class="alert alert-error">
+                    <%= error %>
+                </div>
+                <% } %>
+
+                    <% if (typeof success !=='undefined' && success) { %>
+                        <div class="alert alert-success">
+                            <%= success %>
                         </div>
+                        <% } %>
 
-                        <form method="get" action="/buku-tanah" style="margin-bottom:12px">
-                            <input type="text" name="q" placeholder="Cari ID / No Reg / No Peta"
-                                value="<%= filter_q||'' %>" />
-                            <button type="submit">Cari</button>
-                        </form>
+                            <form method="get" action="/buku-tanah" class="search-form">
+                                <input type="text" name="q" placeholder="Cari ID / No Reg / No Peta"
+                                    value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>" />
+                                <button type="submit"><i class="fas fa-search"></i> Cari</button>
+                            </form>
 
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>No Reg</th>
-                                    <th>Jenis Hak</th>
-                                    <th>Luas (m²)</th>
-                                    <th>No Peta</th>
-                                    <th>Status</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if (records && records.length) { %>
-                                    <% records.forEach(r=> { %>
+                            <div class="table-wrapper">
+                                <table class="table">
+                                    <thead>
                                         <tr>
-                                            <td>
-                                                <%= r.id_buku_tanah %>
-                                            </td>
-                                            <td>
-                                                <%= r.no_reg || '-' %>
-                                            </td>
-                                            <td>
-                                                <%= r.jenis_hak || '-' %>
-                                            </td>
-                                            <td>
-                                                <%= (r.luas_tanah !=null) ? r.luas_tanah : '-' %>
-                                            </td>
-                                            <td>
-                                                <%= r.no_peta || '-' %>
-                                            </td>
-                                            <td>
-                                                <%= r.status_buku || '-' %>
-                                            </td>
-                                            <td>
-                                                <a href="/buku-tanah/<%= r.id_buku_tanah %>">Detail</a> |
-                                                <a href="/buku-tanah/edit/<%= r.id_buku_tanah %>">Edit</a> |
-                                                <form action="/buku-tanah/delete/<%= r.id_buku_tanah %>" method="post"
-                                                    style="display:inline"
-                                                    onsubmit="return confirm('Hapus data ini?');">
-                                                    <button type="submit">Hapus</button>
-                                                </form>
-                                            </td>
+                                            <th>ID</th>
+                                            <th>No Reg</th>
+                                            <th>Jenis Hak</th>
+                                            <th>Luas (m²)</th>
+                                            <th>No Peta</th>
+                                            <th>Status</th>
+                                            <th>Aksi</th>
                                         </tr>
-                                        <% }) %>
-                                            <% } else { %>
+                                    </thead>
+                                    <tbody>
+                                        <% if (typeof records !=='undefined' && records && records.length) { %>
+                                            <% records.forEach(r=> { %>
                                                 <tr>
-                                                    <td colspan="7">Belum ada data</td>
+                                                    <td>
+                                                        <%= r.id_buku_tanah %>
+                                                    </td>
+                                                    <td>
+                                                        <%= r.no_reg || '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <%= r.jenis_hak || '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <%= (r.luas_tanah !=null) ? r.luas_tanah : '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <%= r.no_peta || '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <% if(r.status_buku==='Aktif' ) { %>
+                                                            <span style="color: green; font-weight: bold;">
+                                                                <%= r.status_buku %>
+                                                            </span>
+                                                            <% } else { %>
+                                                                <span style="color: grey;">
+                                                                    <%= r.status_buku || '-' %>
+                                                                </span>
+                                                                <% } %>
+                                                    </td>
+                                                    <td class="action-links">
+                                                        <a href="/buku-tanah/<%= r.id_buku_tanah %>" class="link-detail"
+                                                            title="Lihat Detail"><i class="fas fa-eye"></i></a>
+                                                        <a href="/buku-tanah/edit/<%= r.id_buku_tanah %>"
+                                                            class="link-edit" title="Edit"><i
+                                                                class="fas fa-edit"></i></a>
+                                                        <form action="/buku-tanah/delete/<%= r.id_buku_tanah %>"
+                                                            method="post" style="display:inline"
+                                                            onsubmit="return confirm('Hapus data buku tanah ini?');">
+                                                            <button type="submit" class="btn-delete" title="Hapus"><i
+                                                                    class="fas fa-trash"></i></button>
+                                                        </form>
+                                                    </td>
                                                 </tr>
-                                                <% } %>
-                            </tbody>
-                        </table>
-    </section>
+                                                <% }) %>
+                                                    <% } else { %>
+                                                        <tr>
+                                                            <td colspan="7"
+                                                                style="text-align:center; padding: 20px; color: #6b7280;">
+                                                                Belum ada data buku tanah.
+                                                            </td>
+                                                        </tr>
+                                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 1. Ambil elemen wrapper konten buku tanah
+            const kontenHalaman = document.getElementById('konten-halaman-buku-tanah');
+
+            // 2. Ambil elemen <main> dari header.ejs yang sudah dirender browser
+            const layoutUtama = document.querySelector('.main-content');
+
+            // 3. Pindahkan isinya ke dalam <main>
+            if (layoutUtama && kontenHalaman) {
+                // Masukkan konten ke layout utama
+                const divBaru = document.createElement('div');
+                divBaru.innerHTML = kontenHalaman.innerHTML;
+                layoutUtama.appendChild(divBaru);
+
+                // 4. Hapus wrapper asli agar bersih
+                kontenHalaman.remove();
+            }
+        });
+    </script>

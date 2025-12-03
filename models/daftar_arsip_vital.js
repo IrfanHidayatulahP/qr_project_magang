@@ -16,6 +16,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(50),
       allowNull: true
     },
+    nomor_hak: {
+      type: DataTypes.STRING(150),
+      allowNull: true
+    },
     jenis_arsip_vital: {
       type: DataTypes.TEXT,
       allowNull: true
@@ -124,24 +128,24 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'dokumen',
-        key: 'id_dokumen'
+        model: 'buku_tanah',
+        key: 'id_buku_tanah'
       }
     },
     id_dokumen_su: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'dokumen',
-        key: 'id_dokumen'
+        model: 'surat_ukur',
+        key: 'id_surat_ukur'
       }
     },
     id_dokumen_warkah: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'dokumen',
-        key: 'id_dokumen'
+        model: 'warkah',
+        key: 'id_warkah'
       }
     },
     is_processed: {
@@ -156,7 +160,6 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'daftar_arsip_vital',
-    hasTrigger: true,
     timestamps: true,
     indexes: [
       {
@@ -208,6 +211,13 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "is_processed" },
+        ]
+      },
+      {
+        name: "idx_nomor_hak",
+        using: "BTREE",
+        fields: [
+          { name: "nomor_hak" },
         ]
       },
     ]

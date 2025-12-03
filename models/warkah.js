@@ -7,17 +7,16 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    id_dokumen: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'dokumen',
-        key: 'id_dokumen'
-      },
-      unique: "fk_warkah_doc"
-    },
     nomor_di_208: {
       type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    nomor_hak: {
+      type: DataTypes.STRING(150),
+      allowNull: true
+    },
+    tahun_terbit: {
+      type: DataTypes.DATE(4),
       allowNull: true
     },
     kode_klasifikasi: {
@@ -26,6 +25,19 @@ module.exports = function(sequelize, DataTypes) {
     },
     jenis_arsip_vital: {
       type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    uraian_informasi_arsip: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    media: {
+      type: DataTypes.ENUM('Kertas','Digital','Microfilm'),
+      allowNull: true,
+      defaultValue: "Kertas"
+    },
+    jumlah: {
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     jangka_simpan_aktif: {
@@ -40,37 +52,36 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(100),
       allowNull: true
     },
-    uraian_bt: {
-      type: DataTypes.TEXT,
-      allowNull: true
+    tingkat_perkembangan: {
+      type: DataTypes.ENUM('Asli','Copy','Salinan'),
+      allowNull: true,
+      defaultValue: "Asli"
     },
-    uraian_su: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    uraian_warkah_detail: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    uraian_informasi_arsip_fix: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    tingkat_perkembangan_bt: {
+    lokasi_penyimpanan: {
       type: DataTypes.STRING(100),
       allowNull: true
     },
-    tingkat_perkembangan_su: {
+    no_boks_definitif: {
       type: DataTypes.STRING(100),
       allowNull: true
     },
-    tingkat_perkembangan_fix: {
+    nomor_folder: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    metode_perlindungan: {
+      type: DataTypes.ENUM('Vaulting','Cloud','Physical'),
+      allowNull: true,
+      defaultValue: "Vaulting"
+    },
+    keterangan: {
       type: DataTypes.TEXT,
       allowNull: true
     }
   }, {
     sequelize,
     tableName: 'warkah',
+    hasTrigger: true,
     timestamps: true,
     indexes: [
       {
@@ -79,14 +90,6 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "id_warkah" },
-        ]
-      },
-      {
-        name: "ux_id_dokumen",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "id_dokumen" },
         ]
       },
       {
@@ -101,6 +104,13 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "kode_klasifikasi" },
+        ]
+      },
+      {
+        name: "idx_warkah_nomor_hak",
+        using: "BTREE",
+        fields: [
+          { name: "nomor_hak" },
         ]
       },
     ]

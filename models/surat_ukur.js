@@ -7,14 +7,6 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    id_dokumen: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'dokumen',
-        key: 'id_dokumen'
-      }
-    },
     nomor_hak: {
       type: DataTypes.STRING(150),
       allowNull: false,
@@ -24,33 +16,49 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.ENUM('HM','HGB','HP','HGU','Pengelolaan','Lainnya'),
       allowNull: true
     },
-    luas_tanah: {
-      type: DataTypes.DECIMAL(10,2),
+    nomor_surat_ukur: {
+      type: DataTypes.INTEGER,
       allowNull: true
     },
-    batas_timur: {
-      type: DataTypes.STRING(200),
+    tahun_terbit: {
+      type: DataTypes.DATE(4),
       allowNull: true
     },
-    batas_barat: {
-      type: DataTypes.STRING(200),
+    media: {
+      type: DataTypes.ENUM('Kertas','Digital','Microfilm'),
+      allowNull: true,
+      defaultValue: "Kertas"
+    },
+    jumlah: {
+      type: DataTypes.INTEGER,
       allowNull: true
     },
-    batas_utara: {
-      type: DataTypes.STRING(200),
+    tingkat_perkembangan: {
+      type: DataTypes.ENUM('Asli','Copy','Salinan'),
+      allowNull: true,
+      defaultValue: "Asli"
+    },
+    lokasi_penyimpanan: {
+      type: DataTypes.STRING(100),
       allowNull: true
     },
-    batas_selatan: {
-      type: DataTypes.STRING(200),
+    no_boks_definitif: {
+      type: DataTypes.STRING(100),
       allowNull: true
     },
-    koordinat: {
-      type: DataTypes.TEXT,
+    nomor_folder: {
+      type: DataTypes.INTEGER,
       allowNull: true
+    },
+    metode_perlindungan: {
+      type: DataTypes.ENUM('Vaulting','Cloud','Physical'),
+      allowNull: true,
+      defaultValue: "Vaulting"
     }
   }, {
     sequelize,
     tableName: 'surat_ukur',
+    hasTrigger: true,
     timestamps: true,
     indexes: [
       {
@@ -67,13 +75,6 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "nomor_hak" },
-        ]
-      },
-      {
-        name: "fk_su_doc",
-        using: "BTREE",
-        fields: [
-          { name: "id_dokumen" },
         ]
       },
     ]

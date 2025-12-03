@@ -6,7 +6,6 @@ const path = require('path');
 
 const authRoutes = require('./routes/authRoutes');
 const bukuTanahRoutes = require('./routes/bukuTanahRoutes');
-const dokumenRoutes = require('./routes/dokumenRoutes');
 
 const app = express();
 
@@ -36,7 +35,6 @@ app.use(session({
 // Mount Routes
 app.use('/', authRoutes);
 app.use('/buku-tanah', bukuTanahRoutes);
-app.use('/dokumen', dokumenRoutes);
 
 // 404 handler
 app.use((req, res, next) => {

@@ -102,16 +102,6 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "ux_tipedok_nodok_nomorhak",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "tipe_dokumen" },
-          { name: "no_dokumen" },
-          { name: "nomor_hak" },
-        ]
-      },
-      {
         name: "fk_doc_location",
         using: "BTREE",
         fields: [
@@ -137,13 +127,6 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "tanggal" },
-        ]
-      },
-      {
-        name: "idx_nomor_hak",
-        using: "BTREE",
-        fields: [
-          { name: "nomor_hak" },
         ]
       },
       {

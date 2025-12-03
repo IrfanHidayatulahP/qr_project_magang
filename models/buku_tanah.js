@@ -7,51 +7,53 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    id_dokumen: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'dokumen',
-        key: 'id_dokumen'
-      }
-    },
-    no_reg: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      unique: "ux_no_reg"
-    },
-    no_peta: {
-      type: DataTypes.STRING(100),
+    nomor_hak: {
+      type: DataTypes.STRING(150),
       allowNull: true
     },
     jenis_hak: {
       type: DataTypes.ENUM('HM','HGB','HP','HGU','Pengelolaan','Lainnya'),
       allowNull: true
     },
-    luas_tanah: {
-      type: DataTypes.DECIMAL(10,2),
-      allowNull: true
-    },
-    nama_pemilik_asal: {
-      type: DataTypes.STRING(200),
-      allowNull: true
-    },
     tahun_terbit: {
       type: DataTypes.DATE(4),
       allowNull: true
     },
-    keterangan: {
-      type: DataTypes.TEXT,
+    media: {
+      type: DataTypes.ENUM('Kertas','Digital','Microfilm'),
+      allowNull: true,
+      defaultValue: "Kertas"
+    },
+    jumlah: {
+      type: DataTypes.INTEGER,
       allowNull: true
     },
-    status_buku: {
-      type: DataTypes.ENUM('Aktif','Non-Aktif','Mutasi','Hapus'),
+    tingkat_perkembangan: {
+      type: DataTypes.ENUM('Asli','Copy','Salinan'),
       allowNull: true,
-      defaultValue: "Aktif"
+      defaultValue: "Asli"
+    },
+    lokasi_penyimpanan: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    no_boks_definitif: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    nomor_folder: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    metode_perlindungan: {
+      type: DataTypes.ENUM('Vaulting','Cloud','Physical'),
+      allowNull: true,
+      defaultValue: "Vaulting"
     }
   }, {
     sequelize,
     tableName: 'buku_tanah',
+    hasTrigger: true,
     timestamps: true,
     indexes: [
       {
@@ -63,32 +65,10 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "ux_no_reg",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "no_reg" },
-        ]
-      },
-      {
-        name: "fk_bt_doc",
-        using: "BTREE",
-        fields: [
-          { name: "id_dokumen" },
-        ]
-      },
-      {
         name: "idx_jenis_hak",
         using: "BTREE",
         fields: [
           { name: "jenis_hak" },
-        ]
-      },
-      {
-        name: "idx_status_buku",
-        using: "BTREE",
-        fields: [
-          { name: "status_buku" },
         ]
       },
       {
