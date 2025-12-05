@@ -1,0 +1,146 @@
+<%- include('../partials/header.ejs') %>
+
+    <section class="container">
+        <h1>Tambah Warkah</h1>
+
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+                <% if (success) { %>
+                    <div class="alert alert-success">
+                        <%= success %>
+                    </div>
+                    <% } %>
+
+                        <form action="/warkah/create" method="POST">
+                            <div>
+                                <label>Nomor DI-208</label>
+                                <input type="text" name="nomor_di_208" value="<%= (old && old.nomor_di_208) || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Nomor Hak</label>
+                                <input type="text" name="nomor_hak" value="<%= (old && old.nomor_hak) || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Tahun Terbit (YYYY atau dd-mm-yyyy)</label>
+                                <input type="text" name="tahun_terbit" value="<%= (old && old.tahun_terbit) || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Kode Klasifikasi</label>
+                                <input type="text" name="kode_klasifikasi"
+                                    value="<%= (old && old.kode_klasifikasi) || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Jenis Arsip Vital</label>
+                                <input type="text" name="jenis_arsip_vital"
+                                    value="<%= (old && old.jenis_arsip_vital) || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Uraian Informasi Arsip</label>
+                                <textarea name="uraian_informasi_arsip"
+                                    rows="3"><%= (old && old.uraian_informasi_arsip) || '' %></textarea>
+                            </div>
+
+                            <div>
+                                <label>Media</label>
+                                <select name="media">
+                                    <option value="">--Pilih--</option>
+                                    <option value="Kertas" <%=old && old.media==='Kertas' ? 'selected' : '' %>>Kertas
+                                    </option>
+                                    <option value="Digital" <%=old && old.media==='Digital' ? 'selected' : '' %>>Digital
+                                    </option>
+                                    <option value="Microfilm" <%=old && old.media==='Microfilm' ? 'selected' : '' %>
+                                        >Microfilm</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>Jumlah</label>
+                                <input type="number" name="jumlah" min="0" value="<%= (old && old.jumlah) || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Jangka Simpan Aktif</label>
+                                <input type="text" name="jangka_simpan_aktif"
+                                    value="<%= (old && old.jangka_simpan_aktif) || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Jangka Simpan Inaktif</label>
+                                <input type="text" name="jangka_simpan_inaktif"
+                                    value="<%= (old && old.jangka_simpan_inaktif) || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Jangka Simpan Keterangan</label>
+                                <input type="text" name="jangka_simpan_keterangan"
+                                    value="<%= (old && old.jangka_simpan_keterangan) || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Tingkat Perkembangan</label>
+                                <select name="tingkat_perkembangan">
+                                    <option value="">--Pilih--</option>
+                                    <option value="Asli" <%=old && old.tingkat_perkembangan==='Asli' ? 'selected' : ''
+                                        %>>Asli</option>
+                                    <option value="Copy" <%=old && old.tingkat_perkembangan==='Copy' ? 'selected' : ''
+                                        %>>Copy</option>
+                                    <option value="Salinan" <%=old && old.tingkat_perkembangan==='Salinan' ? 'selected'
+                                        : '' %>>Salinan</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>Lokasi Penyimpanan</label>
+                                <input type="text" name="lokasi_penyimpanan"
+                                    value="<%= (old && old.lokasi_penyimpanan) || '' %>" />
+                                <% if (locations && locations.length) { %>
+                                    <small>Contoh lokasi: <%= locations.map(l=>l.kode_lokasi).join(', ') %></small>
+                                    <% } %>
+                            </div>
+
+                            <div>
+                                <label>No Boks Definitif</label>
+                                <input type="text" name="no_boks_definitif"
+                                    value="<%= (old && old.no_boks_definitif) || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Nomor Folder</label>
+                                <input type="number" name="nomor_folder" min="0"
+                                    value="<%= (old && old.nomor_folder) || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Metode Perlindungan</label>
+                                <select name="metode_perlindungan">
+                                    <option value="">--Pilih--</option>
+                                    <option value="Vaulting" <%=old && old.metode_perlindungan==='Vaulting' ? 'selected'
+                                        : '' %>>Vaulting</option>
+                                    <option value="Cloud" <%=old && old.metode_perlindungan==='Cloud' ? 'selected' : ''
+                                        %>>Cloud</option>
+                                    <option value="Physical" <%=old && old.metode_perlindungan==='Physical' ? 'selected'
+                                        : '' %>>Physical</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>Keterangan</label>
+                                <textarea name="keterangan" rows="3"><%= (old && old.keterangan) || '' %></textarea>
+                            </div>
+
+                            <div style="margin-top:10px;">
+                                <button type="submit">Simpan</button>
+                                <a href="/warkah">Batal</a>
+                            </div>
+                        </form>
+    </section>
+
+    <%- include('../partials/footer.ejs') %>

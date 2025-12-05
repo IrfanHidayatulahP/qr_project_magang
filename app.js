@@ -7,6 +7,7 @@ const path = require('path');
 const authRoutes = require('./routes/authRoutes');
 const bukuTanahRoutes = require('./routes/bukuTanahRoutes');
 const suratUkurRoutes = require('./routes/suratUkurRoutes');
+const warkahRoutes = require('./routes/warkahRoutes');
 
 
 const app = express();
@@ -38,6 +39,7 @@ app.use(session({
 app.use('/', authRoutes);
 app.use('/buku-tanah', bukuTanahRoutes);
 app.use('/surat-ukur', suratUkurRoutes);
+app.use('/warkah', warkahRoutes);
 
 // 404 handler
 app.use((req, res, next) => {

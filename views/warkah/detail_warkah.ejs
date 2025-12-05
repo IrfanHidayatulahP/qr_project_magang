@@ -1,0 +1,146 @@
+<%- include('../partials/header.ejs') %>
+
+    <section class="container">
+        <h1>Detail Warkah - ID: <%= warkah.id_warkah %>
+        </h1>
+
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+                <% if (success) { %>
+                    <div class="alert alert-success">
+                        <%= success %>
+                    </div>
+                    <% } %>
+
+                        <table class="table" border="1" cellpadding="6" cellspacing="0">
+                            <tbody>
+                                <tr>
+                                    <th>Nomor DI-208</th>
+                                    <td>
+                                        <%= warkah.nomor_di_208 || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Nomor Hak</th>
+                                    <td>
+                                        <%= warkah.nomor_hak || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Tahun Terbit</th>
+                                    <td>
+                                        <% let yearDisplay='-' ; if (typeof warkah.tahun_terbit !=='undefined' &&
+                                            warkah.tahun_terbit !==null && warkah.tahun_terbit !=='' ) { if (typeof
+                                            warkah.tahun_terbit==='number' ) yearDisplay=warkah.tahun_terbit; else {
+                                            const raw=warkah.tahun_terbit; const d=new Date(raw); if
+                                            (!isNaN(d.getTime())) yearDisplay=(typeof d.getUTCFullYear==='function' ) ?
+                                            d.getUTCFullYear() : d.getFullYear(); else { const s=String(raw);
+                                            yearDisplay=(/^\d{4}/.test(s)) ? s.match(/^\d{4}/)[0] : s; } } } %>
+                                            <%= yearDisplay %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Kode Klasifikasi</th>
+                                    <td>
+                                        <%= warkah.kode_klasifikasi || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Jenis Arsip Vital</th>
+                                    <td>
+                                        <%= warkah.jenis_arsip_vital || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Uraian Informasi Arsip</th>
+                                    <td>
+                                        <pre
+                                            style="white-space:pre-wrap;"><%= warkah.uraian_informasi_arsip || '-' %></pre>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Media</th>
+                                    <td>
+                                        <%= warkah.media || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Jumlah</th>
+                                    <td>
+                                        <%= (typeof warkah.jumlah !=='undefined' && warkah.jumlah !==null) ?
+                                            warkah.jumlah : '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Jangka Simpan Aktif</th>
+                                    <td>
+                                        <%= warkah.jangka_simpan_aktif || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Jangka Simpan Inaktif</th>
+                                    <td>
+                                        <%= warkah.jangka_simpan_inaktif || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Jangka Simpan Keterangan</th>
+                                    <td>
+                                        <%= warkah.jangka_simpan_keterangan || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Tingkat Perkembangan</th>
+                                    <td>
+                                        <%= warkah.tingkat_perkembangan || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Lokasi Penyimpanan</th>
+                                    <td>
+                                        <%= warkah.lokasi_penyimpanan || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>No Boks Definitif</th>
+                                    <td>
+                                        <%= warkah.no_boks_definitif || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Nomor Folder</th>
+                                    <td>
+                                        <%= (typeof warkah.nomor_folder !=='undefined' && warkah.nomor_folder !==null) ?
+                                            warkah.nomor_folder : '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Metode Perlindungan</th>
+                                    <td>
+                                        <%= warkah.metode_perlindungan || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Keterangan</th>
+                                    <td>
+                                        <pre style="white-space:pre-wrap;"><%= warkah.keterangan || '-' %></pre>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="margin-top:10px;">
+                            <a href="/warkah/edit/<%= warkah.id_warkah %>">Edit</a> |
+                            <form action="/warkah/delete/<%= warkah.id_warkah %>" method="POST" style="display:inline;"
+                                onsubmit="return confirm('Hapus data warkah ini?');">
+                                <button type="submit"
+                                    style="background:none;border:none;color:#c00;cursor:pointer;padding:0;">Hapus</button>
+                            </form> |
+                            <a href="/warkah">Kembali</a>
+                        </div>
+    </section>
+
+    <%- include('../partials/footer.ejs') %>

@@ -1,0 +1,153 @@
+<%- include('../partials/header.ejs') %>
+
+    <section class="container">
+        <h1>Edit Warkah - ID: <%= warkah.id_warkah %>
+        </h1>
+
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+                <% if (success) { %>
+                    <div class="alert alert-success">
+                        <%= success %>
+                    </div>
+                    <% } %>
+
+                        <form action="/warkah/edit/<%= warkah.id_warkah %>" method="POST">
+                            <div>
+                                <label>Nomor DI-208</label>
+                                <input type="text" name="nomor_di_208" value="<%= warkah.nomor_di_208 || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Nomor Hak</label>
+                                <input type="text" name="nomor_hak" value="<%= warkah.nomor_hak || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Tahun Terbit (YYYY atau dd-mm-yyyy)</label>
+                                <% // safe value untuk input: kalau integer langsung tampil, kalau Date/string parsing fallback 
+                                let tahunVal='' ; if (typeof warkah.tahun_terbit !=='undefined' &&
+                                    warkah.tahun_terbit !==null && warkah.tahun_terbit !=='' ) { if (typeof
+                                    warkah.tahun_terbit==='number' ) tahunVal=warkah.tahun_terbit; else { const
+                                    raw=warkah.tahun_terbit; const d=new Date(raw); if (!isNaN(d.getTime()))
+                                    tahunVal=(typeof d.getUTCFullYear==='function' ) ? d.getUTCFullYear() :
+                                    d.getFullYear(); else { const s=String(raw); tahunVal=(/^\d{4}/.test(s)) ?
+                                    s.match(/^\d{4}/)[0] : s; } } } %>
+                                    <input type="text" name="tahun_terbit" value="<%= tahunVal %>" />
+                            </div>
+
+                            <div>
+                                <label>Kode Klasifikasi</label>
+                                <input type="text" name="kode_klasifikasi"
+                                    value="<%= warkah.kode_klasifikasi || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Jenis Arsip Vital</label>
+                                <input type="text" name="jenis_arsip_vital"
+                                    value="<%= warkah.jenis_arsip_vital || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Uraian Informasi Arsip</label>
+                                <textarea name="uraian_informasi_arsip"
+                                    rows="3"><%= warkah.uraian_informasi_arsip || '' %></textarea>
+                            </div>
+
+                            <div>
+                                <label>Media</label>
+                                <select name="media">
+                                    <option value="">--Pilih--</option>
+                                    <option value="Kertas" <%=warkah.media==='Kertas' ? 'selected' : '' %>>Kertas
+                                    </option>
+                                    <option value="Digital" <%=warkah.media==='Digital' ? 'selected' : '' %>>Digital
+                                    </option>
+                                    <option value="Microfilm" <%=warkah.media==='Microfilm' ? 'selected' : '' %>
+                                        >Microfilm</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>Jumlah</label>
+                                <input type="number" name="jumlah" min="0"
+                                    value="<%= (typeof warkah.jumlah !== 'undefined' && warkah.jumlah !== null) ? warkah.jumlah : '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Jangka Simpan Aktif</label>
+                                <input type="text" name="jangka_simpan_aktif"
+                                    value="<%= warkah.jangka_simpan_aktif || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Jangka Simpan Inaktif</label>
+                                <input type="text" name="jangka_simpan_inaktif"
+                                    value="<%= warkah.jangka_simpan_inaktif || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Jangka Simpan Keterangan</label>
+                                <input type="text" name="jangka_simpan_keterangan"
+                                    value="<%= warkah.jangka_simpan_keterangan || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Tingkat Perkembangan</label>
+                                <select name="tingkat_perkembangan">
+                                    <option value="">--Pilih--</option>
+                                    <option value="Asli" <%=warkah.tingkat_perkembangan==='Asli' ? 'selected' : '' %>
+                                        >Asli</option>
+                                    <option value="Copy" <%=warkah.tingkat_perkembangan==='Copy' ? 'selected' : '' %>
+                                        >Copy</option>
+                                    <option value="Salinan" <%=warkah.tingkat_perkembangan==='Salinan' ? 'selected' : ''
+                                        %>>Salinan</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>Lokasi Penyimpanan</label>
+                                <input type="text" name="lokasi_penyimpanan"
+                                    value="<%= warkah.lokasi_penyimpanan || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>No Boks Definitif</label>
+                                <input type="text" name="no_boks_definitif"
+                                    value="<%= warkah.no_boks_definitif || '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Nomor Folder</label>
+                                <input type="number" name="nomor_folder" min="0"
+                                    value="<%= (typeof warkah.nomor_folder !== 'undefined' && warkah.nomor_folder !== null) ? warkah.nomor_folder : '' %>" />
+                            </div>
+
+                            <div>
+                                <label>Metode Perlindungan</label>
+                                <select name="metode_perlindungan">
+                                    <option value="">--Pilih--</option>
+                                    <option value="Vaulting" <%=warkah.metode_perlindungan==='Vaulting' ? 'selected'
+                                        : '' %>>Vaulting</option>
+                                    <option value="Cloud" <%=warkah.metode_perlindungan==='Cloud' ? 'selected' : '' %>
+                                        >Cloud</option>
+                                    <option value="Physical" <%=warkah.metode_perlindungan==='Physical' ? 'selected'
+                                        : '' %>>Physical</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>Keterangan</label>
+                                <textarea name="keterangan" rows="3"><%= warkah.keterangan || '' %></textarea>
+                            </div>
+
+                            <div style="margin-top:10px;">
+                                <button type="submit">Update</button>
+                                <a href="/warkah">Batal</a>
+                            </div>
+                        </form>
+    </section>
+
+    <%- include('../partials/footer.ejs') %>

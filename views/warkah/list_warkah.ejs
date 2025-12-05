@@ -1,0 +1,100 @@
+<%- include('../partials/header.ejs') %>
+
+    <section class="container">
+        <h1>Daftar Warkah</h1>
+
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+                <% if (success) { %>
+                    <div class="alert alert-success">
+                        <%= success %>
+                    </div>
+                    <% } %>
+
+                        <div style="margin: 10px 0;">
+                            <form method="GET" action="/warkah" style="display:flex; gap:8px;">
+                                <input type="text" name="q" placeholder="Cari nomor hak / kode / lokasi / boks"
+                                    value="<%= filter_q || '' %>" />
+                                <button type="submit">Cari</button>
+                                <a href="/warkah/create" class="button">Tambah Warkah</a>
+                            </form>
+                        </div>
+
+                        <table class="table" border="1" cellpadding="6" cellspacing="0" style="width:100%;">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nomor DI-208</th>
+                                    <th>Nomor Hak</th>
+                                    <th>Tahun Terbit</th>
+                                    <th>Media</th>
+                                    <th>Jumlah</th>
+                                    <th>Lokasi</th>
+                                    <th>No Boks</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (!records || records.length===0) { %>
+                                    <tr>
+                                        <td colspan="9" style="text-align:center;">Tidak ada data</td>
+                                    </tr>
+                                    <% } else { %>
+                                        <% records.forEach(function(r) { %>
+                                            <tr>
+                                                <td>
+                                                    <%= r.id_warkah %>
+                                                </td>
+                                                <td>
+                                                    <%= r.nomor_di_208 || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= r.nomor_hak || '-' %>
+                                                </td>
+                                                <td>
+                                                    <% let yearDisplay='-' ; if (typeof r.tahun_terbit !=='undefined' &&
+                                                        r.tahun_terbit !==null && r.tahun_terbit !=='' ) { if (typeof
+                                                        r.tahun_terbit==='number' ) { yearDisplay=r.tahun_terbit; } else
+                                                        { // fallback: parse string or Date 
+                                                        const raw=r.tahun_terbit;
+                                                        const d=new Date(raw); if (!isNaN(d.getTime())) {
+                                                        yearDisplay=(typeof d.getUTCFullYear==='function' ) ?
+                                                        d.getUTCFullYear() : d.getFullYear(); } else { const
+                                                        s=String(raw); yearDisplay=(/^\d{4}/.test(s)) ?
+                                                        s.match(/^\d{4}/)[0] : s; } } } %>
+                                                        <%= yearDisplay %>
+                                                </td>
+                                                <td>
+                                                    <%= r.media || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= (typeof r.jumlah !=='undefined' && r.jumlah !==null) ? r.jumlah
+                                                        : '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= r.lokasi_penyimpanan || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= r.no_boks_definitif || '-' %>
+                                                </td>
+                                                <td>
+                                                    <a href="/warkah/detail/<%= r.id_warkah %>">Lihat</a> |
+                                                    <a href="/warkah/edit/<%= r.id_warkah %>">Edit</a> |
+                                                    <form action="/warkah/delete/<%= r.id_warkah %>" method="POST"
+                                                        style="display:inline;"
+                                                        onsubmit="return confirm('Hapus data warkah ini?');">
+                                                        <button type="submit"
+                                                            style="background:none;border:none;color:#c00;cursor:pointer;padding:0;">Hapus</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } %>
+                            </tbody>
+                        </table>
+    </section>
+
+    <%- include('../partials/footer.ejs') %>
