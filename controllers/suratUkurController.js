@@ -470,3 +470,104 @@ exports.showDetail = async (req, res) => {
         return res.redirect('/surat-ukur?error=' + encodeURIComponent('Terjadi kesalahan saat mengambil data'));
     }
 };
+
+/** download - download data surat_ukur sebagai CSV */
+exports.download = async (req, res) => {
+    try {
+        if (!ensureModelOrRespond(res)) return;
+
+        const q = (req.query.q || '').toString().trim();
+        const columnsParam = (req.query.columns || '').toString().trim();
+
+        const ALLOWED_COLS = [
+            'id_surat_ukur', 'nomor_hak', 'jenis_hak', 'nomor_surat_ukur', 'tahun_terbit',
+            'media', 'jumlah', 'tingkat_perkembangan', 'lokasi_penyimpanan',
+            'no_boks_definitif', 'nomor_folder', 'metode_perlindungan'
+        ];
+
+        const selectedCols = columnsParam
+            ? columnsParam.split(',').map(c => c.trim()).filter(c => ALLOWED_COLS.includes(c))
+            : ALLOWED_COLS.slice();
+
+        // build where like showIndex
+        let where = undefined;
+        if (q) {
+            if (isValidId(q)) {
+                where = { id_surat_ukur: Number(q) };
+            } else {
+                where = {
+                    [Op.or]: [
+                        { nomor_hak: { [Op.like]: `%${q}%` } },
+                        { lokasi_penyimpanan: { [Op.like]: `%${q}%` } },
+                        { no_boks_definitif: { [Op.like]: `%${q}%` } },
+                        { nomor_surat_ukur: { [Op.like]: `%${q}%` } }
+                    ]
+                };
+            }
+        }
+
+        const records = await SuratUkur.findAll({
+            where,
+            order: [['id_surat_ukur', 'DESC']],
+            limit: 1000,
+            attributes: selectedCols
+        });
+
+        function formatCell(key, val) {
+            if (val == null) return '';
+            if (key === 'tahun_terbit') {
+                if (val instanceof Date && !isNaN(val.getTime())) return String(val.getFullYear());
+                const s = String(val).trim();
+                if (/^\d{4}$/.test(s)) return s;
+                const d = new Date(s);
+                return isNaN(d.getTime()) ? s : String(d.getFullYear());
+            }
+            return String(val);
+        }
+
+        const headerMap = {
+            id_surat_ukur: 'ID',
+            nomor_hak: 'Nomor Hak',
+            jenis_hak: 'Jenis Hak',
+            nomor_surat_ukur: 'Nomor Surat Ukur',
+            tahun_terbit: 'Tahun',
+            media: 'Media',
+            jumlah: 'Jumlah',
+            tingkat_perkembangan: 'Tingkat Perkembangan',
+            lokasi_penyimpanan: 'Lokasi Penyimpanan',
+            no_boks_definitif: 'No Boks Definitif',
+            nomor_folder: 'Nomor Folder',
+            metode_perlindungan: 'Metode Perlindungan'
+        };
+
+        const escapeCsv = (s) => {
+            const str = s == null ? '' : String(s);
+            if (str.indexOf('"') !== -1) {
+                return '"' + str.replace(/"/g, '""') + '"';
+            }
+            if (/[,\n\r]/.test(str) || /^\s|\s$/.test(str)) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
+        const headers = selectedCols.map(c => headerMap[c] || c);
+        const rows = [headers.join(',')];
+
+        for (const rec of records) {
+            const plain = rec && typeof rec.toJSON === 'function' ? rec.toJSON() : rec;
+            const vals = selectedCols.map(col => escapeCsv(formatCell(col, plain[col])));
+            rows.push(vals.join(','));
+        }
+
+        const csvContent = rows.join('\r\n');
+        const filename = `surat_ukur_${(new Date()).toISOString().replace(/[:.]/g, '')}.csv`;
+
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        return res.send(csvContent);
+    } catch (err) {
+        console.error('suratUkur.download error:', err);
+        return res.status(500).send('Gagal membuat file download');
+    }
+};

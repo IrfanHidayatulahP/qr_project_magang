@@ -477,3 +477,116 @@ exports.showDetail = async (req, res) => {
         return res.redirect('/warkah?error=' + encodeURIComponent('Terjadi kesalahan saat mengambil data'));
     }
 };
+
+/** download - download data warkah sebagai CSV */
+exports.download = async (req, res) => {
+    try {
+        if (!ensureModelOrRespond(res)) return;
+
+        const q = (req.query.q || '').toString().trim();
+        const columnsParam = (req.query.columns || '').toString().trim();
+
+        const ALLOWED_COLS = [
+            'id_warkah', 'nomor_di_208', 'nomor_hak', 'tahun_terbit', 'kode_klasifikasi',
+            'jenis_arsip_vital', 'uraian_informasi_arsip', 'media', 'jumlah',
+            'jangka_simpan_aktif', 'jangka_simpan_inaktif', 'jangka_simpan_keterangan',
+            'tingkat_perkembangan', 'lokasi_penyimpanan', 'no_boks_definitif', 'nomor_folder',
+            'metode_perlindungan', 'keterangan'
+        ];
+
+        const selectedCols = columnsParam
+            ? columnsParam.split(',').map(c => c.trim()).filter(c => ALLOWED_COLS.includes(c))
+            : ALLOWED_COLS.slice();
+
+        // bangun where (sama seperti showIndex)
+        let where = undefined;
+        if (q) {
+            if (isValidId(q)) {
+                where = { id_warkah: Number(q) };
+            } else {
+                where = {
+                    [Op.or]: [
+                        { nomor_hak: { [Op.like]: `%${q}%` } },
+                        { nomor_di_208: { [Op.like]: `%${q}%` } },
+                        { kode_klasifikasi: { [Op.like]: `%${q}%` } },
+                        { lokasi_penyimpanan: { [Op.like]: `%${q}%` } },
+                        { no_boks_definitif: { [Op.like]: `%${q}%` } }
+                    ]
+                };
+            }
+        }
+
+        const records = await Warkah.findAll({
+            where,
+            order: [['id_warkah', 'DESC']],
+            limit: 1000,
+            attributes: selectedCols
+        });
+
+        // helper format nilai (khusus tahun_terbit --> tampilkan tahun)
+        function formatCell(key, val) {
+            if (val == null) return '';
+            if (key === 'tahun_terbit') {
+                if (val instanceof Date && !isNaN(val.getTime())) return String(val.getFullYear());
+                const s = String(val).trim();
+                if (/^\d{4}$/.test(s)) return s;
+                const d = new Date(s);
+                return isNaN(d.getTime()) ? s : String(d.getFullYear());
+            }
+            // untuk teks panjang, tetap string
+            return String(val);
+        }
+
+        const headerMap = {
+            id_warkah: 'ID',
+            nomor_di_208: 'Nomor DI-208',
+            nomor_hak: 'Nomor Hak',
+            tahun_terbit: 'Tahun',
+            kode_klasifikasi: 'Kode Klasifikasi',
+            jenis_arsip_vital: 'Jenis Arsip Vital',
+            uraian_informasi_arsip: 'Uraian Informasi Arsip',
+            media: 'Media',
+            jumlah: 'Jumlah',
+            jangka_simpan_aktif: 'Jangka Simpan Aktif',
+            jangka_simpan_inaktif: 'Jangka Simpan Inaktif',
+            jangka_simpan_keterangan: 'Keterangan Jangka Simpan',
+            tingkat_perkembangan: 'Tingkat Perkembangan',
+            lokasi_penyimpanan: 'Lokasi Penyimpanan',
+            no_boks_definitif: 'No Boks Definitif',
+            nomor_folder: 'Nomor Folder',
+            metode_perlindungan: 'Metode Perlindungan',
+            keterangan: 'Keterangan'
+        };
+
+        // escape CSV sederhana
+        const escapeCsv = (s) => {
+            const str = s == null ? '' : String(s);
+            if (str.indexOf('"') !== -1) {
+                return '"' + str.replace(/"/g, '""') + '"';
+            }
+            if (/[,\n\r]/.test(str) || /^\s|\s$/.test(str)) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
+        const headers = selectedCols.map(c => headerMap[c] || c);
+        const rows = [headers.join(',')];
+
+        for (const rec of records) {
+            const plain = rec && typeof rec.toJSON === 'function' ? rec.toJSON() : rec;
+            const vals = selectedCols.map(col => escapeCsv(formatCell(col, plain[col])));
+            rows.push(vals.join(','));
+        }
+
+        const csvContent = rows.join('\r\n');
+        const filename = `warkah_${(new Date()).toISOString().replace(/[:.]/g, '')}.csv`;
+
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        return res.send(csvContent);
+    } catch (err) {
+        console.error('warkah.download error:', err);
+        return res.status(500).send('Gagal membuat file download');
+    }
+};

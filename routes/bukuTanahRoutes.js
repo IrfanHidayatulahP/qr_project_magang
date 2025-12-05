@@ -23,7 +23,11 @@ router.post('/edit/:id', ensureAuthenticated, ctrl.update);
 // delete action (POST): POST /buku-tanah/delete/:id
 router.post('/delete/:id', ensureAuthenticated, ctrl.delete);
 
-// detail: GET /buku-tanah/:id
+// --- Specific routes go BEFORE the generic :id route ---
+// download all as CSV -> mounted path will be /buku-tanah/download
+router.get('/download', ensureAuthenticated, ctrl.download);
+
+// detail: GET /buku-tanah/:id  (generic)
 router.get('/:id', ensureAuthenticated, ctrl.showDetail);
 
 module.exports = router;

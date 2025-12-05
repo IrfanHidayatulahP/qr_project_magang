@@ -14,18 +14,28 @@
                     </div>
                     <% } %>
 
-                        <div style="margin: 10px 0;">
-                            <form method="GET" action="/warkah" style="display:flex; gap:8px;">
+                        <div style="margin: 10px 0; display:flex; gap:8px; align-items:center;">
+                            <form method="GET" action="/warkah" style="display:flex; gap:8px; align-items:center;">
                                 <input type="text" name="q" placeholder="Cari nomor hak / kode / lokasi / boks"
                                     value="<%= filter_q || '' %>" />
                                 <button type="submit">Cari</button>
-                                <a href="/warkah/create" class="button">Tambah Warkah</a>
                             </form>
+
+                            <div style="margin-left:auto; display:flex; gap:8px;">
+                                <a href="/warkah/create" class="btn-add"
+                                    style="text-decoration:none; padding:8px 12px; background:#1e40af; color:white; border-radius:4px;">Tambah
+                                    Warkah</a>
+                                <button id="btn-open-download" class="btn-add" type="button"
+                                    style="padding:8px 12px; background:#1e40af; color:white; border-radius:4px;">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                            </div>
                         </div>
 
-                        <table class="table" border="1" cellpadding="6" cellspacing="0" style="width:100%;">
+                        <table class="table" border="1" cellpadding="6" cellspacing="0"
+                            style="width:100%; border-collapse:collapse;">
                             <thead>
-                                <tr>
+                                <tr style="background:#f8fafc;">
                                     <th>ID</th>
                                     <th>Nomor DI-208</th>
                                     <th>Nomor Hak</th>
@@ -56,15 +66,15 @@
                                                 </td>
                                                 <td>
                                                     <% let yearDisplay='-' ; if (typeof r.tahun_terbit !=='undefined' &&
-                                                        r.tahun_terbit !==null && r.tahun_terbit !=='' ) { if (typeof
-                                                        r.tahun_terbit==='number' ) { yearDisplay=r.tahun_terbit; } else
-                                                        { // fallback: parse string or Date 
-                                                        const raw=r.tahun_terbit;
-                                                        const d=new Date(raw); if (!isNaN(d.getTime())) {
-                                                        yearDisplay=(typeof d.getUTCFullYear==='function' ) ?
-                                                        d.getUTCFullYear() : d.getFullYear(); } else { const
+                                                        r.tahun_terbit !==null && r.tahun_terbit !=='' ) { try { if
+                                                        (r.tahun_terbit instanceof Date ||
+                                                        Object.prototype.toString.call(r.tahun_terbit)==='[object Date]'
+                                                        ) { yearDisplay=(new Date(r.tahun_terbit)).getFullYear(); } else
+                                                        { const raw=r.tahun_terbit; const d=new Date(raw); if
+                                                        (!isNaN(d.getTime())) yearDisplay=d.getFullYear(); else { const
                                                         s=String(raw); yearDisplay=(/^\d{4}/.test(s)) ?
-                                                        s.match(/^\d{4}/)[0] : s; } } } %>
+                                                        s.match(/^\d{4}/)[0] : s; } } } catch (e) { yearDisplay='-' ; }
+                                                        } %>
                                                         <%= yearDisplay %>
                                                 </td>
                                                 <td>
@@ -96,5 +106,98 @@
                             </tbody>
                         </table>
     </section>
+
+    <!-- Modal Download -->
+    <div id="download-modal"
+        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div
+            style="background:white; width:600px; max-width:96%; border-radius:8px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,0.2);">
+            <h3 style="margin-top:0">Download Data Warkah</h3>
+            <p>Pilih kolom yang ingin di-include di file CSV:</p>
+            <form id="download-form" onsubmit="return false;">
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+                    <label><input type="checkbox" name="col" value="id_warkah" checked> ID</label>
+                    <label><input type="checkbox" name="col" value="nomor_di_208" checked> Nomor DI-208</label>
+                    <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor Hak</label>
+                    <label><input type="checkbox" name="col" value="tahun_terbit" checked> Tahun</label>
+                    <label><input type="checkbox" name="col" value="kode_klasifikasi" checked> Kode Klasifikasi</label>
+                    <label><input type="checkbox" name="col" value="jenis_arsip_vital" checked> Jenis Arsip
+                        Vital</label>
+                    <label style="width:100%;"><input type="checkbox" name="col" value="uraian_informasi_arsip" checked>
+                        Uraian Informasi Arsip</label>
+                    <label><input type="checkbox" name="col" value="media" checked> Media</label>
+                    <label><input type="checkbox" name="col" value="jumlah" checked> Jumlah</label>
+                    <label><input type="checkbox" name="col" value="jangka_simpan_aktif" checked> Jangka Simpan
+                        Aktif</label>
+                    <label><input type="checkbox" name="col" value="jangka_simpan_inaktif" checked> Jangka Simpan
+                        Inaktif</label>
+                    <label><input type="checkbox" name="col" value="jangka_simpan_keterangan" checked> Keterangan Jangka
+                        Simpan</label>
+                    <label><input type="checkbox" name="col" value="tingkat_perkembangan" checked> Tingkat
+                        Perkembangan</label>
+                    <label><input type="checkbox" name="col" value="lokasi_penyimpanan" checked> Lokasi
+                        Penyimpanan</label>
+                    <label><input type="checkbox" name="col" value="no_boks_definitif" checked> No Boks</label>
+                    <label><input type="checkbox" name="col" value="nomor_folder" checked> No Folder</label>
+                    <label><input type="checkbox" name="col" value="metode_perlindungan" checked> Metode
+                        Proteksi</label>
+                    <label style="width:100%;"><input type="checkbox" name="col" value="keterangan" checked>
+                        Keterangan</label>
+                </div>
+
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button id="btn-download-cancel" type="button" class="btn-add"
+                        style="background:#6b7280;">Batal</button>
+                    <button id="btn-download-start" type="button" class="btn-add"><i class="fas fa-file-csv"></i>
+                        Download CSV</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            // modal handling
+            const btnOpen = document.getElementById('btn-open-download');
+            const modal = document.getElementById('download-modal');
+            const btnCancel = document.getElementById('btn-download-cancel');
+            const btnStart = document.getElementById('btn-download-start');
+
+            btnOpen && btnOpen.addEventListener('click', function () {
+                if (modal) modal.style.display = 'flex';
+            });
+            btnCancel && btnCancel.addEventListener('click', function () {
+                if (modal) modal.style.display = 'none';
+            });
+
+            btnStart && btnStart.addEventListener('click', function () {
+                const checked = Array.from(document.querySelectorAll('#download-modal input[name="col"]:checked')).map(i => i.value);
+                if (!checked.length) {
+                    alert('Pilih minimal 1 kolom.');
+                    return;
+                }
+
+                // ambil q dari form pencarian (jika ada)
+                let qv = '';
+                const qInput = document.querySelector('form[action="/warkah"] input[name="q"]');
+                if (qInput) qv = qInput.value || '';
+
+                const params = new URLSearchParams();
+                if (qv && qv.trim() !== '') params.set('q', qv.trim());
+                params.set('columns', checked.join(','));
+
+                // url endpoint download: /warkah/download (router mount assumed)
+                const url = '/warkah/download?' + params.toString();
+                window.location = url;
+
+                if (modal) modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (!modal) return;
+                if (e.target === modal) modal.style.display = 'none';
+            });
+        })();
+    </script>
 
     <%- include('../partials/footer.ejs') %>

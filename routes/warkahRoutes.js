@@ -1,27 +1,23 @@
 // routes/warkahRoutes.js
 const express = require('express');
 const router = express.Router();
-const warkahController = require('../controllers/warkahController');
+const ctrl = require('../controllers/warkahController');
+const { ensureAuthenticated } = require('../middlewares/authMiddleware');
 
-// list
-router.get('/', warkahController.showIndex);
+router.get('/', ensureAuthenticated, ctrl.showIndex);
 
-// create form
-router.get('/create', warkahController.showCreateForm);
-// create action
-router.post('/create', warkahController.create);
+router.get('/create', ensureAuthenticated, ctrl.showCreateForm);
+router.post('/create', ensureAuthenticated, ctrl.create);
 
-// edit form
-router.get('/edit/:id', warkahController.showEditForm);
-// update action
-router.post('/edit/:id', warkahController.update);
+router.get('/edit/:id', ensureAuthenticated, ctrl.showEditForm);
+router.post('/edit/:id', ensureAuthenticated, ctrl.update);
 
-// delete action (POST recommended)
-router.post('/delete/:id', warkahController.delete);
+router.post('/delete/:id', ensureAuthenticated, ctrl.delete);
 
-// detail view
-router.get('/detail/:id', warkahController.showDetail);
-// optional shorter route to detail
-router.get('/:id', warkahController.showDetail);
+// --- specific route BEFORE generic :id ---
+router.get('/download', ensureAuthenticated, ctrl.download);
+
+// generic detail route
+router.get('/:id', ensureAuthenticated, ctrl.showDetail);
 
 module.exports = router;

@@ -3,7 +3,7 @@
     <div id="konten-halaman-surat-ukur" style="display: none;">
 
         <style>
-            /* (CSS Anda tetap sama) */
+            /* Layout & styling sederhana */
             .container-fluid {
                 width: 100%;
             }
@@ -126,13 +126,29 @@
                 cursor: pointer;
                 font-weight: 500;
             }
+
+            /* Responsive small tweaks for modal labels */
+            #download-modal label {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 4px 6px;
+                border-radius: 4px;
+                background: #f8fafc;
+                margin: 2px;
+                font-size: 13px;
+            }
         </style>
 
         <section class="container-fluid">
 
             <div class="header-action">
                 <h1 class="page-title">Daftar Surat Ukur</h1>
-                <a class="btn-add" href="/surat-ukur/create"><i class="fas fa-plus"></i> Tambah Surat Ukur</a>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <a class="btn-add" href="/surat-ukur/create"><i class="fas fa-plus"></i> Tambah Surat Ukur</a>
+                    <button id="btn-open-download" class="btn-add" type="button"><i class="fas fa-download"></i>
+                        Download</button>
+                </div>
             </div>
 
             <% if (typeof error !=='undefined' && error) { %>
@@ -173,16 +189,13 @@
                                     </thead>
                                     <tbody>
 
-                                        <% // pastikan records ada dan merupakan array 
-                                        if (Array.isArray(records) &&
-                                            records.length) { records.forEach(function(r) { // hitung tahun terbit
-                                            let _year='-' ; const tv=r.tahun_terbit; if (tv !==null &&
-                                            typeof tv !=='undefined' && tv !=='' ) { // tv bisa berupa Date object atau string
-                                            try { // jika sudah Date object (Sequelize kadang mengembalikan) 
-                                            if (tv instanceof Date ||
+                                        <% if (Array.isArray(records) && records.length) { records.forEach(function(r) {
+                                            // Hitung tahun terbit dengan hati-hati let _year='-' ; const
+                                            tv=r.tahun_terbit; if (tv !==null && typeof tv !=='undefined' && tv !=='' )
+                                            { try { if (tv instanceof Date ||
                                             Object.prototype.toString.call(tv)==='[object Date]' ) { _year=(new
                                             Date(tv)).getFullYear(); } else { const s=String(tv).trim(); if
-                                            (/^\d{4}$/.test(s)) { _year=s; } else { const d=new Date(s);
+                                            (/^\d{4}$/.test(s)) _year=s; else { const d=new Date(s);
                                             _year=isNaN(d.getTime()) ? '-' : d.getFullYear(); } } } catch (e) {
                                             _year='-' ; } } %>
                                             <tr>
@@ -232,7 +245,7 @@
                                                     </form>
                                                 </td>
                                             </tr>
-                                            <% }); // end forEach } else { %>
+                                            <% }); } else { %>
                                                 <tr>
                                                     <td colspan="12"
                                                         style="text-align:center; padding:20px; color:#6b7280;">Belum
@@ -247,9 +260,45 @@
         </section>
     </div>
 
+    <!-- Modal Download -->
+    <div id="download-modal"
+        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div
+            style="background:white; width:520px; max-width:95%; border-radius:8px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,0.2);">
+            <h3 style="margin-top:0">Download Data Surat Ukur</h3>
+            <p>Pilih kolom yang ingin di-include di file CSV:</p>
+            <form id="download-form" onsubmit="return false;">
+                <div style="display:flex;flex-wrap:wrap;gap:8px; margin-bottom:12px;">
+                    <label><input type="checkbox" name="col" value="id_surat_ukur" checked> ID</label>
+                    <label><input type="checkbox" name="col" value="nomor_surat_ukur" checked> Nomor Surat Ukur</label>
+                    <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor Hak</label>
+                    <label><input type="checkbox" name="col" value="jenis_hak" checked> Jenis Hak</label>
+                    <label><input type="checkbox" name="col" value="tahun_terbit" checked> Tahun</label>
+                    <label><input type="checkbox" name="col" value="media" checked> Media</label>
+                    <label><input type="checkbox" name="col" value="jumlah" checked> Jumlah</label>
+                    <label><input type="checkbox" name="col" value="tingkat_perkembangan" checked> Tingkat
+                        Perkembangan</label>
+                    <label><input type="checkbox" name="col" value="lokasi_penyimpanan" checked> Lokasi
+                        Penyimpanan</label>
+                    <label><input type="checkbox" name="col" value="no_boks_definitif" checked> No Boks</label>
+                    <label><input type="checkbox" name="col" value="nomor_folder" checked> No Folder</label>
+                    <label><input type="checkbox" name="col" value="metode_perlindungan" checked> Metode
+                        Proteksi</label>
+                </div>
+
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button id="btn-download-cancel" type="button" class="btn-add"
+                        style="background:#6b7280;">Batal</button>
+                    <button id="btn-download-start" type="button" class="btn-add"><i class="fas fa-file-csv"></i>
+                        Download CSV</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // Memindahkan konten ke dalam .main-content setelah DOMContentLoaded
         document.addEventListener("DOMContentLoaded", function () {
+            // Pindahkan konten ke dalam .main-content (hanya sekali)
             const kontenHalaman = document.getElementById('konten-halaman-surat-ukur');
             const layoutUtama = document.querySelector('.main-content');
             if (layoutUtama && kontenHalaman) {
@@ -258,6 +307,51 @@
                 layoutUtama.appendChild(divBaru);
                 kontenHalaman.remove();
             }
+
+            // --- modal download handling ---
+            const btnOpen = document.getElementById('btn-open-download');
+            const modal = document.getElementById('download-modal');
+            const btnCancel = document.getElementById('btn-download-cancel');
+            const btnStart = document.getElementById('btn-download-start');
+
+            btnOpen && btnOpen.addEventListener('click', () => {
+                if (modal) modal.style.display = 'flex';
+            });
+
+            btnCancel && btnCancel.addEventListener('click', () => {
+                if (modal) modal.style.display = 'none';
+            });
+
+            btnStart && btnStart.addEventListener('click', () => {
+                const checked = Array.from(document.querySelectorAll('#download-modal input[name="col"]:checked'))
+                    .map(i => i.value);
+                if (!checked.length) {
+                    alert('Pilih minimal 1 kolom.');
+                    return;
+                }
+
+                // ambil q dari form pencarian (jika ada)
+                let qv = '';
+                const qInput = document.querySelector('form.search-form input[name="q"]');
+                if (qInput) qv = qInput.value || '';
+
+                const params = new URLSearchParams();
+                if (qv && qv.trim() !== '') params.set('q', qv.trim());
+                params.set('columns', checked.join(','));
+
+                // Karena router biasanya di-mount di /surat-ukur, endpoint download adalah /surat-ukur/download
+                const url = '/surat-ukur/download?' + params.toString();
+                // navigasi ke url akan memicu download (Content-Disposition pada response)
+                window.location = url;
+
+                if (modal) modal.style.display = 'none';
+            });
+
+            // klik di luar modal -> tutup
+            window.addEventListener('click', function (e) {
+                if (!modal) return;
+                if (e.target === modal) modal.style.display = 'none';
+            });
         });
     </script>
 
