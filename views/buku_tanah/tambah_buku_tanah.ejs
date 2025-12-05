@@ -1,91 +1,180 @@
-<%- include('../../partials/header.ejs') %>
+<%- include('../partials/header.ejs') %>
 
-    <section class="container">
-        <h1>Tambah Buku Tanah</h1>
+    <div class="container mt-4 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="fas fa-plus-circle"></i> Tambah Buku Tanah Baru</h4>
+                    </div>
+                    <div class="card-body">
 
-        <% if (error) { %>
-            <div class="alert alert-error">
-                <%= error %>
+                        <% if (error) { %>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Gagal!</strong>
+                                <%= error %>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                            </div>
+                            <% } %>
+
+                                <% if (success) { %>
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        <strong>Berhasil!</strong>
+                                        <%= success %>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                    </div>
+                                    <% } %>
+
+                                        <form action="/buku-tanah/create" method="POST">
+
+                                            <div class="form-row">
+                                                <div class="form-group col-md-6">
+                                                    <label for="nomor_hak">Nomor Hak</label>
+                                                    <input type="text" class="form-control" name="nomor_hak"
+                                                        value="<%= old && old.nomor_hak ? old.nomor_hak : '' %>">
+                                                </div>
+
+                                                <div class="form-group col-md-6">
+                                                    <label for="jenis_hak">Jenis Hak</label>
+                                                    <select class="form-control" name="jenis_hak">
+                                                        <option value="">-- Pilih Jenis Hak --</option>
+                                                        <% const
+                                                            hakOptions=['HM','HGB','HP','HGU','Pengelolaan','Lainnya'];
+                                                            %>
+                                                            <% hakOptions.forEach(h=> { %>
+                                                                <option value="<%= h %>" <%=(old && old.jenis_hak===h)
+                                                                    ? 'selected' : '' %>><%= h %>
+                                                                </option>
+                                                                <% }) %>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-row">
+                                                <div class="form-group col-md-6">
+                                                    <label for="tahun_terbit">Tahun Terbit</label>
+                                                    <input type="date" class="form-control" name="tahun_terbit"
+                                                        id="tahun_terbit"
+                                                        value="<%= old && old.tahun_terbit ? old.tahun_terbit : '' %>">
+                                                    <small class="text-muted">Pilih Tanggal Terbit</small>
+                                                </div>
+
+                                                <div class="form-group col-md-6">
+                                                    <label for="media">Media</label>
+                                                    <select class="form-control" name="media">
+                                                        <option value="">-- Pilih Media --</option>
+                                                        <% const mediaOptions=['Kertas','Digital','Microfilm']; %>
+                                                            <% mediaOptions.forEach(m=> { %>
+                                                                <option value="<%= m %>" <%=(old && old.media===m)
+                                                                    ? 'selected' : (m==='Kertas' && !old ? 'selected'
+                                                                    : '' ) %>><%= m %>
+                                                                </option>
+                                                                <% }) %>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-row">
+                                                <div class="form-group col-md-6">
+                                                    <label for="jumlah">Jumlah</label>
+                                                    <input type="number" class="form-control" name="jumlah"
+                                                        value="<%= old && old.jumlah != null ? old.jumlah : '' %>">
+                                                </div>
+
+                                                <div class="form-group col-md-6">
+                                                    <label for="tingkat_perkembangan">Tingkat Perkembangan</label>
+                                                    <select class="form-control" name="tingkat_perkembangan">
+                                                        <option value="">-- Pilih --</option>
+                                                        <% const tpk=['Asli','Copy','Salinan']; %>
+                                                            <% tpk.forEach(tp=> { %>
+                                                                <option value="<%= tp %>" <%=(old &&
+                                                                    old.tingkat_perkembangan===tp) ? 'selected' :
+                                                                    (tp==='Asli' && !old ? 'selected' : '' ) %>><%= tp
+                                                                        %>
+                                                                </option>
+                                                                <% }) %>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <hr>
+                                            <h5 class="mb-3 text-secondary">Informasi Penyimpanan</h5>
+
+                                            <div class="form-row">
+                                                <div class="form-group col-md-6">
+                                                    <label for="lokasi_penyimpanan">Lokasi Penyimpanan</label>
+                                                    <select class="form-control" name="lokasi_penyimpanan"
+                                                        id="lokasi_penyimpanan">
+                                                        <option value="">-- Pilih Lokasi --</option>
+
+                                                        <% if (typeof locations !=='undefined' && locations.length> 0) {
+                                                            %>
+                                                            <% locations.forEach(loc=> { %>
+                                                                <option value="<%= loc.kode_lokasi %>" <%=(typeof old
+                                                                    !=='undefined' &&
+                                                                    old.lokasi_penyimpanan===loc.kode_lokasi)
+                                                                    ? 'selected' : '' %>>
+
+                                                                    <%= loc.kode_lokasi %>
+                                                                        <% if(loc.ruangan || loc.no_rak) { %>
+                                                                            (R: <%= loc.ruangan || '-' %> / Rak: <%=
+                                                                                    loc.no_rak || '-' %>)
+                                                                                    <% } %>
+
+                                                                </option>
+                                                                <% }) %>
+                                                                    <% } else { %>
+                                                                        <option value="" disabled>Data lokasi tidak
+                                                                            tersedia</option>
+                                                                        <% } %>
+
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group col-md-6">
+                                                    <label for="no_boks_definitif">No Boks Definitif</label>
+                                                    <input type="text" class="form-control" name="no_boks_definitif"
+                                                        value="<%= old && old.no_boks_definitif ? old.no_boks_definitif : '' %>">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-row">
+                                                <div class="form-group col-md-6">
+                                                    <label for="nomor_folder">Nomor Folder</label>
+                                                    <input type="number" class="form-control" name="nomor_folder"
+                                                        value="<%= old && old.nomor_folder != null ? old.nomor_folder : '' %>">
+                                                </div>
+
+                                                <div class="form-group col-md-6">
+                                                    <label for="metode_perlindungan">Metode Perlindungan</label>
+                                                    <select class="form-control" name="metode_perlindungan">
+                                                        <option value="">-- Pilih --</option>
+                                                        <% const prot=['Vaulting','Cloud','Physical']; %>
+                                                            <% prot.forEach(p=> { %>
+                                                                <option value="<%= p %>" <%=(old &&
+                                                                    old.metode_perlindungan===p) ? 'selected' :
+                                                                    (p==='Vaulting' && !old ? 'selected' : '' ) %>><%= p
+                                                                        %>
+                                                                </option>
+                                                                <% }) %>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group mt-4 text-right">
+                                                <a href="/buku-tanah" class="btn btn-secondary">Kembali</a>
+                                                <button type="submit" class="btn btn-primary ml-2">Simpan</button>
+                                            </div>
+
+                                        </form>
+                    </div>
+                </div>
             </div>
-            <% } %>
+        </div>
+    </div>
 
-                <form action="/buku-tanah/create" method="post">
-                    <div class="form-group">
-                        <label>Dokumen</label>
-                        <select name="id_dokumen" required>
-                            <option value="">-- Pilih Dokumen --</option>
-                            <% if (dokumenOptions && dokumenOptions.length) { %>
-                                <% dokumenOptions.forEach(d=> { %>
-                                    <option value="<%= d.id_dokumen %>" <%=(old &&
-                                        String(old.id_dokumen)===String(d.id_dokumen)) ? 'selected' : '' %>><%= d.nama
-                                            || ('#'+d.id_dokumen) %>
-                                    </option>
-                                    <% }) %>
-                                        <% } else { %>
-                                            <option value="">(Tidak ada dokumen)</option>
-                                            <% } %>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>No Reg</label>
-                        <input type="text" name="no_reg" value="<%= old && old.no_reg ? old.no_reg : '' %>" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Jenis Hak</label>
-                        <select name="jenis_hak">
-                            <option value="">-- Pilih Jenis Hak (opsional) --</option>
-                            <% const hakOptions=['HM','HGB','HP','HGU','Pengelolaan','Lainnya']; %>
-                                <% hakOptions.forEach(h=> { %>
-                                    <option value="<%= h %>" <%=(old && old.jenis_hak===h) ? 'selected' : '' %>><%= h %>
-                                    </option>
-                                    <% }) %>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Luas Tanah (m&sup2;)</label>
-                        <input type="text" name="luas_tanah" placeholder="Contoh: 120.50"
-                            value="<%= old && old.luas_tanah ? old.luas_tanah : '' %>" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Nama Pemilik Asal</label>
-                        <input type="text" name="nama_pemilik_asal"
-                            value="<%= old && old.nama_pemilik_asal ? old.nama_pemilik_asal : '' %>" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Tahun Terbit (YYYY)</label>
-                        <input type="text" name="tahun_terbit" placeholder="Contoh: 1998 atau 1998-01-01"
-                            value="<%= old && old.tahun_terbit ? old.tahun_terbit : '' %>" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>No Peta</label>
-                        <input type="text" name="no_peta" value="<%= old && old.no_peta ? old.no_peta : '' %>" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Keterangan</label>
-                        <textarea name="keterangan"
-                            rows="4"><%= old && old.keterangan ? old.keterangan : '' %></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Status Buku</label>
-                        <select name="status_buku">
-                            <% const statusOptions=['Aktif','Non-Aktif','Mutasi','Hapus']; %>
-                                <% statusOptions.forEach(s=> { %>
-                                    <option value="<%= s %>" <%=(old && old.status_buku===s) ? 'selected' : (s==='Aktif'
-                                        ? 'selected' : '' ) %>><%= s %>
-                                    </option>
-                                    <% }) %>
-                        </select>
-                    </div>
-
-                    <button type="submit">Simpan</button>
-                    <a href="/buku-tanah">Batal</a>
-                </form>
-    </section>
+    <%- include('../partials/footer.ejs') %>

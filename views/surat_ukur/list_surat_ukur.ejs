@@ -1,0 +1,264 @@
+<%- include('../partials/header.ejs') %>
+
+    <div id="konten-halaman-surat-ukur" style="display: none;">
+
+        <style>
+            /* (CSS Anda tetap sama) */
+            .container-fluid {
+                width: 100%;
+            }
+
+            .header-action {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+                color: #1e3a8a;
+                font-weight: bold;
+            }
+
+            .table-wrapper {
+                overflow-x: auto;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 0;
+            }
+
+            .table th,
+            .table td {
+                padding: 12px 15px;
+                text-align: left;
+                border-bottom: 1px solid #e5e7eb;
+                font-size: 14px;
+            }
+
+            .table th {
+                background-color: #f8fafc;
+                font-weight: 600;
+                color: #1e3a8a;
+                white-space: nowrap;
+            }
+
+            .table tr:hover {
+                background-color: #f1f5f9;
+            }
+
+            .search-form {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            input[type="text"] {
+                padding: 8px 12px;
+                border: 1px solid #d1d5db;
+                border-radius: 4px;
+                width: 300px;
+            }
+
+            button {
+                padding: 8px 16px;
+                background-color: #1e40af;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            .alert {
+                padding: 15px;
+                border-radius: 6px;
+                margin-bottom: 20px;
+                font-size: 14px;
+            }
+
+            .alert-error {
+                background: #fee2e2;
+                color: #991b1b;
+                border: 1px solid #fecaca;
+            }
+
+            .alert-success {
+                background: #dcfce7;
+                color: #166534;
+                border: 1px solid #bbf7d0;
+            }
+
+            .btn-add {
+                display: inline-block;
+                padding: 8px 16px;
+                background-color: #1e40af;
+                color: white;
+                text-decoration: none;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+
+            .action-links a {
+                text-decoration: none;
+                margin-right: 5px;
+                font-weight: 500;
+            }
+
+            .link-detail {
+                color: #1e40af;
+            }
+
+            .link-edit {
+                color: #d97706;
+            }
+
+            .btn-delete {
+                color: #dc2626;
+                background: none;
+                border: none;
+                padding: 0;
+                cursor: pointer;
+                font-weight: 500;
+            }
+        </style>
+
+        <section class="container-fluid">
+
+            <div class="header-action">
+                <h1 class="page-title">Daftar Surat Ukur</h1>
+                <a class="btn-add" href="/surat-ukur/create"><i class="fas fa-plus"></i> Tambah Surat Ukur</a>
+            </div>
+
+            <% if (typeof error !=='undefined' && error) { %>
+                <div class="alert alert-error">
+                    <%= error %>
+                </div>
+                <% } %>
+
+                    <% if (typeof success !=='undefined' && success) { %>
+                        <div class="alert alert-success">
+                            <%= success %>
+                        </div>
+                        <% } %>
+
+                            <form method="get" action="/surat-ukur" class="search-form">
+                                <input type="text" name="q" placeholder="Cari ID / Nomor Surat Ukur / Lokasi"
+                                    value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>" />
+                                <button type="submit"><i class="fas fa-search"></i> Cari</button>
+                            </form>
+
+                            <div class="table-wrapper">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nomor Surat Ukur</th>
+                                            <th>Nomor Hak</th>
+                                            <th>Jenis Hak</th>
+                                            <th>Tahun</th>
+                                            <th>Media</th>
+                                            <th>Jumlah</th>
+                                            <th>Lokasi</th>
+                                            <th>No Boks</th>
+                                            <th>No Folder</th>
+                                            <th>Metode Proteksi</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <% // pastikan records ada dan merupakan array 
+                                        if (Array.isArray(records) &&
+                                            records.length) { records.forEach(function(r) { // hitung tahun terbit
+                                            let _year='-' ; const tv=r.tahun_terbit; if (tv !==null &&
+                                            typeof tv !=='undefined' && tv !=='' ) { // tv bisa berupa Date object atau string
+                                            try { // jika sudah Date object (Sequelize kadang mengembalikan) 
+                                            if (tv instanceof Date ||
+                                            Object.prototype.toString.call(tv)==='[object Date]' ) { _year=(new
+                                            Date(tv)).getFullYear(); } else { const s=String(tv).trim(); if
+                                            (/^\d{4}$/.test(s)) { _year=s; } else { const d=new Date(s);
+                                            _year=isNaN(d.getTime()) ? '-' : d.getFullYear(); } } } catch (e) {
+                                            _year='-' ; } } %>
+                                            <tr>
+                                                <td>
+                                                    <%= r.id_surat_ukur %>
+                                                </td>
+                                                <td>
+                                                    <%= r.nomor_surat_ukur || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= r.nomor_hak || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= r.jenis_hak || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= _year %>
+                                                </td>
+                                                <td>
+                                                    <%= r.media || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= (r.jumlah !=null) ? r.jumlah : '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= r.lokasi_penyimpanan || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= r.no_boks_definitif || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= (r.nomor_folder !=null) ? r.nomor_folder : '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= r.metode_perlindungan || '-' %>
+                                                </td>
+                                                <td class="action-links">
+                                                    <a href="/surat-ukur/<%= r.id_surat_ukur %>" class="link-detail"
+                                                        title="Lihat Detail"><i class="fas fa-eye"></i></a>
+                                                    <a href="/surat-ukur/edit/<%= r.id_surat_ukur %>" class="link-edit"
+                                                        title="Edit"><i class="fas fa-edit"></i></a>
+                                                    <form action="/surat-ukur/delete/<%= r.id_surat_ukur %>"
+                                                        method="post" style="display:inline"
+                                                        onsubmit="return confirm('Hapus data surat ukur ini?');">
+                                                        <button type="submit" class="btn-delete" title="Hapus"><i
+                                                                class="fas fa-trash"></i></button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                            <% }); // end forEach } else { %>
+                                                <tr>
+                                                    <td colspan="12"
+                                                        style="text-align:center; padding:20px; color:#6b7280;">Belum
+                                                        ada data surat ukur.</td>
+                                                </tr>
+                                                <% } %>
+
+                                    </tbody>
+                                </table>
+                            </div>
+
+        </section>
+    </div>
+
+    <script>
+        // Memindahkan konten ke dalam .main-content setelah DOMContentLoaded
+        document.addEventListener("DOMContentLoaded", function () {
+            const kontenHalaman = document.getElementById('konten-halaman-surat-ukur');
+            const layoutUtama = document.querySelector('.main-content');
+            if (layoutUtama && kontenHalaman) {
+                const divBaru = document.createElement('div');
+                divBaru.innerHTML = kontenHalaman.innerHTML;
+                layoutUtama.appendChild(divBaru);
+                kontenHalaman.remove();
+            }
+        });
+    </script>
+
+    <%- include('../partials/footer.ejs') %>

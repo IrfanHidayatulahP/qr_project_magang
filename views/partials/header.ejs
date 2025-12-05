@@ -5,32 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyApp - Dashboard Admin</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- GLOBAL STYLES --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f5f5;
         }
 
-        /* Variables */
-        :root {
-            --primary-color: #1e40af;
-            /* Blue-700 */
-            --secondary-color: #fbbf24;
-            /* Amber-400 */
-            --dark-color: #1e3a8a;
-            /* Blue-800 */
-            --text-muted: #6b7280;
-            --border-color: #e5e7eb;
+        a {
+            text-decoration: none;
         }
 
-        /* Sidebar Styles */
+        /* --- SIDEBAR STYLES --- */
+        :root {
+            --primary-color: #1e40af;
+            --secondary-color: #fbbf24;
+            --dark-color: #1e3a8a;
+        }
+
         .sidebar {
             position: fixed;
             left: 0;
@@ -38,11 +35,9 @@
             width: 260px;
             height: 100vh;
             background: linear-gradient(135deg, var(--dark-color) 0%, var(--primary-color) 100%);
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
             transition: width 0.3s ease;
         }
 
@@ -50,479 +45,168 @@
             width: 80px;
         }
 
-        /* Brand/Logo Area */
+        /* Brand (Logo) */
         .sidebar-brand {
-            padding: 25px 20px;
-            background-color: rgba(0, 0, 0, 0.1);
-            border-bottom: 3px solid var(--secondary-color);
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
-            gap: 12px;
             justify-content: center;
+            gap: 12px;
+            height: 70px;
         }
 
-        .sidebar.collapsed .sidebar-brand {
-            padding: 20px;
-        }
-
-        .sidebar-brand .brand-icon {
+        .brand-icon {
             width: 40px;
             height: 40px;
-            background-color: var(--secondary-color);
+            background: var(--secondary-color);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--dark-color);
-            font-size: 20px;
             font-weight: bold;
+            color: var(--dark-color);
             flex-shrink: 0;
         }
 
-        .sidebar-brand .brand-text {
+        .brand-text {
             color: white;
-            font-size: 18px;
             font-weight: 700;
-            letter-spacing: 0.5px;
             white-space: nowrap;
+            transition: opacity 0.3s;
         }
 
         .sidebar.collapsed .brand-text {
             display: none;
         }
 
-        /* Toggle Button */
-        .toggle-sidebar {
-            width: 100%;
-            padding: 15px;
-            background-color: rgba(0, 0, 0, 0.2);
-            color: white;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            border-radius: 0;
-        }
-
-        .toggle-sidebar:hover {
-            background-color: rgba(251, 191, 36, 0.2);
-        }
-
-        /* Navigation Menu */
+        /* Nav Links */
         .sidebar-nav {
             flex: 1;
-            padding: 25px 0;
+            padding: 20px 10px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 5px;
+            overflow-y: auto;
         }
 
-        .sidebar.collapsed .sidebar-nav {
-            padding: 15px 0;
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            transition: 0.2s;
+            white-space: nowrap;
         }
 
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--secondary-color);
+            transform: translateX(5px);
+        }
+
+        /* CLASS ACTIVE: Ini yang membuat warna kuning */
+        .sidebar-link.active {
+            background-color: var(--secondary-color);
+            color: var(--dark-color);
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* Judul Section */
         .nav-section-title {
-            padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 12px;
+            padding: 15px 15px 5px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: 15px;
         }
 
         .sidebar.collapsed .nav-section-title {
             display: none;
         }
 
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.85);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            margin: 0 10px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
+        .sidebar.collapsed .sidebar-link span {
+            display: none;
         }
 
-        .sidebar.collapsed .nav-link {
-            margin: 5px auto;
+        .sidebar.collapsed .sidebar-link {
+            justify-content: center;
             padding: 12px;
-            justify-content: center;
         }
 
-        .nav-link i {
-            width: 20px;
-            text-align: center;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-
-        .nav-link span {
-            white-space: nowrap;
-        }
-
-        .sidebar.collapsed .nav-link span {
-            display: none;
-        }
-
-        .nav-link:hover {
-            background-color: rgba(251, 191, 36, 0.15);
-            color: var(--secondary-color);
-            padding-left: 24px;
-        }
-
-        .sidebar.collapsed .nav-link:hover {
-            padding-left: 12px;
-        }
-
-        .nav-link.active {
-            background-color: var(--secondary-color);
-            color: var(--dark-color);
-            font-weight: 600;
-        }
-
-        /* User Area in Sidebar */
-        .sidebar-user {
-            padding: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            background-color: rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 15px;
-            width: 100%;
-        }
-
-        .sidebar.collapsed .user-info {
-            justify-content: center;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--secondary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--dark-color);
-            font-weight: bold;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-
-        .user-details {
-            flex: 1;
-        }
-
-        .sidebar.collapsed .user-details {
-            display: none;
-        }
-
-        .user-name {
-            display: block;
-            color: white;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .user-role {
-            display: block;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-        .sidebar.collapsed .logout-btn {
-            width: 40px;
-            padding: 10px;
-        }
-
-        .sidebar.collapsed .logout-btn span {
-            display: none;
-        }
-
-        .logout-btn:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* Top Header Bar */
+        /* --- HEADER & CONTENT LAYOUT --- */
         .top-header {
             margin-left: 260px;
-            /* Jarak awal untuk sidebar terbuka */
-            background-color: white;
-            padding: 15px 30px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            background: white;
+            height: 70px;
+            padding: 0 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             transition: margin-left 0.3s ease;
-            /* Penting: Pastikan Header Top tidak bertabrakan */
             position: sticky;
             top: 0;
             z-index: 999;
         }
 
-        .sidebar.collapsed~.top-header {
-            margin-left: 80px;
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--dark-color);
-        }
-
-        .header-info {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            color: var(--text-muted);
-            font-size: 13px;
-        }
-
-        /* Main Content */
         .main-content {
             margin-left: 260px;
-            /* Jarak awal untuk sidebar terbuka */
             padding: 30px;
             min-height: calc(100vh - 70px);
-            /* Kurangi tinggi header top */
             transition: margin-left 0.3s ease;
         }
 
-        .sidebar.collapsed~.top-header~.main-content {
+        #toggleBtn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #333;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: 0.2s;
+            margin-right: 15px;
+        }
+
+        #toggleBtn:hover {
+            background-color: #f0f0f0;
+            color: var(--primary-color);
+        }
+
+        /* Responsif */
+        .sidebar.collapsed~.top-header,
+        .sidebar.collapsed~.main-content {
             margin-left: 80px;
         }
 
-        /* --- DASHBOARD STYLES (Dipindahkan ke sini agar styling dashboard diterapkan) --- */
-        .hero {
-            background-color: white;
-            padding: 30px;
-            margin-bottom: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .hero h1 {
-            font-size: 28px;
-            color: var(--dark-color);
-            margin-bottom: 5px;
-        }
-
-        .muted {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background-color: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: transform 0.2s;
-            border-left: 5px solid var(--secondary-color);
-        }
-
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .card h3 {
-            font-size: 16px;
-            color: #374151;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .card p.big {
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--dark-color);
-            margin-bottom: 15px;
-        }
-
-        .card p {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 15px;
-        }
-
-        .card .link {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .card .link:hover {
-            text-decoration: underline;
-        }
-
-        /* Button Style for Backup */
-        .btn {
-            display: inline-block;
-            padding: 8px 15px;
-            background-color: var(--primary-color);
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            transition: background-color 0.2s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background-color: var(--dark-color);
-        }
-
-        .panel {
-            background-color: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .panel h2 {
-            font-size: 20px;
-            color: var(--dark-color);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
-
-        .list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .list li {
-            padding: 10px 0;
-            border-bottom: 1px dashed var(--border-color);
-            font-size: 14px;
-            color: #374151;
-        }
-
-        .list li:last-child {
-            border-bottom: none;
-        }
-
-        .list small {
-            color: #9ca3af;
-            margin-right: 5px;
-            font-weight: 400;
-            width: 140px;
-            /* Lebar tetap untuk waktu */
-            display: inline-block;
-            flex-shrink: 0;
-        }
-
-        /* Responsif Sederhana */
         @media (max-width: 768px) {
             .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                flex-direction: row;
-                flex-wrap: wrap;
-                padding-bottom: 10px;
+                transform: translateX(-100%);
+                width: 260px;
             }
 
-            .sidebar-brand {
-                flex: 0 0 auto;
-                border-right: 3px solid var(--secondary-color);
-                border-bottom: none;
-            }
-
-            .toggle-sidebar {
-                flex: 1;
-            }
-
-            .sidebar-nav {
-                flex-direction: row;
-                padding: 10px 0;
-                flex-wrap: wrap;
-                gap: 5px;
-            }
-
-            .nav-link {
-                margin: 0 5px;
-                padding: 10px;
-                flex: 1 1 auto;
-                min-width: 100px;
-                justify-content: center;
-            }
-
-            .nav-link span {
-                display: none;
-                /* Sembunyikan teks menu di layar kecil */
-            }
-
-            .nav-link:hover {
-                padding: 10px;
-                /* Reset padding hover */
-            }
-
-            .nav-section-title,
-            .sidebar-user {
-                display: none;
+            .sidebar.show {
+                transform: translateX(0);
             }
 
             .top-header,
             .main-content {
-                margin-left: 0;
+                margin-left: 0 !important;
             }
 
-            .grid {
-                grid-template-columns: 1fr;
+            .sidebar.collapsed {
+                width: 260px;
             }
         }
     </style>
@@ -535,96 +219,61 @@
             <div class="brand-text">MyApp</div>
         </div>
 
-        <button class="toggle-sidebar" id="toggleBtn" onclick="toggleSidebar()" title="Toggle Sidebar">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-
         <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-link active" title="Dashboard">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </a>
+            <a href="/dashboard" class="sidebar-link"><i class="fas fa-home"></i> <span>Dashboard</span></a>
 
             <div class="nav-section-title">Arsip Tanah</div>
-            <a href="/buku-tanah" class="nav-link" title="Buku Tanah">
-                <i class="fas fa-book"></i>
-                <span>Buku Tanah</span>
-            </a>
-
-            <a href="/surat-ukur" class="nav-link" title="Surat Ukur">
-                <i class="fas fa-ruler"></i>
-                <span>Surat Ukur</span>
-            </a>
-
-            <a href="/warkah" class="nav-link" title="Warkah">
-                <i class="fas fa-file-invoice"></i>
-                <span>Warkah</span>
-            </a>
-
-            <a href="/daftar-arsip" class="nav-link" title="Daftar Arsip">
-                <i class="fas fa-list"></i>
-                <span>Daftar Arsip</span>
-            </a>
+            <a href="/buku-tanah" class="sidebar-link"><i class="fas fa-book"></i> <span>Buku Tanah</span></a>
+            <a href="/surat-ukur" class="sidebar-link"><i class="fas fa-ruler-combined"></i> <span>Surat Ukur</span></a>
+            <a href="/warkah" class="sidebar-link"><i class="fas fa-file-invoice"></i> <span>Warkah</span></a>
+            <a href="/dokumen" class="sidebar-link"><i class="fas fa-list"></i> <span>Daftar Arsip</span></a>
 
             <div class="nav-section-title">Dokumen</div>
-            <a href="/dokumen/list-dokumen" class="nav-link" title="Dokumen">
-                <i class="fas fa-file-alt"></i>
-                <span>Dokumen</span>
-            </a>
-
-            <a href="/dokumen-upload" class="nav-link" title="Upload Dokumen">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <span>Upload Dokumen</span>
-            </a>
-
-            <a href="/dokumen-arsip" class="nav-link" title="Arsip Dokumen">
-                <i class="fas fa-archive"></i>
-                <span>Arsip Dokumen</span>
-            </a>
+            <a href="/dokumen/scan" class="sidebar-link"><i class="fas fa-camera"></i> <span>Scan Barcode</span></a>
+            <a href="/dokumen-upload" class="sidebar-link"><i class="fas fa-cloud-upload-alt"></i>
+                <span>Upload</span></a>
+            <a href="/logout" class="sidebar-link mt-4 text-warning"><i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span></a>
         </nav>
-
-        <div class="sidebar-user">
-            <div class="user-info">
-                <div class="user-avatar">A</div>
-                <div class="user-details">
-                    <span class="user-name">Admin User</span>
-                    <span class="user-role">Administrator</span>
-                </div>
-            </div>
-            <a href="/logout" class="logout-btn" title="Logout">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </a>
-        </div>
     </aside>
 
     <header class="top-header">
-        <div class="header-title" id="pageTitle">Dashboard Admin</div>
-        <div class="header-info">
-            <span><i class="fas fa-calendar-alt"></i>
-                <%= new Date().toLocaleDateString('id-ID', {weekday: 'long' , year: 'numeric' , month: 'long' ,
-                    day: 'numeric' }) %>
+        <div class="d-flex align-items-center">
+            <button id="toggleBtn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <div class="fw-bold fs-5 text-dark">Dashboard Admin</div>
+        </div>
+        <div class="d-flex align-items-center text-muted small">
+            <i class="fas fa-calendar-alt me-2"></i>
+            <span>
+                <%= new Date().toLocaleDateString('id-ID', {weekday: 'long' , day: 'numeric' , month: 'long' ,
+                    year: 'numeric' }) %>
             </span>
         </div>
     </header>
 
     <main class="main-content">
+
         <script>
-            function toggleSidebar() {
-                const sidebar = document.getElementById('sidebar');
-                const toggleBtn = document.getElementById('toggleBtn');
+            document.addEventListener("DOMContentLoaded", function () {
+                // 1. Ambil URL browser saat ini (contoh: /buku-tanah)
+                const currentPath = window.location.pathname;
 
-                sidebar.classList.toggle('collapsed');
+                // 2. Ambil semua tombol sidebar
+                const navLinks = document.querySelectorAll('.sidebar-link');
 
-                // Ubah ikon button
-                if (sidebar.classList.contains('collapsed')) {
-                    toggleBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
-                } else {
-                    toggleBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
-                }
-            }
+                navLinks.forEach(link => {
+                    const href = link.getAttribute('href');
+
+                    // Reset semua tombol (hapus kuning)
+                    link.classList.remove('active');
+
+                    // 3. Cek Kecocokan URL
+                    // - Jika path sama persis (misal: /dashboard)
+                    // - ATAU jika path diawali href tersebut (misal: /buku-tanah/create cocok dengan /buku-tanah)
+                    //   tapi hindari dashboard (/) cocok dengan semua halaman
+                    if (href === currentPath || (href !== '/dashboard' && currentPath.startsWith(href + '/')) || (href !== '/dashboard' && currentPath === href)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
         </script>
-    </main>
-</body>
-
-</html>

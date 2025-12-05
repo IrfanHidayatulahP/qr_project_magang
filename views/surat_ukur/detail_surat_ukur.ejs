@@ -1,0 +1,111 @@
+<%- include('../partials/header.ejs') %>
+    <section class="container">
+        <h1>Detail Surat Ukur - ID: <%= surat.id_surat_ukur %>
+        </h1>
+
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+                <% if (success) { %>
+                    <div class="alert alert-success">
+                        <%= success %>
+                    </div>
+                    <% } %>
+
+                        <table class="table detail-table">
+                            <tbody>
+                                <tr>
+                                    <th>ID</th>
+                                    <td>
+                                        <%= surat.id_surat_ukur %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Nomor Hak</th>
+                                    <td>
+                                        <%= surat.nomor_hak || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Jenis Hak</th>
+                                    <td>
+                                        <%= surat.jenis_hak || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Nomor Surat Ukur</th>
+                                    <td>
+                                        <%= surat.nomor_surat_ukur || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Tahun Terbit</th>
+                                    <td>
+                                        <% // tentukan tahun secara aman dari surat.tahun_terbit let _tahun='-' ; 
+                                        if (typeof surat !=='undefined' && surat && typeof surat.tahun_terbit
+                                            !=='undefined' && surat.tahun_terbit !==null && surat.tahun_terbit !=='' ) {
+                                            try { const tv=surat.tahun_terbit; // Jika sudah objek Date 
+                                            if (tv instanceof Date || Object.prototype.toString.call(tv)==='[object Date]' ) {
+                                            _tahun=(new Date(tv)).getFullYear(); } else { // tv kemungkinan string like '2020' or '2020-01-01' atau database date string 
+                                            const s=String(tv).trim(); if (/^\d{4}$/.test(s)) { _tahun=s; } else { const d=new
+                                            Date(s); _tahun=isNaN(d.getTime()) ? '-' : d.getFullYear(); } } } catch (e)
+                                            { _tahun='-' ; } } %>
+                                            <%= _tahun %>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Media</th>
+                                    <td>
+                                        <%= surat.media || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Jumlah</th>
+                                    <td>
+                                        <%= typeof surat.jumlah !=='undefined' && surat.jumlah !==null ? surat.jumlah
+                                            : '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Lokasi Penyimpanan</th>
+                                    <td>
+                                        <%= surat.lokasi_penyimpanan || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>No Boks Definitif</th>
+                                    <td>
+                                        <%= surat.no_boks_definitif || '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Nomor Folder</th>
+                                    <td>
+                                        <%= typeof surat.nomor_folder !=='undefined' && surat.nomor_folder !==null ?
+                                            surat.nomor_folder : '-' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Metode Perlindungan</th>
+                                    <td>
+                                        <%= surat.metode_perlindungan || '-' %>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="actions">
+                            <a href="/surat-ukur/edit/<%= surat.id_surat_ukur %>" class="btn btn-warning">Edit</a>
+                            <form action="/surat-ukur/delete/<%= surat.id_surat_ukur %>" method="post"
+                                style="display:inline;">
+                                <button
+                                    onclick="return confirm('Hapus data surat ukur id <%= surat.id_surat_ukur %> ?');"
+                                    class="btn btn-danger">Hapus</button>
+                            </form>
+                            <a href="/surat-ukur" class="btn btn-secondary">Kembali</a>
+                        </div>
+    </section>
+    <%- include('../partials/footer.ejs') %>

@@ -1,10 +1,17 @@
-</main>
+<script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleBtnIcon = document.querySelector('#toggleBtn i');
 
-<footer class="footer" style="margin-top:2rem;">
-    <div class="container">
-        <small>&copy; <%= new Date().getFullYear() %> Perusahaan Anda</small>
-    </div>
-</footer>
+            // Toggle class 'collapsed' pada sidebar
+            sidebar.classList.toggle('collapsed');
+            
+            // Khusus Mobile: Toggle class 'show' (karena di mobile sidebar defaultnya sembunyi)
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('show');
+            }
+        }
+    </script>
 </body>
-
 </html>

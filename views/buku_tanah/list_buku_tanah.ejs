@@ -1,4 +1,5 @@
-<%- include('../../partials/header.ejs') %>
+<!-- views/buku_tanah/list_buku_tanah.ejs -->
+<%- include('../partials/header.ejs') %>
 
     <div id="konten-halaman-buku-tanah" style="display: none;">
 
@@ -20,7 +21,6 @@
                 font-weight: bold;
             }
 
-            /* Table Styles */
             .table-wrapper {
                 overflow-x: auto;
                 background: white;
@@ -53,7 +53,6 @@
                 background-color: #f1f5f9;
             }
 
-            /* Form Elements */
             .search-form {
                 display: flex;
                 gap: 10px;
@@ -74,14 +73,8 @@
                 border: none;
                 border-radius: 4px;
                 cursor: pointer;
-                transition: background 0.2s;
             }
 
-            button:hover {
-                background-color: #1e3a8a;
-            }
-
-            /* Alerts */
             .alert {
                 padding: 15px;
                 border-radius: 6px;
@@ -101,7 +94,6 @@
                 border: 1px solid #bbf7d0;
             }
 
-            /* Actions */
             .btn-add {
                 display: inline-block;
                 padding: 8px 16px;
@@ -110,10 +102,6 @@
                 text-decoration: none;
                 border-radius: 4px;
                 font-size: 14px;
-            }
-
-            .btn-add:hover {
-                background-color: #1e3a8a;
             }
 
             .action-links a {
@@ -144,9 +132,7 @@
 
             <div class="header-action">
                 <h1 class="page-title">Daftar Buku Tanah</h1>
-                <a class="btn-add" href="/buku-tanah/create">
-                    <i class="fas fa-plus"></i> Tambah Buku Tanah
-                </a>
+                <a class="btn-add" href="/buku-tanah/create"><i class="fas fa-plus"></i> Tambah Buku Tanah</a>
             </div>
 
             <% if (typeof error !=='undefined' && error) { %>
@@ -154,7 +140,6 @@
                     <%= error %>
                 </div>
                 <% } %>
-
                     <% if (typeof success !=='undefined' && success) { %>
                         <div class="alert alert-success">
                             <%= success %>
@@ -162,7 +147,7 @@
                         <% } %>
 
                             <form method="get" action="/buku-tanah" class="search-form">
-                                <input type="text" name="q" placeholder="Cari ID / No Reg / No Peta"
+                                <input type="text" name="q" placeholder="Cari ID / Nomor Hak / Lokasi"
                                     value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>" />
                                 <button type="submit"><i class="fas fa-search"></i> Cari</button>
                             </form>
@@ -172,11 +157,15 @@
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>No Reg</th>
+                                            <th>Nomor Hak</th>
                                             <th>Jenis Hak</th>
-                                            <th>Luas (m²)</th>
-                                            <th>No Peta</th>
-                                            <th>Status</th>
+                                            <th>Tahun</th>
+                                            <th>Media</th>
+                                            <th>Jumlah</th>
+                                            <th>Lokasi</th>
+                                            <th>No Boks</th>
+                                            <th>No Folder</th>
+                                            <th>Metode Proteksi</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -188,27 +177,39 @@
                                                         <%= r.id_buku_tanah %>
                                                     </td>
                                                     <td>
-                                                        <%= r.no_reg || '-' %>
+                                                        <%= r.nomor_hak || '-' %>
                                                     </td>
                                                     <td>
                                                         <%= r.jenis_hak || '-' %>
                                                     </td>
                                                     <td>
-                                                        <%= (r.luas_tanah !=null) ? r.luas_tanah : '-' %>
+                                                        <% let _year='-' ; const tv=r.tahun_terbit; if (tv !==null &&
+                                                            typeof tv !=='undefined' && tv !=='' ) { if (tv instanceof
+                                                            Date) { _year=tv.getFullYear(); } else { const
+                                                            s=String(tv).trim(); // jika bentuk '2024' atau angka 2024
+                                                            if (/^\d{4}$/.test(s)) { _year=s; } else { const d=new
+                                                            Date(s); _year=isNaN(d.getTime()) ? '-' : d.getFullYear(); }
+                                                            } } %>
+                                                            <%= _year %>
+                                                    </td>
+
+                                                    <td>
+                                                        <%= r.media || '-' %>
                                                     </td>
                                                     <td>
-                                                        <%= r.no_peta || '-' %>
+                                                        <%= (r.jumlah !=null) ? r.jumlah : '-' %>
                                                     </td>
                                                     <td>
-                                                        <% if(r.status_buku==='Aktif' ) { %>
-                                                            <span style="color: green; font-weight: bold;">
-                                                                <%= r.status_buku %>
-                                                            </span>
-                                                            <% } else { %>
-                                                                <span style="color: grey;">
-                                                                    <%= r.status_buku || '-' %>
-                                                                </span>
-                                                                <% } %>
+                                                        <%= r.lokasi_penyimpanan || '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <%= r.no_boks_definitif || '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <%= r.nomor_folder !=null ? r.nomor_folder : '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <%= r.metode_perlindungan || '-' %>
                                                     </td>
                                                     <td class="action-links">
                                                         <a href="/buku-tanah/<%= r.id_buku_tanah %>" class="link-detail"
@@ -227,10 +228,9 @@
                                                 <% }) %>
                                                     <% } else { %>
                                                         <tr>
-                                                            <td colspan="7"
-                                                                style="text-align:center; padding: 20px; color: #6b7280;">
-                                                                Belum ada data buku tanah.
-                                                            </td>
+                                                            <td colspan="11"
+                                                                style="text-align:center; padding:20px; color:#6b7280;">
+                                                                Belum ada data buku tanah.</td>
                                                         </tr>
                                                         <% } %>
                                     </tbody>
@@ -241,20 +241,12 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // 1. Ambil elemen wrapper konten buku tanah
             const kontenHalaman = document.getElementById('konten-halaman-buku-tanah');
-
-            // 2. Ambil elemen <main> dari header.ejs yang sudah dirender browser
             const layoutUtama = document.querySelector('.main-content');
-
-            // 3. Pindahkan isinya ke dalam <main>
             if (layoutUtama && kontenHalaman) {
-                // Masukkan konten ke layout utama
                 const divBaru = document.createElement('div');
                 divBaru.innerHTML = kontenHalaman.innerHTML;
                 layoutUtama.appendChild(divBaru);
-
-                // 4. Hapus wrapper asli agar bersih
                 kontenHalaman.remove();
             }
         });

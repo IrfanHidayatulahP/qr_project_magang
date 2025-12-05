@@ -1,47 +1,112 @@
-<%- include('./partials/header.ejs') %>
-    <section class="hero">
-        <h1>Dashboard Admin</h1>
-        <p class="muted">Panel manajemen untuk Admin.</p>
-    </section>
+<%- include('partials/header.ejs') %>
 
-    <section class="grid">
-        <article class="card">
-            <h3>User Aktif</h3>
-            <p class="big">
-                <%= stats ? stats.activeUsers : '-' %>
-            </p>
-            <a href="/karyawan" class="link">Kelola Karyawan</a>
-        </article>
+<% 
+    let displayTotal = (typeof totalDokumen !== 'undefined') ? totalDokumen : 0;
+    let displayBulanIni = (typeof dokumenBulanIni !== 'undefined') ? dokumenBulanIni : 0;
+    let displayPanter = (typeof panter !== 'undefined') ? panter : 0;
+%>
 
-        <article class="card">
-            <h3>Registrasi Baru</h3>
-            <%# Menggunakan class 'big' agar konsisten dengan User Aktif %>
-                <p class="big">
-                    <%= stats ? stats.newRegistrationsThisWeek || 0 : 0 %>
-                </p>
-                <a href="/registrations" class="link">Lihat daftar</a>
-        </article>
+<div class="container-fluid p-0">
+    
+    <div class="mb-4">
+        <h3 class="fw-bold text-dark">Dashboard Overview</h3>
+        <p class="text-muted">Berikut ringkasan data pertanahan</p>
+    </div>
 
-        <article class="card">
-            <h3>Backup DB</h3>
-            <p>Terakhir: <%= stats && stats.lastBackup ? stats.lastBackup : 'Belum ada' %>
-            </p>
-            <a href="/admin/backup" class="btn">Buat Backup</a>
-        </article>
-    </section>
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-white h-100" style="background-color: #FFC107; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h6 class="text-uppercase mb-2 opacity-75 fw-bold">Total Dokumen</h6>
+                    <h2 class="fw-bold display-4 mb-0"><%= displayTotal %></h2>
+                </div>
+            </div>
+        </div>
 
-    <section class="panel">
-        <h2>Aktivitas Terakhir</h2>
-        <ul class="list">
-            <% if (logs && logs.length) { %>
-                <% logs.forEach(l=> { %>
-                    <li><small>
-                            <%= l.time %>
-                        </small> — <%= l.text %>
-                    </li>
-                    <% }) %>
-                        <% } else { %>
-                            <li>Belum ada aktivitas</li>
-                            <% } %>
-        </ul>
-    </section>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-white h-100" style="background-color: #17A2B8; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h6 class="text-uppercase mb-2 opacity-75 fw-bold">Dokumen Bulan Ini</h6>
+                    <h2 class="fw-bold display-4 mb-0"><%= displayBulanIni %></h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-white h-100" style="background-color: #DC3545; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h6 class="text-uppercase mb-2 opacity-75 fw-bold">Pending (Panter)</h6>
+                    <h2 class="fw-bold display-4 mb-0"><%= displayPanter %></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="fw-bold text-secondary mb-3">Menu Pengelolaan</h4>
+
+    <div class="row g-4">
+        <div class="col-lg-5 col-md-12">
+            <a href="/dokumen/scan" class="text-decoration-none">
+                <div class="card border-0 shadow-sm card-hover h-100 bg-white" style="border-radius: 16px;">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center p-5">
+                        <i class="fas fa-camera fa-5x mb-4 text-dark"></i>
+                        <h2 class="fw-bold text-dark">Scan</h2>
+                        <p class="text-muted">Cari lokasi fisik berkas</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-lg-7 col-md-12">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <a href="/buku-tanah" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
+                            <div class="card-body text-center py-4">
+                                <i class="fas fa-book fa-3x mb-3 text-dark"></i>
+                                <h5 class="fw-bold text-dark m-0">Buku Tanah</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="/surat-ukur" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
+                            <div class="card-body text-center py-4">
+                                <i class="fas fa-ruler-combined fa-3x mb-3 text-dark"></i>
+                                <h5 class="fw-bold text-dark m-0">Surat Ukur</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="/warkah" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
+                            <div class="card-body text-center py-4">
+                                <i class="fas fa-file-invoice fa-3x mb-3 text-dark"></i>
+                                <h5 class="fw-bold text-dark m-0">Warkah</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="/dokumen" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
+                            <div class="card-body text-center py-4">
+                                <i class="fas fa-list fa-3x mb-3 text-dark"></i>
+                                <h5 class="fw-bold text-dark m-0">Daftar Arsip</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer.ejs') %>
+
+<style>
+    .card-hover { transition: transform 0.2s; }
+    .card-hover:hover { transform: translateY(-5px); cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+</style>

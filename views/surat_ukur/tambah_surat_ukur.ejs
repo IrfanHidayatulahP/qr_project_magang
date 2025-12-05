@@ -1,0 +1,141 @@
+<%- include('../partials/header.ejs') %>
+    <section class="container">
+        <h1>Tambah Surat Ukur</h1>
+
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+
+                <% if (success) { %>
+                    <div class="alert alert-success">
+                        <%= success %>
+                    </div>
+                    <% } %>
+
+                        <form action="/surat-ukur/create" method="POST">
+                            <div class="form-row">
+                                <label>Nomor Hak (nomor_hak) <span
+                                        style="color:#666;font-size:0.9em">(unik)</span></label>
+                                <input type="text" name="nomor_hak" maxlength="150" required
+                                    value="<%= (old && old.nomor_hak) ? old.nomor_hak : '' %>">
+                            </div>
+
+                            <div class="form-row">
+                                <label>Jenis Hak (jenis_hak)</label>
+                                <select name="jenis_hak">
+                                    <option value="">-- pilih --</option>
+                                    <option value="HM" <%=old && old.jenis_hak==='HM' ? 'selected' : '' %>>HM</option>
+                                    <option value="HGB" <%=old && old.jenis_hak==='HGB' ? 'selected' : '' %>>HGB
+                                    </option>
+                                    <option value="HP" <%=old && old.jenis_hak==='HP' ? 'selected' : '' %>>HP</option>
+                                    <option value="HGU" <%=old && old.jenis_hak==='HGU' ? 'selected' : '' %>>HGU
+                                    </option>
+                                    <option value="Pengelolaan" <%=old && old.jenis_hak==='Pengelolaan' ? 'selected'
+                                        : '' %>>Pengelolaan</option>
+                                    <option value="Lainnya" <%=old && old.jenis_hak==='Lainnya' ? 'selected' : '' %>
+                                        >Lainnya</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <label>Nomor Surat Ukur (nomor_surat_ukur)</label>
+                                <input type="text" name="nomor_surat_ukur" maxlength="255"
+                                    value="<%= old && old.nomor_surat_ukur ? old.nomor_surat_ukur : '' %>">
+                            </div>
+
+                            <div class="form-row">
+                                <label>Tahun Terbit (tahun_terbit)</label>
+                                <input type="text" name="tahun_terbit" placeholder="contoh: 2020 atau 01-01-2020"
+                                    value="<%= old && old.tahun_terbit ? old.tahun_terbit : '' %>">
+                                <small style="color:#666">Boleh diisi hanya tahun (YYYY) atau tanggal (dd-mm-yyyy).
+                                    Sistem akan mencoba mem-parse.</small>
+                            </div>
+
+                            <div class="form-row">
+                                <label>Media (media)</label>
+                                <select name="media">
+                                    <option value="">-- pilih --</option>
+                                    <option value="Kertas" <%=old && old.media==='Kertas' ? 'selected' : '' %>>Kertas
+                                    </option>
+                                    <option value="Digital" <%=old && old.media==='Digital' ? 'selected' : '' %>>Digital
+                                    </option>
+                                    <option value="Microfilm" <%=old && old.media==='Microfilm' ? 'selected' : '' %>
+                                        >Microfilm</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <label>Jumlah (jumlah)</label>
+                                <input type="number" name="jumlah" min="0" step="1"
+                                    value="<%= typeof old !== 'undefined' && old.jumlah != null ? old.jumlah : '' %>">
+                            </div>
+
+                            <div class="form-row">
+                                <label>Tingkat Perkembangan (tingkat_perkembangan)</label>
+                                <select name="tingkat_perkembangan">
+                                    <option value="">-- pilih --</option>
+                                    <option value="Asli" <%=old && old.tingkat_perkembangan==='Asli' ? 'selected' : ''
+                                        %>>Asli</option>
+                                    <option value="Copy" <%=old && old.tingkat_perkembangan==='Copy' ? 'selected' : ''
+                                        %>>Copy</option>
+                                    <option value="Salinan" <%=old && old.tingkat_perkembangan==='Salinan' ? 'selected'
+                                        : '' %>>Salinan</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <label>Lokasi Penyimpanan (lokasi_penyimpanan)</label>
+                                <select name="lokasi_penyimpanan">
+                                    <option value="">-- pilih kode lokasi --</option>
+                                    <% if (Array.isArray(locations) && locations.length) { %>
+                                        <% locations.forEach(function(loc) { // Perbaikan logika label string concat agar tidak error syntax 
+                                        var label=(loc.kode_lokasi || '' ) + (loc.ruangan ?
+                                            (' — ' + loc.ruangan) : '') + 
+                                    (loc.no_rak ? (' / Rak ' + loc.no_rak) : '');
+                                    
+                        var isSelected = (old && old.lokasi_penyimpanan === loc.kode_lokasi) ? ' selected' : '' ; %>
+                                            <option value="<%= loc.kode_lokasi %>" <%=isSelected %>><%= label %>
+                                            </option>
+                                            <% }); %>
+                                                <% } else { %>
+                                                    <option disabled>Tidak ada data lokasi</option>
+                                                    <% } %>
+                                </select>
+                                <small style="color:#666">Pilih kode lokasi yang tersedia (diambil dari tabel
+                                    lokasi).</small>
+                            </div>
+
+                            <div class="form-row">
+                                <label>No Boks Definitif (no_boks_definitif)</label>
+                                <input type="text" name="no_boks_definitif" maxlength="100"
+                                    value="<%= old && old.no_boks_definitif ? old.no_boks_definitif : '' %>">
+                            </div>
+
+                            <div class="form-row">
+                                <label>Nomor Folder (nomor_folder)</label>
+                                <input type="number" name="nomor_folder" min="0" step="1"
+                                    value="<%= typeof old !== 'undefined' && old.nomor_folder != null ? old.nomor_folder : '' %>">
+                            </div>
+
+                            <div class="form-row">
+                                <label>Metode Perlindungan (metode_perlindungan)</label>
+                                <select name="metode_perlindungan">
+                                    <option value="">-- pilih --</option>
+                                    <option value="Vaulting" <%=old && old.metode_perlindungan==='Vaulting' ? 'selected'
+                                        : '' %>>Vaulting</option>
+                                    <option value="Cloud" <%=old && old.metode_perlindungan==='Cloud' ? 'selected' : ''
+                                        %>>Cloud</option>
+                                    <option value="Physical" <%=old && old.metode_perlindungan==='Physical' ? 'selected'
+                                        : '' %>>Physical</option>
+                                </select>
+                            </div>
+
+                            <div class="form-actions" style="margin-top:12px;">
+                                <button type="submit" class="btn btn-primary">Simpan</button>
+                                <a href="/surat-ukur" class="btn btn-secondary">Batal</a>
+                            </div>
+                        </form>
+    </section>
+    <%- include('../partials/footer.ejs') %>

@@ -1,7 +1,10 @@
-<%- include('../../partials/header.ejs') %>
+<!-- views/buku_tanah/detail_buku_tanah.ejs -->
+<%- include('../partials/header.ejs') %>
+
 
     <section class="container">
         <h1>Detail Buku Tanah</h1>
+
 
         <% if (error) { %>
             <div class="alert alert-error">
@@ -14,6 +17,7 @@
                     </div>
                     <% } %>
 
+
                         <table>
                             <tr>
                                 <th>ID</th>
@@ -22,15 +26,9 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th>Dokumen ID</th>
+                                <th>Nomor Hak</th>
                                 <td>
-                                    <%= buku.id_dokumen %>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>No Reg</th>
-                                <td>
-                                    <%= buku.no_reg || '-' %>
+                                    <%= buku.nomor_hak || '-' %>
                                 </td>
                             </tr>
                             <tr>
@@ -40,42 +38,60 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th>Luas Tanah (m&sup2;)</th>
-                                <td>
-                                    <%= buku.luas_tanah !=null ? buku.luas_tanah : '-' %>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Nama Pemilik Asal</th>
-                                <td>
-                                    <%= buku.nama_pemilik_asal || '-' %>
-                                </td>
-                            </tr>
-                            <tr>
                                 <th>Tahun Terbit</th>
                                 <td>
-                                    <%= buku.tahun_terbit ? (new Date(buku.tahun_terbit)).getFullYear() : '-' %>
+                                    <% let _year='-' ; const tv=buku.tahun_terbit; if (tv !==null && typeof tv
+                                        !=='undefined' && tv !=='' ) { if (tv instanceof Date) { _year=tv.getFullYear();
+                                        } else { const s=String(tv).trim(); if (/^\d{4}$/.test(s)) { _year=s; } else {
+                                        const d=new Date(s); _year=isNaN(d.getTime()) ? '-' : d.getFullYear(); } } } %>
+                                        <%= _year %>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <th>Media</th>
+                                <td>
+                                    <%= buku.media || '-' %>
                                 </td>
                             </tr>
                             <tr>
-                                <th>No Peta</th>
+                                <th>Jumlah</th>
                                 <td>
-                                    <%= buku.no_peta || '-' %>
+                                    <%= buku.jumlah !=null ? buku.jumlah : '-' %>
                                 </td>
                             </tr>
                             <tr>
-                                <th>Keterangan</th>
+                                <th>Tingkat Perkembangan</th>
                                 <td>
-                                    <%= buku.keterangan || '-' %>
+                                    <%= buku.tingkat_perkembangan || '-' %>
                                 </td>
                             </tr>
                             <tr>
-                                <th>Status Buku</th>
+                                <th>Lokasi Penyimpanan</th>
                                 <td>
-                                    <%= buku.status_buku || '-' %>
+                                    <%= buku.lokasi_penyimpanan || '-' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>No Boks Definitif</th>
+                                <td>
+                                    <%= buku.no_boks_definitif || '-' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Nomor Folder</th>
+                                <td>
+                                    <%= buku.nomor_folder !=null ? buku.nomor_folder : '-' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Metode Perlindungan</th>
+                                <td>
+                                    <%= buku.metode_perlindungan || '-' %>
                                 </td>
                             </tr>
                         </table>
+
 
                         <p>
                             <a href="/buku-tanah/edit/<%= buku.id_buku_tanah %>">Edit</a> |
