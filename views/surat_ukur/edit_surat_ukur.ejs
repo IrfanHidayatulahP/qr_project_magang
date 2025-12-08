@@ -1,138 +1,155 @@
 <%- include('../partials/header.ejs') %>
-<section class="container">
-  <h1>Edit Surat Ukur - ID: <%= surat.id_surat_ukur %></h1>
 
-  <% if (error) { %>
-    <div class="alert alert-error"><%= error %></div>
-  <% } %>
-  <% if (success) { %>
-    <div class="alert alert-success"><%= success %></div>
-  <% } %>
+<div id="form-content-edit-surat-ukur" style="display: none;">
+    
+    <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2">
+        <i class="fas fa-info-circle me-2"></i>Identitas Dokumen
+    </h6>
+    
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <label for="nomor_hak" class="form-label fw-semibold text-dark small">Nomor Hak</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="fas fa-hashtag text-muted"></i></span>
+                <input type="text" class="form-control border-start-0 ps-0" name="nomor_hak" id="nomor_hak" 
+                       value="<%= surat.nomor_hak || '' %>" required>
+            </div>
+        </div>
 
-  <form action="/surat-ukur/edit/<%= surat.id_surat_ukur %>" method="POST">
-    <div class="form-row">
-      <label>Nomor Hak (nomor_hak)</label>
-      <input type="text" name="nomor_hak" maxlength="150" required value="<%= surat.nomor_hak || '' %>">
-    </div>
+        <div class="col-md-6">
+            <label for="jenis_hak" class="form-label fw-semibold text-dark small">Jenis Hak</label>
+            <select class="form-select" name="jenis_hak" id="jenis_hak">
+                <option value="">-- Pilih Jenis Hak --</option>
+                <% const hakOptions=['HM','HGB','HP','HGU','Pengelolaan','Lainnya']; %>
+                <% hakOptions.forEach(h=> { %>
+                    <option value="<%= h %>" <%= (surat.jenis_hak === h) ? 'selected' : '' %>><%= h %></option>
+                <% }) %>
+            </select>
+        </div>
 
-    <div class="form-row">
-      <label>Jenis Hak (jenis_hak)</label>
-      <select name="jenis_hak">
-        <option value="">-- pilih --</option>
-        <option value="HM" <%= surat.jenis_hak === 'HM' ? 'selected' : '' %>>HM</option>
-        <option value="HGB" <%= surat.jenis_hak === 'HGB' ? 'selected' : '' %>>HGB</option>
-        <option value="HP" <%= surat.jenis_hak === 'HP' ? 'selected' : '' %>>HP</option>
-        <option value="HGU" <%= surat.jenis_hak === 'HGU' ? 'selected' : '' %>>HGU</option>
-        <option value="Pengelolaan" <%= surat.jenis_hak === 'Pengelolaan' ? 'selected' : '' %>>Pengelolaan</option>
-        <option value="Lainnya" <%= surat.jenis_hak === 'Lainnya' ? 'selected' : '' %>>Lainnya</option>
-      </select>
-    </div>
+        <div class="col-md-6">
+            <label for="nomor_surat_ukur" class="form-label fw-semibold text-dark small">Nomor Surat Ukur</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="fas fa-ruler-horizontal text-muted"></i></span>
+                <input type="text" class="form-control border-start-0 ps-0" name="nomor_surat_ukur" id="nomor_surat_ukur"
+                       value="<%= surat.nomor_surat_ukur || '' %>">
+            </div>
+        </div>
 
-    <div class="form-row">
-      <label>Nomor Surat Ukur (nomor_surat_ukur)</label>
-      <input type="text" name="nomor_surat_ukur" maxlength="255" value="<%= surat.nomor_surat_ukur || '' %>">
-    </div>
-
-    <% 
-      // Cari nilai tahun yang aman untuk ditampilkan di input.
-      // Hasilnya akan menjadi string 'YYYY' atau '' jika tidak available.
-      let _tahunInput = '';
-      if (surat && typeof surat.tahun_terbit !== 'undefined' && surat.tahun_terbit !== null && surat.tahun_terbit !== '') {
-        try {
-          const tv = surat.tahun_terbit;
-          if (tv instanceof Date || Object.prototype.toString.call(tv) === '[object Date]') {
-            _tahunInput = String((new Date(tv)).getFullYear());
-          } else {
-            const s = String(tv).trim();
-            if (/^\d{4}$/.test(s)) {
-              _tahunInput = s;
-            } else {
-              const d = new Date(s);
-              _tahunInput = isNaN(d.getTime()) ? '' : String(d.getFullYear());
+        <% 
+            let _tahunInput = '';
+            if (surat.tahun_terbit) {
+                const tv = surat.tahun_terbit;
+                // Jika object Date
+                if (tv instanceof Date || Object.prototype.toString.call(tv) === '[object Date]') {
+                    _tahunInput = tv.toISOString().split('T')[0]; // Format YYYY-MM-DD
+                } else {
+                    const s = String(tv).trim();
+                    // Jika formatnya sudah YYYY (4 digit angka)
+                    if (/^\d{4}$/.test(s)) {
+                        _tahunInput = s;
+                    } else {
+                        // Coba parse tanggal string
+                        const d = new Date(s);
+                        _tahunInput = isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
+                    }
+                }
             }
-          }
-        } catch (e) {
-          _tahunInput = '';
-        }
-      }
-    %>
+        %>
+        <div class="col-md-6">
+            <label for="tahun_terbit" class="form-label fw-semibold text-dark small">Tahun Terbit</label>
+            <input type="text" class="form-control" name="tahun_terbit" id="tahun_terbit"
+                   placeholder="YYYY atau DD-MM-YYYY"
+                   value="<%= _tahunInput %>">
+        </div>
 
-    <div class="form-row">
-      <label>Tahun Terbit (tahun_terbit)</label>
-      <!-- tampilkan HANYA tahun (YYYY) di field edit agar konsisten -->
-      <input type="text" name="tahun_terbit" placeholder="contoh: 2020 atau 01-01-2020" value="<%= _tahunInput %>">
-      <small style="color:#666">Tampil sebagai tahun (YYYY). Anda bisa masukkan tanggal lengkap jika perlu.</small>
+        <div class="col-md-6">
+            <label for="media" class="form-label fw-semibold text-dark small">Media Arsip</label>
+            <select class="form-select" name="media" id="media">
+                <option value="">-- Pilih Media --</option>
+                <% const mediaOptions=['Kertas','Digital','Microfilm']; %>
+                <% mediaOptions.forEach(m=> { %>
+                    <option value="<%= m %>" <%= (surat.media === m) ? 'selected' : '' %>><%= m %></option>
+                <% }) %>
+            </select>
+        </div>
     </div>
 
-    <div class="form-row">
-      <label>Media (media)</label>
-      <select name="media">
-        <option value="">-- pilih --</option>
-        <option value="Kertas" <%= surat.media === 'Kertas' ? 'selected' : '' %>>Kertas</option>
-        <option value="Digital" <%= surat.media === 'Digital' ? 'selected' : '' %>>Digital</option>
-        <option value="Microfilm" <%= surat.media === 'Microfilm' ? 'selected' : '' %>>Microfilm</option>
-      </select>
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <label for="jumlah" class="form-label fw-semibold text-dark small">Jumlah Lembar/Berkas</label>
+            <div class="input-group">
+                <input type="number" class="form-control" name="jumlah" id="jumlah"
+                       value="<%= (surat.jumlah != null) ? surat.jumlah : '' %>">
+                <span class="input-group-text bg-light text-muted">Lembar</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="tingkat_perkembangan" class="form-label fw-semibold text-dark small">Tingkat Perkembangan</label>
+            <select class="form-select" name="tingkat_perkembangan" id="tingkat_perkembangan">
+                <option value="">-- Pilih --</option>
+                <% const tpk=['Asli','Copy','Salinan']; %>
+                <% tpk.forEach(tp=> { %>
+                    <option value="<%= tp %>" <%= (surat.tingkat_perkembangan === tp) ? 'selected' : '' %>><%= tp %></option>
+                <% }) %>
+            </select>
+        </div>
     </div>
 
-    <div class="form-row">
-      <label>Jumlah (jumlah)</label>
-      <input type="number" name="jumlah" min="0" step="1" value="<%= (typeof surat.jumlah !== 'undefined' && surat.jumlah !== null) ? surat.jumlah : '' %>">
+    <div class="bg-light p-4 rounded-3 border border-dashed">
+        <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1">
+            <i class="fas fa-map-marker-alt me-2"></i>Lokasi Penyimpanan
+        </h6>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <label for="lokasi_penyimpanan" class="form-label fw-semibold text-dark small">Lokasi Rak / Ruangan</label>
+                <select class="form-select" name="lokasi_penyimpanan" id="lokasi_penyimpanan">
+                    <option value="">-- Pilih Kode Lokasi --</option>
+                    <% if (typeof locations !== 'undefined' && Array.isArray(locations) && locations.length > 0) { %>
+                        <% locations.forEach(function(loc) { 
+                            var label = (loc.kode_lokasi || '') + (loc.ruangan ? (' — ' + loc.ruangan) : '') + (loc.no_rak ? (' / Rak ' + loc.no_rak) : '');
+                            var isSelected = (surat.lokasi_penyimpanan === loc.kode_lokasi) ? 'selected' : ''; 
+                        %>
+                            <option value="<%= loc.kode_lokasi %>" <%= isSelected %>><%= label %></option>
+                        <% }); %>
+                    <% } else { %>
+                        <option value="<%= surat.lokasi_penyimpanan %>" selected><%= surat.lokasi_penyimpanan %></option>
+                    <% } %>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="no_boks_definitif" class="form-label fw-semibold text-dark small">No. Boks Definitif</label>
+                <input type="text" class="form-control" name="no_boks_definitif" id="no_boks_definitif"
+                       value="<%= surat.no_boks_definitif || '' %>">
+            </div>
+            <div class="col-md-6">
+                <label for="nomor_folder" class="form-label fw-semibold text-dark small">Nomor Folder</label>
+                <input type="number" class="form-control" name="nomor_folder" id="nomor_folder"
+                       value="<%= (surat.nomor_folder != null) ? surat.nomor_folder : '' %>">
+            </div>
+
+            <div class="col-md-6">
+                <label for="metode_perlindungan" class="form-label fw-semibold text-dark small">Metode Perlindungan</label>
+                <select class="form-select" name="metode_perlindungan">
+                    <option value="">-- Pilih --</option>
+                    <% const prot=['Vaulting','Cloud','Physical']; %>
+                    <% prot.forEach(p=> { %>
+                        <option value="<%= p %>" <%= (surat.metode_perlindungan === p) ? 'selected' : '' %>><%= p %></option>
+                    <% }) %>
+                </select>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="form-row">
-      <label>Tingkat Perkembangan (tingkat_perkembangan)</label>
-      <select name="tingkat_perkembangan">
-        <option value="">-- pilih --</option>
-        <option value="Asli" <%= surat.tingkat_perkembangan === 'Asli' ? 'selected' : '' %>>Asli</option>
-        <option value="Copy" <%= surat.tingkat_perkembangan === 'Copy' ? 'selected' : '' %>>Copy</option>
-        <option value="Salinan" <%= surat.tingkat_perkembangan === 'Salinan' ? 'selected' : '' %>>Salinan</option>
-      </select>
-    </div>
-
-    <div class="form-row">
-      <label>Lokasi Penyimpanan (lokasi_penyimpanan)</label>
-      <select name="lokasi_penyimpanan">
-        <option value="">-- pilih kode lokasi --</option>
-
-        <% if (Array.isArray(locations) && locations.length) { %>
-          <% locations.forEach(function(loc) {
-               const label = (loc.kode_lokasi || '') + (loc.ruangan ? (' — ' + loc.ruangan) : '') + (loc.no_rak ? (' / Rak ' + loc.no_rak) : '');
-               const selected = (typeof surat.lokasi_penyimpanan !== 'undefined' && surat.lokasi_penyimpanan === loc.kode_lokasi) ? 'selected' : '';
-          %>
-            <option value="<%= loc.kode_lokasi %>" <%= selected %>><%= label %></option>
-          <% }); %>
-        <% } else { %>
-          <option disabled>Tidak ada data lokasi</option>
-        <% } %>
-
-      </select>
-      <small style="color:#666">Pilih kode lokasi yang tersedia (diambil dari tabel lokasi).</small>
-    </div>
-
-    <div class="form-row">
-      <label>No Boks Definitif (no_boks_definitif)</label>
-      <input type="text" name="no_boks_definitif" maxlength="100" value="<%= surat.no_boks_definitif || '' %>">
-    </div>
-
-    <div class="form-row">
-      <label>Nomor Folder (nomor_folder)</label>
-      <input type="number" name="nomor_folder" min="0" step="1" value="<%= (typeof surat.nomor_folder !== 'undefined' && surat.nomor_folder !== null) ? surat.nomor_folder : '' %>">
-    </div>
-
-    <div class="form-row">
-      <label>Metode Perlindungan (metode_perlindungan)</label>
-      <select name="metode_perlindungan">
-        <option value="">-- pilih --</option>
-        <option value="Vaulting" <%= surat.metode_perlindungan === 'Vaulting' ? 'selected' : '' %>>Vaulting</option>
-        <option value="Cloud" <%= surat.metode_perlindungan === 'Cloud' ? 'selected' : '' %>>Cloud</option>
-        <option value="Physical" <%= surat.metode_perlindungan === 'Physical' ? 'selected' : '' %>>Physical</option>
-      </select>
-    </div>
-
-    <div class="form-actions" style="margin-top:12px;">
-      <button type="submit" class="btn btn-primary">Update</button>
-      <a href="/surat-ukur" class="btn btn-secondary">Batal</a>
-    </div>
-  </form>
-</section>
-<%- include('../partials/footer.ejs') %>
+<%- include('../partials/edit_template.ejs', { 
+    title: 'Edit Surat Ukur',
+    parentName: 'Surat Ukur',
+    parentUrl: '/surat-ukur',
+    breadcrumbActive: 'Edit Data #' + surat.id_surat_ukur,
+    formAction: '/surat-ukur/edit/' + surat.id_surat_ukur,
+    icon: 'fas fa-pencil-alt', 
+    contentId: 'form-content-edit-surat-ukur' 
+}) %>

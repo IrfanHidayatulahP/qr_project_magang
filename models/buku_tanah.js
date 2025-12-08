@@ -49,6 +49,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.ENUM('Vaulting','Cloud','Physical'),
       allowNull: true,
       defaultValue: "Vaulting"
+    },
+    qr_path: {
+      type: DataTypes.STRING(255),
+      allowNull: false
     }
   }, {
     sequelize,

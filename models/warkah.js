@@ -74,6 +74,10 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
       defaultValue: "Vaulting"
     },
+    qr_path: {
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
     keterangan: {
       type: DataTypes.TEXT,
       allowNull: true

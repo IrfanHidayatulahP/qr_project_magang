@@ -1,264 +1,121 @@
 <%- include('../partials/header.ejs') %>
 
-    <section class="container">
-        <h1>Daftar Warkah</h1>
-
-        <% if (error) { %>
-            <div class="alert alert-error">
-                <%= error %>
+<div id="konten-warkah" style="display: none;">
+    <section class="container-fluid">
+        
+        <div class="header-action">
+            <h1 class="page-title">Daftar Warkah</h1>
+            <div style="display:flex; gap:10px;">
+                <a class="btn-add" href="/warkah/create"><i class="fas fa-plus"></i> Tambah Warkah</a>
+                <button id="btn-open-download" class="btn-add" type="button"><i class="fas fa-download"></i> Download</button>
             </div>
-            <% } %>
-                <% if (success) { %>
-                    <div class="alert alert-success">
-                        <%= success %>
-                    </div>
+        </div>
+
+        <% if (typeof error !=='undefined' && error) { %> <div class="alert alert-error"><%= error %></div> <% } %>
+        <% if (typeof success !=='undefined' && success) { %> <div class="alert alert-success"><%= success %></div> <% } %>
+
+        <form method="get" action="/warkah" class="search-form">
+            <input type="text" name="q" placeholder="Cari ID / No DI-208 / No Hak..." value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>" />
+            <button type="submit"><i class="fas fa-search"></i> Cari</button>
+        </form>
+
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nomor DI-208</th>
+                        <th>Nomor Hak</th>
+                        <th>Tahun</th>
+                        <th>Media</th>
+                        <th>Jumlah</th>
+                        <th>Lokasi</th>
+                        <th>No Boks</th>
+                        <th>QR</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof records !=='undefined' && records && records.length) { %>
+                        <% records.forEach(r => { %>
+                            <tr data-id="<%= r.id_warkah %>">
+                                <td><%= r.id_warkah %></td>
+                                <td><%= r.nomor_di_208 || '-' %></td>
+                                <td><%= r.nomor_hak || '-' %></td>
+                                <td>
+                                    <% 
+                                        let yearDisplay = '-'; 
+                                        if (r.tahun_terbit) {
+                                            const tv = r.tahun_terbit;
+                                            if (tv instanceof Date) { yearDisplay = tv.getFullYear(); }
+                                            else { 
+                                                const s = String(tv).trim(); 
+                                                yearDisplay = /^\d{4}/.test(s) ? s.match(/^\d{4}/)[0] : new Date(s).getFullYear();
+                                                if (isNaN(yearDisplay)) yearDisplay = '-';
+                                            }
+                                        } 
+                                    %>
+                                    <%= yearDisplay %>
+                                </td>
+                                <td><%= r.media || '-' %></td>
+                                <td><%= (r.jumlah != null) ? r.jumlah : '-' %></td>
+                                <td><%= r.lokasi_penyimpanan || '-' %></td>
+                                <td><%= r.no_boks_definitif || '-' %></td>
+                                
+                                <td style="text-align:center;">
+                                    <div class="qr-preview">
+                                        <a href="/warkah/detail/<%= r.id_warkah %>">
+                                            <img src="/warkah/<%= r.id_warkah %>/qr.png" alt="QR" />
+                                        </a>
+                                    </div>
+                                </td>
+                                
+                                <td class="action-links">
+                                    <a href="/warkah/<%= r.id_warkah %>" class="link-detail" title="Lihat"><i class="fas fa-eye"></i></a>
+                                    
+                                    <a href="/warkah/edit/<%= r.id_warkah %>" class="link-edit" title="Edit"><i class="fas fa-edit"></i></a>
+                                    <form action="/warkah/delete/<%= r.id_warkah %>" method="post" style="display:inline" onsubmit="return confirm('Hapus data warkah ini?');">
+                                        <button type="submit" class="btn-delete" title="Hapus"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="10" style="text-align:center; padding:20px; color:#6b7280;">
+                                Belum ada data warkah.
+                            </td>
+                        </tr>
                     <% } %>
+                </tbody>
+            </table>
+        </div>
 
-                        <div style="margin: 10px 0; display:flex; gap:8px; align-items:center;">
-                            <form method="GET" action="/warkah" style="display:flex; gap:8px; align-items:center;">
-                                <input type="text" name="q" placeholder="Cari nomor hak / kode / lokasi / boks"
-                                    value="<%= filter_q || '' %>" />
-                                <button type="submit">Cari</button>
-                            </form>
+        <div id="source-checkboxes" style="display:none;">
+            <label><input type="checkbox" name="col" value="id_warkah" checked> ID</label>
+            <label><input type="checkbox" name="col" value="nomor_di_208" checked> Nomor DI-208</label>
+            <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor Hak</label>
+            <label><input type="checkbox" name="col" value="tahun_terbit" checked> Tahun</label>
+            <label><input type="checkbox" name="col" value="kode_klasifikasi" checked> Kode Klasifikasi</label>
+            <label><input type="checkbox" name="col" value="jenis_arsip_vital" checked> Jenis Arsip Vital</label>
+            <label style="width:100%;"><input type="checkbox" name="col" value="uraian_informasi_arsip" checked> Uraian Informasi</label>
+            <label><input type="checkbox" name="col" value="media" checked> Media</label>
+            <label><input type="checkbox" name="col" value="jumlah" checked> Jumlah</label>
+            <label><input type="checkbox" name="col" value="jangka_simpan_aktif" checked> Jangka Simpan Aktif</label>
+            <label><input type="checkbox" name="col" value="jangka_simpan_inaktif" checked> Jangka Simpan Inaktif</label>
+            <label><input type="checkbox" name="col" value="jangka_simpan_keterangan" checked> Ket. Jangka Simpan</label>
+            <label><input type="checkbox" name="col" value="tingkat_perkembangan" checked> Perkembangan</label>
+            <label><input type="checkbox" name="col" value="lokasi_penyimpanan" checked> Lokasi</label>
+            <label><input type="checkbox" name="col" value="no_boks_definitif" checked> No Boks</label>
+            <label><input type="checkbox" name="col" value="nomor_folder" checked> No Folder</label>
+            <label><input type="checkbox" name="col" value="metode_perlindungan" checked> Metode Proteksi</label>
+            <label style="width:100%;"><input type="checkbox" name="col" value="keterangan" checked> Keterangan</label>
+        </div>
 
-                            <div style="margin-left:auto; display:flex; gap:8px;">
-                                <a href="/warkah/create" class="btn-add"
-                                    style="text-decoration:none; padding:8px 12px; background:#1e40af; color:white; border-radius:4px;">Tambah
-                                    Warkah</a>
-                                <button id="btn-open-download" class="btn-add" type="button"
-                                    style="padding:8px 12px; background:#1e40af; color:white; border-radius:4px;">
-                                    <i class="fas fa-download"></i> Download
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table" border="1" cellpadding="6" cellspacing="0"
-                                style="width:100%; border-collapse:collapse;">
-                                <thead>
-                                    <tr style="background:#f8fafc;">
-                                        <th>ID</th>
-                                        <th>Nomor DI-208</th>
-                                        <th>Nomor Hak</th>
-                                        <th>Tahun Terbit</th>
-                                        <th>Media</th>
-                                        <th>Jumlah</th>
-                                        <th>Lokasi</th>
-                                        <th>No Boks</th>
-                                        <th>QR</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% if (!records || records.length===0) { %>
-                                        <tr>
-                                            <td colspan="10" style="text-align:center;">Tidak ada data</td>
-                                        </tr>
-                                        <% } else { %>
-                                            <% records.forEach(function(r) { %>
-                                                <tr>
-                                                    <td>
-                                                        <%= r.id_warkah %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.nomor_di_208 || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.nomor_hak || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <% let yearDisplay='-' ; if (typeof r.tahun_terbit
-                                                            !=='undefined' && r.tahun_terbit !==null && r.tahun_terbit
-                                                            !=='' ) { try { if (r.tahun_terbit instanceof Date ||
-                                                            Object.prototype.toString.call(r.tahun_terbit)==='[object Date]'
-                                                            ) { yearDisplay=(new Date(r.tahun_terbit)).getFullYear(); }
-                                                            else { const raw=r.tahun_terbit; const d=new Date(raw); if
-                                                            (!isNaN(d.getTime())) yearDisplay=d.getFullYear(); else {
-                                                            const s=String(raw); yearDisplay=(/^\d{4}/.test(s)) ?
-                                                            s.match(/^\d{4}/)[0] : s; } } } catch (e) { yearDisplay='-'
-                                                            ; } } %>
-                                                            <%= yearDisplay %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.media || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= (typeof r.jumlah !=='undefined' && r.jumlah !==null) ?
-                                                            r.jumlah : '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.lokasi_penyimpanan || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.no_boks_definitif || '-' %>
-                                                    </td>
-
-                                                    <!-- QR preview -->
-                                                    <td style="text-align:center;">
-                                                        <div class="qr-preview" title="QR ID <%= r.id_warkah %>">
-                                                            <a href="/warkah/detail/<%= r.id_warkah %>">
-                                                                <img src="/warkah/<%= r.id_warkah %>/qr.png"
-                                                                    alt="QR <%= r.id_warkah %>"
-                                                                    style="width:64px;height:64px;object-fit:contain;border:1px solid #eee;padding:4px;background:#fff;display:block;margin:0 auto;" />
-                                                            </a>
-                                                        </div>
-                                                    </td>
-
-                                                    <td>
-                                                        <a href="/warkah/detail/<%= r.id_warkah %>">Lihat</a> |
-                                                        <a href="/warkah/edit/<%= r.id_warkah %>">Edit</a> |
-                                                        <form action="/warkah/delete/<%= r.id_warkah %>" method="POST"
-                                                            style="display:inline;"
-                                                            onsubmit="return confirm('Hapus data warkah ini?');">
-                                                            <button type="submit"
-                                                                style="background:none;border:none;color:#c00;cursor:pointer;padding:0;">Hapus</button>
-                                                        </form>
-                                                    </td>
-                                                </tr>
-                                                <% }) %>
-                                                    <% } %>
-                                </tbody>
-                            </table>
-                        </div>
     </section>
+</div>
 
-    <!-- QR Modal -->
-    <div id="qr-modal"
-        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
-        <div
-            style="background:white; width:420px; max-width:95%; border-radius:8px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,0.2); text-align:center;">
-            <h5 style="margin-top:0;">QR Warkah</h5>
-            <img id="qr-modal-img" src="" alt="QR"
-                style="max-width:100%; height:auto; border:1px solid #eee; padding:8px; background:#fff;" />
-            <div style="margin-top:12px;">
-                <a id="qr-modal-download" href="#" class="btn-add" style="margin-right:8px;" target="_blank"
-                    rel="noopener">Download</a>
-                <button id="qr-modal-close" class="btn-add" style="background:#6b7280;">Tutup</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Download -->
-    <div id="download-modal"
-        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
-        <div
-            style="background:white; width:600px; max-width:96%; border-radius:8px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,0.2);">
-            <h3 style="margin-top:0">Download Data Warkah</h3>
-            <p>Pilih kolom yang ingin di-include di file CSV:</p>
-            <form id="download-form" onsubmit="return false;">
-                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
-                    <label><input type="checkbox" name="col" value="id_warkah" checked> ID</label>
-                    <label><input type="checkbox" name="col" value="nomor_di_208" checked> Nomor DI-208</label>
-                    <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor Hak</label>
-                    <label><input type="checkbox" name="col" value="tahun_terbit" checked> Tahun</label>
-                    <label><input type="checkbox" name="col" value="kode_klasifikasi" checked> Kode Klasifikasi</label>
-                    <label><input type="checkbox" name="col" value="jenis_arsip_vital" checked> Jenis Arsip
-                        Vital</label>
-                    <label style="width:100%;"><input type="checkbox" name="col" value="uraian_informasi_arsip" checked>
-                        Uraian Informasi Arsip</label>
-                    <label><input type="checkbox" name="col" value="media" checked> Media</label>
-                    <label><input type="checkbox" name="col" value="jumlah" checked> Jumlah</label>
-                    <label><input type="checkbox" name="col" value="jangka_simpan_aktif" checked> Jangka Simpan
-                        Aktif</label>
-                    <label><input type="checkbox" name="col" value="jangka_simpan_inaktif" checked> Jangka Simpan
-                        Inaktif</label>
-                    <label><input type="checkbox" name="col" value="jangka_simpan_keterangan" checked> Keterangan Jangka
-                        Simpan</label>
-                    <label><input type="checkbox" name="col" value="tingkat_perkembangan" checked> Tingkat
-                        Perkembangan</label>
-                    <label><input type="checkbox" name="col" value="lokasi_penyimpanan" checked> Lokasi
-                        Penyimpanan</label>
-                    <label><input type="checkbox" name="col" value="no_boks_definitif" checked> No Boks</label>
-                    <label><input type="checkbox" name="col" value="nomor_folder" checked> No Folder</label>
-                    <label><input type="checkbox" name="col" value="metode_perlindungan" checked> Metode
-                        Proteksi</label>
-                    <label style="width:100%;"><input type="checkbox" name="col" value="keterangan" checked>
-                        Keterangan</label>
-                </div>
-
-                <div style="display:flex; gap:10px; justify-content:flex-end;">
-                    <button id="btn-download-cancel" type="button" class="btn-add"
-                        style="background:#6b7280;">Batal</button>
-                    <button id="btn-download-start" type="button" class="btn-add"><i class="fas fa-file-csv"></i>
-                        Download CSV</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        (function () {
-            // modal handling for CSV download
-            const btnOpen = document.getElementById('btn-open-download');
-            const modal = document.getElementById('download-modal');
-            const btnCancel = document.getElementById('btn-download-cancel');
-            const btnStart = document.getElementById('btn-download-start');
-
-            btnOpen && btnOpen.addEventListener('click', function () {
-                if (modal) modal.style.display = 'flex';
-            });
-            btnCancel && btnCancel.addEventListener('click', function () {
-                if (modal) modal.style.display = 'none';
-            });
-
-            btnStart && btnStart.addEventListener('click', function () {
-                const checked = Array.from(document.querySelectorAll('#download-modal input[name="col"]:checked')).map(i => i.value);
-                if (!checked.length) {
-                    alert('Pilih minimal 1 kolom.');
-                    return;
-                }
-
-                // ambil q dari form pencarian (jika ada)
-                let qv = '';
-                const qInput = document.querySelector('form[action="/warkah"] input[name="q"]');
-                if (qInput) qv = qInput.value || '';
-
-                const params = new URLSearchParams();
-                if (qv && qv.trim() !== '') params.set('q', qv.trim());
-                params.set('columns', checked.join(','));
-
-                const url = '/warkah/download?' + params.toString();
-                window.location = url;
-
-                if (modal) modal.style.display = 'none';
-            });
-
-            window.addEventListener('click', function (e) {
-                if (!modal) return;
-                if (e.target === modal) modal.style.display = 'none';
-            });
-
-            // QR modal handling
-            document.addEventListener('click', function (e) {
-                const target = e.target;
-                if (target.matches('.btn-show-qr')) {
-                    const id = target.getAttribute('data-id');
-                    const imgUrl = `/warkah/${id}/qr.png`;
-                    const downloadUrl = `/warkah/${id}/qr/download`;
-                    const imgEl = document.getElementById('qr-modal-img');
-                    const dlEl = document.getElementById('qr-modal-download');
-
-                    if (imgEl) imgEl.src = imgUrl;
-                    if (dlEl) {
-                        dlEl.href = downloadUrl;
-                        dlEl.setAttribute('download', `warkah_${id}_qr.png`);
-                    }
-                    const modalQr = document.getElementById('qr-modal');
-                    if (modalQr) modalQr.style.display = 'flex';
-                }
-
-                if (target && target.id === 'qr-modal-close') {
-                    const modalQr = document.getElementById('qr-modal');
-                    if (modalQr) modalQr.style.display = 'none';
-                }
-            });
-
-            // klik di luar modal -> tutup QR modal juga
-            window.addEventListener('click', function (e) {
-                const modalQr = document.getElementById('qr-modal');
-                if (modalQr && e.target === modalQr) modalQr.style.display = 'none';
-            });
-        })();
-    </script>
-
-    <%- include('../partials/footer.ejs') %>
+<%- include('../partials/list_template.ejs', { 
+    baseUrl: '/warkah', 
+    contentId: 'konten-warkah' 
+}) %>

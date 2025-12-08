@@ -1,6 +1,10 @@
 const db = require('../config/db');
 const { Op } = require('sequelize');
 const QRCode = require('qrcode');
+const fs = require('fs').promises;
+const fsSync = require('fs');
+const path = require('path');
+
 
 // safe lookup model (sesuaikan properti kalau berbeda)
 const BukuTanah = db.buku_tanah || (db.models && (db.models.buku_tanah || db.models.Buku_tanah));
@@ -161,7 +165,6 @@ exports.create = async (req, res) => {
     if (!ensureModelOrRespond(res)) return;
     const t = await db.sequelize.transaction();
     try {
-        // ambil field sesuai model
         const {
             nomor_hak,
             jenis_hak,
@@ -175,7 +178,7 @@ exports.create = async (req, res) => {
             metode_perlindungan
         } = req.body;
 
-        // validasi enum singkat
+        // --- validasi enum & parsing sama seperti sebelumnya ---
         if (jenis_hak && !ALLOWED_JENIS_HAK.includes(jenis_hak)) {
             await t.rollback();
             return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('jenis_hak tidak valid'));
@@ -193,7 +196,6 @@ exports.create = async (req, res) => {
             return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('metode_perlindungan tidak valid'));
         }
 
-        // parse jumlah & nomor_folder
         let jumlahVal = null;
         if (typeof jumlah !== 'undefined' && jumlah !== '' && jumlah !== null) {
             const n = Number(String(jumlah).replace(',', '.'));
@@ -214,17 +216,16 @@ exports.create = async (req, res) => {
             nomorFolderVal = nf;
         }
 
-        // tahun_terbit: terima dd-mm-yyyy / yyyy-mm-dd / YYYY
         let tahunVal = null;
         if (typeof tahun_terbit !== 'undefined' && tahun_terbit !== '' && tahun_terbit !== null) {
-            tahunVal = parseDateIndo(tahun_terbit); // Date object or null
+            tahunVal = parseDateIndo(tahun_terbit);
         }
 
-        // raw insert ke kolom snake_case (created_at, updated_at)
+        // raw insert -> sisipkan qr_path sebagai empty string '' (kolom NOT NULL terpenuhi)
         const now = new Date();
         const sql = `INSERT INTO buku_tanah
-            (nomor_hak, jenis_hak, tahun_terbit, media, jumlah, tingkat_perkembangan, lokasi_penyimpanan, no_boks_definitif, nomor_folder, metode_perlindungan, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+            (nomor_hak, jenis_hak, tahun_terbit, media, jumlah, tingkat_perkembangan, lokasi_penyimpanan, no_boks_definitif, nomor_folder, metode_perlindungan, qr_path, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
         const replacements = [
             nomor_hak || null,
@@ -237,17 +238,53 @@ exports.create = async (req, res) => {
             no_boks_definitif || null,
             nomorFolderVal,
             metode_perlindungan || null,
+            '', // qr_path placeholder (akan diupdate setelah file dibuat)
             now,
             now
         ];
 
         await db.sequelize.query(sql, { replacements, transaction: t });
 
+        // commit dulu agar LAST_INSERT_ID tersedia dan konsisten
         await t.commit();
+
+        // ambil last insert id (MySQL)
+        const [[{ lastId }]] = await db.sequelize.query('SELECT LAST_INSERT_ID() as lastId;');
+        const id = lastId;
+
+        // generate QR file permanen ke public/qrcodes/
+        try {
+            const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+            const detailUrl = `${baseUrl}/buku-tanah/${Number(id)}`;
+
+            const qrcodeDir = path.join(__dirname, '..', 'public', 'qrcodes');
+            await fs.mkdir(qrcodeDir, { recursive: true });
+
+            const filename = `buku_tanah_${id}.png`;
+            const filepath = path.join(qrcodeDir, filename);
+
+            const buffer = await QRCode.toBuffer(detailUrl, {
+                type: 'png',
+                errorCorrectionLevel: 'H',
+                margin: 2,
+                scale: 8
+            });
+
+            await fs.writeFile(filepath, buffer);
+
+            // update kolom qr_path di DB
+            await db.sequelize.query('UPDATE buku_tanah SET qr_path = ? WHERE id_buku_tanah = ?', {
+                replacements: [`qrcodes/${filename}`, id]
+            });
+        } catch (fileErr) {
+            // jangan crash seluruh proses; log dan biarkan record ada tanpa qr_path.
+            console.error('Gagal generate/write QR file:', fileErr);
+        }
+
         return res.redirect('/buku-tanah?success=' + encodeURIComponent('Buku Tanah berhasil ditambahkan'));
     } catch (err) {
-        await t.rollback();
-        console.error('bukuTanah.create error (raw insert):', err);
+        try { await t.rollback(); } catch (e) {/* ignore */ }
+        console.error('bukuTanah.create error (raw insert + qr):', err);
         return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('Gagal menyimpan data buku tanah'));
     }
 };
@@ -571,7 +608,17 @@ exports.qrImage = async (req, res) => {
         const id = req.params.id;
         if (!isValidId(id)) return res.status(400).send('ID tidak valid');
 
-        // URL yang di-encode (gunakan PUBLIC_BASE_URL jika ada untuk dev lewat ngrok)
+        // cek record, ambil qr_path
+        const record = await BukuTanah.findByPk(Number(id), { attributes: ['qr_path'] });
+
+        if (record && record.qr_path) {
+            const abs = path.join(__dirname, '..', 'public', record.qr_path);
+            if (fsSync.existsSync(abs)) {
+                return res.sendFile(abs);
+            }
+        }
+
+        // fallback: generate on-the-fly (tidak disimpan)
         const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
         const detailUrl = `${baseUrl}/buku-tanah/${Number(id)}`;
 
@@ -589,16 +636,23 @@ exports.qrImage = async (req, res) => {
     }
 };
 
-/**
- * qrDownload - download PNG QR sebagai attachment
- * route: GET /buku-tanah/:id/qr/download
- */
 exports.qrDownload = async (req, res) => {
     try {
         if (!ensureModelOrRespond(res)) return;
         const id = req.params.id;
         if (!isValidId(id)) return res.status(400).send('ID tidak valid');
 
+        const record = await BukuTanah.findByPk(Number(id), { attributes: ['qr_path'] });
+
+        if (record && record.qr_path) {
+            const abs = path.join(__dirname, '..', 'public', record.qr_path);
+            if (fsSync.existsSync(abs)) {
+                res.setHeader('Content-Disposition', `attachment; filename="buku_tanah_${id}_qr.png"`);
+                return res.sendFile(abs);
+            }
+        }
+
+        // fallback generate & send
         const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
         const detailUrl = `${baseUrl}/buku-tanah/${Number(id)}`;
 

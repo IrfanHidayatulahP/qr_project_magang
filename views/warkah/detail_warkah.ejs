@@ -1,146 +1,172 @@
 <%- include('../partials/header.ejs') %>
 
-    <section class="container">
-        <h1>Detail Warkah - ID: <%= warkah.id_warkah %>
-        </h1>
+<div id="detail-content-warkah" style="display: none;">
+    <div class="row g-4">
+                        
+        <div class="col-md-6 border-end-md">
+            
+            <h6 class="text-secondary text-uppercase small fw-bold mb-4 letter-spacing-1">
+                <i class="fas fa-info-circle me-2"></i>Identitas Warkah
+            </h6>
 
-        <% if (error) { %>
-            <div class="alert alert-error">
-                <%= error %>
+            <div class="row g-4 mb-4">
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Nomor Hak</label>
+                    <span class="fs-6 fw-bold text-dark"><%= warkah.nomor_hak || '-' %></span>
+                </div>
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Tahun Terbit</label>
+                    <span class="fw-bold text-dark">
+                        <% 
+                            let _year = '-'; 
+                            const tv = warkah.tahun_terbit; 
+                            if (tv) { 
+                                const s = String(tv).trim(); 
+                                // Cek apakah formatnya YYYY atau Date String
+                                _year = /^\d{4}$/.test(s) ? s : new Date(s).getFullYear(); 
+                                if (isNaN(_year)) _year = '-';
+                            } 
+                        %>
+                        <%= _year %>
+                    </span>
+                </div>
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Kode Klasifikasi</label>
+                    <span class="badge bg-light text-dark border"><%= warkah.kode_klasifikasi || '-' %></span>
+                </div>
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Jenis Arsip Vital</label>
+                    <span class="text-dark"><%= warkah.jenis_arsip_vital || '-' %></span>
+                </div>
             </div>
-            <% } %>
-                <% if (success) { %>
-                    <div class="alert alert-success">
-                        <%= success %>
-                    </div>
+
+            <div class="mb-4">
+                <label class="small text-muted mb-1 d-block fw-bold">Uraian Informasi Arsip</label>
+                <div class="bg-light p-3 rounded border" style="font-size: 0.95rem; line-height: 1.6; min-height: 80px;">
+                    <%= warkah.uraian_informasi_arsip || '-' %>
+                </div>
+            </div>
+
+            <hr class="border-light">
+
+            <div class="row g-4">
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Media Arsip</label>
+                    <% if(warkah.media === 'Digital') { %>
+                        <span class="text-info fw-bold"><i class="fas fa-laptop me-1"></i> Digital</span>
+                    <% } else if(warkah.media === 'Microfilm') { %>
+                        <span class="text-warning fw-bold"><i class="fas fa-film me-1"></i> Microfilm</span>
+                    <% } else { %>
+                        <span class="text-secondary fw-bold"><i class="fas fa-file-alt me-1"></i> Kertas</span>
                     <% } %>
+                </div>
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Perkembangan</label>
+                    <span class="fw-bold text-dark"><%= warkah.tingkat_perkembangan || '-' %></span>
+                </div>
+                <div class="col-12">
+                    <label class="small text-muted mb-1 d-block">Jumlah Fisik</label>
+                    <span class="fw-bold text-dark"><%= (warkah.jumlah != null) ? warkah.jumlah : '-' %> Lembar/Berkas</span>
+                </div>
+            </div>
+        </div>
 
-                        <table class="table" border="1" cellpadding="6" cellspacing="0">
-                            <tbody>
-                                <tr>
-                                    <th>Nomor DI-208</th>
-                                    <td>
-                                        <%= warkah.nomor_di_208 || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Nomor Hak</th>
-                                    <td>
-                                        <%= warkah.nomor_hak || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Tahun Terbit</th>
-                                    <td>
-                                        <% let yearDisplay='-' ; if (typeof warkah.tahun_terbit !=='undefined' &&
-                                            warkah.tahun_terbit !==null && warkah.tahun_terbit !=='' ) { if (typeof
-                                            warkah.tahun_terbit==='number' ) yearDisplay=warkah.tahun_terbit; else {
-                                            const raw=warkah.tahun_terbit; const d=new Date(raw); if
-                                            (!isNaN(d.getTime())) yearDisplay=(typeof d.getUTCFullYear==='function' ) ?
-                                            d.getUTCFullYear() : d.getFullYear(); else { const s=String(raw);
-                                            yearDisplay=(/^\d{4}/.test(s)) ? s.match(/^\d{4}/)[0] : s; } } } %>
-                                            <%= yearDisplay %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Kode Klasifikasi</th>
-                                    <td>
-                                        <%= warkah.kode_klasifikasi || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Jenis Arsip Vital</th>
-                                    <td>
-                                        <%= warkah.jenis_arsip_vital || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Uraian Informasi Arsip</th>
-                                    <td>
-                                        <pre
-                                            style="white-space:pre-wrap;"><%= warkah.uraian_informasi_arsip || '-' %></pre>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Media</th>
-                                    <td>
-                                        <%= warkah.media || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Jumlah</th>
-                                    <td>
-                                        <%= (typeof warkah.jumlah !=='undefined' && warkah.jumlah !==null) ?
-                                            warkah.jumlah : '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Jangka Simpan Aktif</th>
-                                    <td>
-                                        <%= warkah.jangka_simpan_aktif || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Jangka Simpan Inaktif</th>
-                                    <td>
-                                        <%= warkah.jangka_simpan_inaktif || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Jangka Simpan Keterangan</th>
-                                    <td>
-                                        <%= warkah.jangka_simpan_keterangan || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Tingkat Perkembangan</th>
-                                    <td>
-                                        <%= warkah.tingkat_perkembangan || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Lokasi Penyimpanan</th>
-                                    <td>
-                                        <%= warkah.lokasi_penyimpanan || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>No Boks Definitif</th>
-                                    <td>
-                                        <%= warkah.no_boks_definitif || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Nomor Folder</th>
-                                    <td>
-                                        <%= (typeof warkah.nomor_folder !=='undefined' && warkah.nomor_folder !==null) ?
-                                            warkah.nomor_folder : '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Metode Perlindungan</th>
-                                    <td>
-                                        <%= warkah.metode_perlindungan || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Keterangan</th>
-                                    <td>
-                                        <pre style="white-space:pre-wrap;"><%= warkah.keterangan || '-' %></pre>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+        <div class="col-md-6 ps-md-4">
+            
+            <h6 class="text-secondary text-uppercase small fw-bold mb-4 letter-spacing-1">
+                <i class="fas fa-history me-2"></i>Jadwal Retensi Arsip
+            </h6>
+            <div class="row g-2 mb-4">
+                <div class="col-4">
+                    <div class="p-2 border rounded text-center bg-white h-100">
+                        <small class="d-block text-muted mb-1" style="font-size:0.7rem">Jangka Aktif</small>
+                        <strong class="text-primary"><%= warkah.jangka_simpan_aktif || '-' %></strong>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-2 border rounded text-center bg-white h-100">
+                        <small class="d-block text-muted mb-1" style="font-size:0.7rem">Jangka Inaktif</small>
+                        <strong class="text-secondary"><%= warkah.jangka_simpan_inaktif || '-' %></strong>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-2 border rounded text-center bg-white h-100">
+                        <small class="d-block text-muted mb-1" style="font-size:0.7rem">Keterangan</small>
+                        <span class="small fw-bold"><%= warkah.jangka_simpan_keterangan || '-' %></span>
+                    </div>
+                </div>
+            </div>
 
-                        <div style="margin-top:10px;">
-                            <a href="/warkah/edit/<%= warkah.id_warkah %>">Edit</a> |
-                            <form action="/warkah/delete/<%= warkah.id_warkah %>" method="POST" style="display:inline;"
-                                onsubmit="return confirm('Hapus data warkah ini?');">
-                                <button type="submit"
-                                    style="background:none;border:none;color:#c00;cursor:pointer;padding:0;">Hapus</button>
-                            </form> |
-                            <a href="/warkah">Kembali</a>
+            <h6 class="text-secondary text-uppercase small fw-bold mb-4 letter-spacing-1">
+                <i class="fas fa-map-marker-alt me-2"></i>Lokasi Penyimpanan
+            </h6>
+
+            <div class="bg-light p-3 rounded-3 border border-dashed mb-3">
+                <div class="d-flex align-items-start mb-3">
+                    <div class="me-3 mt-1 text-danger">
+                        <i class="fas fa-warehouse fa-lg"></i>
+                    </div>
+                    <div>
+                        <label class="small text-muted mb-0">Kode Lokasi / Rak</label>
+                        <div class="fs-5 fw-bold text-dark"><%= warkah.lokasi_penyimpanan || 'Belum Ditentukan' %></div>
+                    </div>
+                </div>
+                
+                <div class="row g-2 small">
+                    <div class="col-6">
+                        <div class="bg-white p-2 rounded border">
+                            <span class="text-muted d-block" style="font-size:0.75rem">No. Boks</span>
+                            <span class="fw-bold text-dark"><%= warkah.no_boks_definitif || '-' %></span>
                         </div>
-    </section>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-white p-2 rounded border">
+                            <span class="text-muted d-block" style="font-size:0.75rem">No. Folder</span>
+                            <span class="fw-bold text-dark"><%= warkah.nomor_folder != null ? warkah.nomor_folder : '-' %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <%- include('../partials/footer.ejs') %>
+            <div class="mb-4">
+                <label class="small text-muted mb-1 d-block">Metode Perlindungan</label>
+                <% if(warkah.metode_perlindungan === 'Vaulting') { %>
+                    <span class="badge bg-dark"><i class="fas fa-dungeon me-1"></i> Vaulting</span>
+                <% } else if(warkah.metode_perlindungan === 'Cloud') { %>
+                    <span class="badge bg-info"><i class="fas fa-cloud me-1"></i> Cloud</span>
+                <% } else { %>
+                    <span class="badge bg-secondary"><i class="fas fa-shield-alt me-1"></i> <%= warkah.metode_perlindungan || 'Standar' %></span>
+                <% } %>
+            </div>
+
+            <% if(warkah.keterangan) { %>
+                <div class="alert alert-warning border-0 shadow-sm mb-0">
+                    <label class="small text-muted fw-bold d-flex align-items-center mb-1">
+                        <i class="fas fa-sticky-note me-2"></i> Catatan Tambahan:
+                    </label>
+                    <p class="mb-0 small text-dark" style="white-space: pre-wrap;"><%= warkah.keterangan %></p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/detail_template.ejs', { 
+    title: 'Detail Warkah',
+    parentName: 'Daftar Warkah',
+    parentUrl: '/warkah',
+    
+    // Data Utama
+    dataId: warkah.id_warkah,
+    
+    // Badge Pojok Kanan Atas (Identitas Utama Warkah)
+    mainIdentifierLabel: 'Nomor DI-208',
+    mainIdentifier: warkah.nomor_di_208 || '-',
+    
+    // Actions Links
+    editUrl: '/warkah/edit/' + warkah.id_warkah,
+    deleteUrl: '/warkah/delete/' + warkah.id_warkah,
+    
+    icon: 'fas fa-file-archive', 
+    contentId: 'detail-content-warkah' 
+}) %>

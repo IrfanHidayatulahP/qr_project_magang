@@ -23,6 +23,9 @@ app.set('views', path.join(__dirname, 'views'));
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// allows direct access via /qrcodes/<filename> (e.g. /qrcodes/buku_tanah_123.png)
+app.use('/qrcodes', express.static(path.join(__dirname, 'public', 'qrcodes')));
+
 // Body parser (express built-in)
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

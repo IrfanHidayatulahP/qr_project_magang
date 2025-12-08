@@ -1,111 +1,136 @@
 <%- include('../partials/header.ejs') %>
-    <section class="container">
-        <h1>Detail Surat Ukur - ID: <%= surat.id_surat_ukur %>
-        </h1>
 
-        <% if (error) { %>
-            <div class="alert alert-error">
-                <%= error %>
-            </div>
-            <% } %>
-                <% if (success) { %>
-                    <div class="alert alert-success">
-                        <%= success %>
-                    </div>
-                    <% } %>
+<div id="detail-content-surat-ukur" style="display: none;">
+    <div class="row g-4">
+                        
+        <div class="col-md-6 border-end-md">
+            <h6 class="text-secondary text-uppercase small fw-bold mb-4 letter-spacing-1">
+                <i class="fas fa-info-circle me-2"></i>Data Identitas
+            </h6>
 
-                        <table class="table detail-table">
-                            <tbody>
-                                <tr>
-                                    <th>ID</th>
-                                    <td>
-                                        <%= surat.id_surat_ukur %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Nomor Hak</th>
-                                    <td>
-                                        <%= surat.nomor_hak || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Jenis Hak</th>
-                                    <td>
-                                        <%= surat.jenis_hak || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Nomor Surat Ukur</th>
-                                    <td>
-                                        <%= surat.nomor_surat_ukur || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Tahun Terbit</th>
-                                    <td>
-                                        <% // tentukan tahun secara aman dari surat.tahun_terbit let _tahun='-' ; 
-                                        if (typeof surat !=='undefined' && surat && typeof surat.tahun_terbit
-                                            !=='undefined' && surat.tahun_terbit !==null && surat.tahun_terbit !=='' ) {
-                                            try { const tv=surat.tahun_terbit; // Jika sudah objek Date 
-                                            if (tv instanceof Date || Object.prototype.toString.call(tv)==='[object Date]' ) {
-                                            _tahun=(new Date(tv)).getFullYear(); } else { // tv kemungkinan string like '2020' or '2020-01-01' atau database date string 
-                                            const s=String(tv).trim(); if (/^\d{4}$/.test(s)) { _tahun=s; } else { const d=new
-                                            Date(s); _tahun=isNaN(d.getTime()) ? '-' : d.getFullYear(); } } } catch (e)
-                                            { _tahun='-' ; } } %>
-                                            <%= _tahun %>
-                                    </td>
-                                </tr>
+            <div class="row g-4">
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Jenis Hak</label>
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-2">
+                        <%= surat.jenis_hak || '-' %>
+                    </span>
+                </div>
 
-                                <tr>
-                                    <th>Media</th>
-                                    <td>
-                                        <%= surat.media || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Jumlah</th>
-                                    <td>
-                                        <%= typeof surat.jumlah !=='undefined' && surat.jumlah !==null ? surat.jumlah
-                                            : '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Lokasi Penyimpanan</th>
-                                    <td>
-                                        <%= surat.lokasi_penyimpanan || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>No Boks Definitif</th>
-                                    <td>
-                                        <%= surat.no_boks_definitif || '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Nomor Folder</th>
-                                    <td>
-                                        <%= typeof surat.nomor_folder !=='undefined' && surat.nomor_folder !==null ?
-                                            surat.nomor_folder : '-' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Metode Perlindungan</th>
-                                    <td>
-                                        <%= surat.metode_perlindungan || '-' %>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Tahun Terbit</label>
+                    <span class="fw-bold text-dark fs-6">
+                        <% 
+                            let _year = '-'; 
+                            const tv = surat.tahun_terbit; 
+                            if (tv) { 
+                                const s = String(tv).trim(); 
+                                // Cek apakah formatnya YYYY atau Date String
+                                _year = /^\d{4}$/.test(s) ? s : new Date(s).getFullYear(); 
+                                if (isNaN(_year)) _year = '-';
+                            } 
+                        %>
+                        <%= _year %>
+                    </span>
+                </div>
 
-                        <div class="actions">
-                            <a href="/surat-ukur/edit/<%= surat.id_surat_ukur %>" class="btn btn-warning">Edit</a>
-                            <form action="/surat-ukur/delete/<%= surat.id_surat_ukur %>" method="post"
-                                style="display:inline;">
-                                <button
-                                    onclick="return confirm('Hapus data surat ukur id <%= surat.id_surat_ukur %> ?');"
-                                    class="btn btn-danger">Hapus</button>
-                            </form>
-                            <a href="/surat-ukur" class="btn btn-secondary">Kembali</a>
+                <div class="col-12">
+                    <label class="small text-muted mb-1 d-block">Nomor Hak</label>
+                    <span class="fs-5 fw-bold text-dark"><%= surat.nomor_hak || '-' %></span>
+                </div>
+                
+                <div class="col-12"><hr class="border-light my-0"></div>
+
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Media Arsip</label>
+                    <% if(surat.media === 'Digital') { %>
+                        <div class="d-flex align-items-center text-info fw-bold">
+                            <i class="fas fa-laptop me-2"></i> Digital
                         </div>
-    </section>
-    <%- include('../partials/footer.ejs') %>
+                    <% } else if(surat.media === 'Microfilm') { %>
+                        <div class="d-flex align-items-center text-warning fw-bold">
+                            <i class="fas fa-film me-2"></i> Microfilm
+                        </div>
+                    <% } else { %>
+                        <div class="d-flex align-items-center text-secondary fw-bold">
+                            <i class="fas fa-file-alt me-2"></i> Kertas
+                        </div>
+                    <% } %>
+                </div>
+
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Perkembangan</label>
+                    <span class="fw-bold text-dark"><%= surat.tingkat_perkembangan || '-' %></span>
+                </div>
+
+                <div class="col-12">
+                    <label class="small text-muted mb-1 d-block">Jumlah Fisik</label>
+                    <span class="fw-bold text-dark"><%= (surat.jumlah != null) ? surat.jumlah : '-' %> Lembar/Berkas</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 ps-md-4">
+            <h6 class="text-secondary text-uppercase small fw-bold mb-4 letter-spacing-1">
+                <i class="fas fa-map-marker-alt me-2"></i>Lokasi Penyimpanan
+            </h6>
+
+            <div class="bg-light p-3 rounded-3 border border-dashed mb-3">
+                <div class="d-flex align-items-start mb-3">
+                    <div class="me-3 mt-1 text-danger">
+                        <i class="fas fa-warehouse fa-lg"></i>
+                    </div>
+                    <div>
+                        <label class="small text-muted mb-0">Kode Lokasi / Rak</label>
+                        <div class="fs-5 fw-bold text-dark"><%= surat.lokasi_penyimpanan || 'Belum Ditentukan' %></div>
+                    </div>
+                </div>
+                
+                <div class="row g-2 small">
+                    <div class="col-6">
+                        <div class="bg-white p-2 rounded border">
+                            <span class="text-muted d-block" style="font-size:0.75rem">No. Boks</span>
+                            <span class="fw-bold text-dark"><%= surat.no_boks_definitif || '-' %></span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-white p-2 rounded border">
+                            <span class="text-muted d-block" style="font-size:0.75rem">No. Folder</span>
+                            <span class="fw-bold text-dark"><%= surat.nomor_folder != null ? surat.nomor_folder : '-' %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label class="small text-muted mb-1 d-block">Metode Perlindungan</label>
+                <% if(surat.metode_perlindungan === 'Vaulting') { %>
+                    <span class="badge bg-dark"><i class="fas fa-dungeon me-1"></i> Vaulting</span>
+                <% } else if(surat.metode_perlindungan === 'Cloud') { %>
+                    <span class="badge bg-info"><i class="fas fa-cloud me-1"></i> Cloud</span>
+                <% } else { %>
+                    <span class="badge bg-secondary"><i class="fas fa-shield-alt me-1"></i> <%= surat.metode_perlindungan || 'Standar' %></span>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/detail_template.ejs', { 
+    title: 'Detail Surat Ukur',
+    parentName: 'Surat Ukur',
+    parentUrl: '/surat-ukur',
+    
+    // Data Spesifik
+    dataId: surat.id_surat_ukur,
+    
+    // Identitas Utama (Badge di pojok kanan atas)
+    mainIdentifierLabel: 'Nomor Surat Ukur',
+    mainIdentifier: surat.nomor_surat_ukur || '-',
+    
+    // Action URLs
+    editUrl: '/surat-ukur/edit/' + surat.id_surat_ukur,
+    deleteUrl: '/surat-ukur/delete/' + surat.id_surat_ukur,
+    
+    icon: 'fas fa-ruler-combined', 
+    contentId: 'detail-content-surat-ukur' 
+}) %>
