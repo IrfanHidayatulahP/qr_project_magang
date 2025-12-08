@@ -14,10 +14,14 @@ router.post('/edit/:id', ensureAuthenticated, ctrl.update);
 
 router.post('/delete/:id', ensureAuthenticated, ctrl.delete);
 
-// --- specific route BEFORE generic :id ---
+// --- specific routes BEFORE generic :id ---
 router.get('/download', ensureAuthenticated, ctrl.download);
 
-// generic detail route
+// <-- tambahkan QR endpoints di sini (sebelum generic :id) -->
+router.get('/:id/qr.png', ensureAuthenticated, ctrl.qrImage);
+router.get('/:id/qr/download', ensureAuthenticated, ctrl.qrDownload);
+
+// generic detail route (tetap di akhir)
 router.get('/:id', ensureAuthenticated, ctrl.showDetail);
 
 module.exports = router;

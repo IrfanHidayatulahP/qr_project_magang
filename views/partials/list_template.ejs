@@ -1,0 +1,179 @@
+<style>
+    /* Layout & Utilities */
+    .container-fluid { width: 100%; }
+    .header-action { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .page-title { font-size: 24px; color: #1e3a8a; font-weight: bold; margin: 0; }
+    
+    /* Tombol */
+    .btn-add { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background-color: #1e40af; color: white; text-decoration: none; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+    .btn-add:hover { background-color: #1e3a8a; }
+    .btn-secondary { background-color: #6b7280; }
+    .btn-secondary:hover { background-color: #4b5563; }
+    
+    /* Search Form */
+    .search-form { display: flex; gap: 10px; margin-bottom: 20px; }
+    .search-form input[type="text"] { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; width: 300px; }
+    .search-form button { padding: 8px 16px; background-color: #1e40af; color: white; border: none; border-radius: 4px; cursor: pointer; }
+
+    /* Tabel */
+    .table-wrapper { overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+    .table { width: 100%; border-collapse: collapse; margin-top: 0; }
+    .table th, .table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e5e7eb; font-size: 14px; vertical-align: middle; }
+    .table th { background-color: #f8fafc; font-weight: 600; color: #1e3a8a; white-space: nowrap; }
+    .table tr:hover { background-color: #f1f5f9; }
+
+    /* Aksi & Alerts */
+    .action-links a { text-decoration: none; margin-right: 8px; font-size: 16px; }
+    .link-detail { color: #1e40af; }
+    .link-edit { color: #d97706; }
+    .btn-delete { color: #dc2626; background: none; border: none; padding: 0; cursor: pointer; font-size: 16px; }
+    .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; }
+    .alert-error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .alert-success { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+
+    /* QR Preview Kecil */
+    .qr-preview img { width: 50px; height: 50px; object-fit: contain; border: 1px solid #eee; padding: 2px; background: #fff; }
+
+    /* Modal Styling */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; }
+    .modal-box { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-width: 95%; animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+</style>
+
+<div id="qr-modal" class="modal-overlay">
+    <div class="modal-box" style="width: 400px; text-align: center;">
+        <h3 style="margin-top: 0; color: #1e3a8a;">QR Code</h3>
+        <div style="margin: 15px 0;">
+            <img id="qr-modal-img" src="" alt="QR Preview" style="width: 200px; height: 200px; object-fit: contain; border: 1px solid #eee;" />
+        </div>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+            <a id="qr-modal-download" href="#" class="btn-add" target="_blank"><i class="fas fa-download"></i> Unduh</a>
+            <button id="qr-modal-close" class="btn-add btn-secondary">Tutup</button>
+        </div>
+    </div>
+</div>
+
+<div id="download-modal" class="modal-overlay">
+    <div class="modal-box" style="width: 550px;">
+        <h3 style="margin-top: 0; color: #1e3a8a; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+            <i class="fas fa-file-csv"></i> Download Data
+        </h3>
+        
+        <p style="margin-bottom: 10px; font-weight: 500;">Pilih kolom yang akan didownload:</p>
+        
+        <form id="download-form" onsubmit="return false;">
+            <div id="target-checkboxes" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; padding: 10px; background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0;">
+                <em style="color:#6b7280">Memuat opsi kolom...</em>
+            </div>
+
+            <div style="margin-bottom: 20px; padding: 10px; border: 1px solid #bfdbfe; background: #eff6ff; border-radius: 4px;">
+                <label style="font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="download-include-qr" /> 
+                    Sertakan File Gambar QR
+                </label>
+                <div style="font-size: 12px; color: #1e40af; margin-top: 5px; margin-left: 24px;">
+                    Jika dicentang, sistem akan otomatis mengunduh file gambar QR (.png) untuk setiap data yang tampil di tabel.
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="btn-download-cancel" type="button" class="btn-add btn-secondary">Batal</button>
+                <button id="btn-download-start" type="button" class="btn-add">Download Sekarang</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // --- A. Setup Variabel dari Parameter EJS ---
+        const BASE_URL = "<%= baseUrl %>"; // Contoh: '/buku-tanah'
+        const CONTENT_ID = "<%= contentId %>"; // Contoh: 'konten-buku-tanah'
+
+        // --- B. Fix Layout (Memindahkan Konten ke Layout Utama) ---
+        const konten = document.getElementById(CONTENT_ID);
+        const mainLayout = document.querySelector('.main-content');
+        if (mainLayout && konten) {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = konten.innerHTML;
+            mainLayout.appendChild(wrapper);
+            konten.remove(); // Hapus elemen asal agar tidak duplikat
+        }
+
+        // --- C. Logic Checkbox (Memindahkan dari Page ke Modal) ---
+        // Ini trik agar modal tetap generic, tapi opsi checkbox bisa beda-beda tiap halaman
+        const sourceCheckboxes = document.getElementById('source-checkboxes');
+        const targetCheckboxes = document.getElementById('target-checkboxes');
+        if (sourceCheckboxes && targetCheckboxes) {
+            targetCheckboxes.innerHTML = sourceCheckboxes.innerHTML;
+            sourceCheckboxes.remove(); // Bersihkan dari halaman utama
+        }
+
+        // --- D. Logic Modal Download ---
+        const modalDl = document.getElementById('download-modal');
+        const btnOpenDl = document.getElementById('btn-open-download');
+        const btnCancelDl = document.getElementById('btn-download-cancel');
+        const btnStartDl = document.getElementById('btn-download-start');
+
+        if(btnOpenDl) btnOpenDl.addEventListener('click', () => modalDl.style.display = 'flex');
+        if(btnCancelDl) btnCancelDl.addEventListener('click', () => modalDl.style.display = 'none');
+
+        if(btnStartDl) btnStartDl.addEventListener('click', () => {
+            // 1. Ambil Kolom Terpilih
+            const checkedCols = Array.from(targetCheckboxes.querySelectorAll('input[name="col"]:checked'))
+                                     .map(input => input.value);
+            
+            if(checkedCols.length === 0) {
+                alert("Harap pilih minimal satu kolom!");
+                return;
+            }
+
+            // 2. Ambil Query Pencarian
+            const searchInput = document.querySelector('form.search-form input[name="q"]');
+            const queryVal = searchInput ? searchInput.value.trim() : '';
+
+            // 3. Bangun URL CSV
+            const params = new URLSearchParams();
+            if (queryVal) params.set('q', queryVal);
+            params.set('columns', checkedCols.join(','));
+            
+            // 4. Redirect untuk Download CSV
+            window.location = `${BASE_URL}/download?` + params.toString();
+
+            // 5. Logic Auto-Download QR
+            const includeQr = document.getElementById('download-include-qr')?.checked;
+            if (includeQr) {
+                const rows = document.querySelectorAll('tr[data-id]');
+                if (rows.length === 0) {
+                    alert("Tidak ada data tabel untuk diunduh QR-nya.");
+                } else {
+                    rows.forEach((tr, index) => {
+                        const id = tr.getAttribute('data-id');
+                        // Beri jeda 300ms antar file
+                        setTimeout(() => {
+                            try {
+                                const iframe = document.createElement('iframe');
+                                iframe.style.display = 'none';
+                                iframe.src = `${BASE_URL}/${encodeURIComponent(id)}/qr/download`;
+                                document.body.appendChild(iframe);
+                                setTimeout(() => iframe.remove(), 15000);
+                            } catch (e) { console.error(e); }
+                        }, index * 300);
+                    });
+                }
+            }
+            modalDl.style.display = 'none';
+        });
+
+        // --- E. Logic Modal QR Preview ---
+        const modalQr = document.getElementById('qr-modal');
+        const btnCloseQr = document.getElementById('qr-modal-close');
+        if(btnCloseQr) btnCloseQr.addEventListener('click', () => modalQr.style.display = 'none');
+
+        // --- F. Tutup Modal saat Klik di Luar ---
+        window.addEventListener('click', (e) => {
+            if (e.target === modalDl) modalDl.style.display = 'none';
+            if (e.target === modalQr) modalQr.style.display = 'none';
+        });
+    });
+</script>

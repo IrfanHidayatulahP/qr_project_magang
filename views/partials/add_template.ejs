@@ -1,0 +1,96 @@
+<style>
+    .letter-spacing-1 { letter-spacing: 1px; }
+    .border-dashed { border-style: dashed !important; border-color: #dee2e6; }
+    .form-control:focus, .form-select:focus { border-color: #1e40af; box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.1); }
+    .input-group-text { background-color: #f8f9fa; border-color: #ced4da; }
+</style>
+
+<div class="container-fluid p-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold text-dark mb-1"><%= title %></h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="/dashboard" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<%= parentUrl %>" class="text-decoration-none"><%= parentName %></a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Tambah Baru</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="<%= parentUrl %>" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-2"></i>Kembali
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle me-2 fs-5"></i>
+                        <div><strong>Gagal!</strong> <%= error %></div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <% if (typeof success !== 'undefined' && success) { %>
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle me-2 fs-5"></i>
+                        <div><strong>Berhasil!</strong> <%= success %></div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <div class="card border-0 shadow rounded-4 overflow-hidden">
+                <div class="card-header bg-white p-4 border-bottom">
+                    <div class="d-flex align-items-center text-primary">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                            <i class="<%= icon %> fa-lg"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold text-dark">Formulir <%= parentName %></h5>
+                            <p class="mb-0 text-muted small">Isi data dokumen dengan lengkap dan benar.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <form action="<%= formAction %>" method="POST">
+                        
+                        <div id="target-form-content">
+                            <div class="text-center py-5 text-muted">
+                                <i class="fas fa-spinner fa-spin me-2"></i>Memuat Form...
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                            <a href="<%= parentUrl %>" class="btn btn-light border">Batal</a>
+                            <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
+                                <i class="fas fa-save me-2"></i>Simpan Data
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const contentId = "<%= contentId %>"; // ID dari konten input field
+        const sourceContent = document.getElementById(contentId);
+        const targetContent = document.getElementById('target-form-content');
+
+        if (sourceContent && targetContent) {
+            targetContent.innerHTML = sourceContent.innerHTML;
+            sourceContent.remove(); // Hapus sumber agar tidak duplikat/conflict ID
+        }
+    });
+</script>

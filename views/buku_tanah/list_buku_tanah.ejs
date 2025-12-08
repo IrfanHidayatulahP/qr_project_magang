@@ -1,354 +1,104 @@
-<!-- views/buku_tanah/list_buku_tanah.ejs -->
 <%- include('../partials/header.ejs') %>
 
-    <div id="konten-halaman-buku-tanah" style="display: none;">
-
-        <style>
-            .container-fluid {
-                width: 100%;
-            }
-
-            .header-action {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-            }
-
-            .page-title {
-                font-size: 24px;
-                color: #1e3a8a;
-                font-weight: bold;
-            }
-
-            .table-wrapper {
-                overflow-x: auto;
-                background: white;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            }
-
-            .table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 0;
-            }
-
-            .table th,
-            .table td {
-                padding: 12px 15px;
-                text-align: left;
-                border-bottom: 1px solid #e5e7eb;
-                font-size: 14px;
-            }
-
-            .table th {
-                background-color: #f8fafc;
-                font-weight: 600;
-                color: #1e3a8a;
-                white-space: nowrap;
-            }
-
-            .table tr:hover {
-                background-color: #f1f5f9;
-            }
-
-            .search-form {
-                display: flex;
-                gap: 10px;
-                margin-bottom: 20px;
-            }
-
-            input[type="text"] {
-                padding: 8px 12px;
-                border: 1px solid #d1d5db;
-                border-radius: 4px;
-                width: 300px;
-            }
-
-            button {
-                padding: 8px 16px;
-                background-color: #1e40af;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-            }
-
-            .alert {
-                padding: 15px;
-                border-radius: 6px;
-                margin-bottom: 20px;
-                font-size: 14px;
-            }
-
-            .alert-error {
-                background-color: #fee2e2;
-                color: #991b1b;
-                border: 1px solid #fecaca;
-            }
-
-            .alert-success {
-                background-color: #dcfce7;
-                color: #166534;
-                border: 1px solid #bbf7d0;
-            }
-
-            .btn-add {
-                display: inline-block;
-                padding: 8px 16px;
-                background-color: #1e40af;
-                color: white;
-                text-decoration: none;
-                border-radius: 4px;
-                font-size: 14px;
-            }
-
-            .action-links a {
-                text-decoration: none;
-                margin-right: 5px;
-                font-weight: 500;
-            }
-
-            .link-detail {
-                color: #1e40af;
-            }
-
-            .link-edit {
-                color: #d97706;
-            }
-
-            .btn-delete {
-                color: #dc2626;
-                background: none;
-                border: none;
-                padding: 0;
-                cursor: pointer;
-                font-weight: 500;
-            }
-        </style>
-
-        <section class="container-fluid">
-
-            <div class="header-action">
-                <h1 class="page-title">Daftar Buku Tanah</h1>
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <a class="btn-add" href="/buku-tanah/create"><i class="fas fa-plus"></i> Tambah Buku Tanah</a>
-                    <button id="btn-open-download" class="btn-add" type="button"><i class="fas fa-download"></i>
-                        Download</button>
-                </div>
+<div id="konten-buku-tanah" style="display: none;">
+    <section class="container-fluid">
+        
+        <div class="header-action">
+            <h1 class="page-title">Daftar Buku Tanah</h1>
+            <div style="display:flex; gap:10px;">
+                <a class="btn-add" href="/buku-tanah/create"><i class="fas fa-plus"></i> Tambah</a>
+                <button id="btn-open-download" class="btn-add" type="button"><i class="fas fa-download"></i> Download</button>
             </div>
-
-
-            <% if (typeof error !=='undefined' && error) { %>
-                <div class="alert alert-error">
-                    <%= error %>
-                </div>
-                <% } %>
-                    <% if (typeof success !=='undefined' && success) { %>
-                        <div class="alert alert-success">
-                            <%= success %>
-                        </div>
-                        <% } %>
-
-                            <form method="get" action="/buku-tanah" class="search-form">
-                                <input type="text" name="q" placeholder="Cari ID / Nomor Hak / Lokasi"
-                                    value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>" />
-                                <button type="submit"><i class="fas fa-search"></i> Cari</button>
-                            </form>
-
-                            <div class="table-wrapper">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Nomor Hak</th>
-                                            <th>Jenis Hak</th>
-                                            <th>Tahun</th>
-                                            <th>Media</th>
-                                            <th>Jumlah</th>
-                                            <th>Lokasi</th>
-                                            <th>No Boks</th>
-                                            <th>No Folder</th>
-                                            <th>Metode Proteksi</th>
-                                            <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% if (typeof records !=='undefined' && records && records.length) { %>
-                                            <% records.forEach(r=> { %>
-                                                <tr>
-                                                    <td>
-                                                        <%= r.id_buku_tanah %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.nomor_hak || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.jenis_hak || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <% let _year='-' ; const tv=r.tahun_terbit; if (tv !==null &&
-                                                            typeof tv !=='undefined' && tv !=='' ) { if (tv instanceof
-                                                            Date) { _year=tv.getFullYear(); } else { const
-                                                            s=String(tv).trim(); // jika bentuk '2024' atau angka 2024
-                                                            if (/^\d{4}$/.test(s)) { _year=s; } else { const d=new
-                                                            Date(s); _year=isNaN(d.getTime()) ? '-' : d.getFullYear(); }
-                                                            } } %>
-                                                            <%= _year %>
-                                                    </td>
-
-                                                    <td>
-                                                        <%= r.media || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= (r.jumlah !=null) ? r.jumlah : '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.lokasi_penyimpanan || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.no_boks_definitif || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.nomor_folder !=null ? r.nomor_folder : '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.metode_perlindungan || '-' %>
-                                                    </td>
-                                                    <td class="action-links">
-                                                        <a href="/buku-tanah/<%= r.id_buku_tanah %>" class="link-detail"
-                                                            title="Lihat Detail"><i class="fas fa-eye"></i></a>
-                                                        <a href="/buku-tanah/edit/<%= r.id_buku_tanah %>"
-                                                            class="link-edit" title="Edit"><i
-                                                                class="fas fa-edit"></i></a>
-                                                        <form action="/buku-tanah/delete/<%= r.id_buku_tanah %>"
-                                                            method="post" style="display:inline"
-                                                            onsubmit="return confirm('Hapus data buku tanah ini?');">
-                                                            <button type="submit" class="btn-delete" title="Hapus"><i
-                                                                    class="fas fa-trash"></i></button>
-                                                        </form>
-                                                    </td>
-                                                </tr>
-                                                <% }) %>
-                                                    <% } else { %>
-                                                        <tr>
-                                                            <td colspan="11"
-                                                                style="text-align:center; padding:20px; color:#6b7280;">
-                                                                Belum ada data buku tanah.</td>
-                                                        </tr>
-                                                        <% } %>
-                                    </tbody>
-                                </table>
-                            </div>
-        </section>
-    </div>
-
-    <!-- Modal Download -->
-    <div id="download-modal"
-        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
-        <div
-            style="background:white; width:500px; max-width:95%; border-radius:8px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,0.2);">
-            <h3 style="margin-top:0">Download Data Buku Tanah</h3>
-
-            <p>Pilih kolom yang ingin di-include di file CSV:</p>
-            <form id="download-form" onsubmit="return false;">
-                <div style="display:flex;flex-wrap:wrap;gap:8px; margin-bottom:12px;">
-                    <label><input type="checkbox" name="col" value="id_buku_tanah" checked> ID</label>
-                    <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor Hak</label>
-                    <label><input type="checkbox" name="col" value="jenis_hak" checked> Jenis Hak</label>
-                    <label><input type="checkbox" name="col" value="tahun_terbit" checked> Tahun</label>
-                    <label><input type="checkbox" name="col" value="media" checked> Media</label>
-                    <label><input type="checkbox" name="col" value="jumlah" checked> Jumlah</label>
-                    <label><input type="checkbox" name="col" value="lokasi_penyimpanan" checked> Lokasi
-                        Penyimpanan</label>
-                    <label><input type="checkbox" name="col" value="no_boks_definitif" checked> No Boks</label>
-                    <label><input type="checkbox" name="col" value="nomor_folder" checked> No Folder</label>
-                    <label><input type="checkbox" name="col" value="metode_perlindungan" checked> Metode
-                        Proteksi</label>
-                </div>
-
-                <div style="display:flex; gap:10px; justify-content:flex-end;">
-                    <button id="btn-download-cancel" type="button" class="btn-add"
-                        style="background:#6b7280;">Batal</button>
-                    <button id="btn-download-start" type="button" class="btn-add"><i class="fas fa-file-csv"></i>
-                        Download CSV</button>
-                </div>
-            </form>
         </div>
-    </div>
 
+        <% if (typeof error !=='undefined' && error) { %> <div class="alert alert-error"><%= error %></div> <% } %>
+        <% if (typeof success !=='undefined' && success) { %> <div class="alert alert-success"><%= success %></div> <% } %>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const kontenHalaman = document.getElementById('konten-halaman-buku-tanah');
-            const layoutUtama = document.querySelector('.main-content');
-            if (layoutUtama && kontenHalaman) {
-                const divBaru = document.createElement('div');
-                divBaru.innerHTML = kontenHalaman.innerHTML;
-                layoutUtama.appendChild(divBaru);
-                kontenHalaman.remove();
-            }
-        });
-    </script>
+        <form method="get" action="/buku-tanah" class="search-form">
+            <input type="text" name="q" placeholder="Cari ID / Nomor Hak / Lokasi..." value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>" />
+            <button type="submit"><i class="fas fa-search"></i> Cari</button>
+        </form>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // sebelumnya yang sudah ada
-            const kontenHalaman = document.getElementById('konten-halaman-buku-tanah');
-            const layoutUtama = document.querySelector('.main-content');
-            if (layoutUtama && kontenHalaman) {
-                const divBaru = document.createElement('div');
-                divBaru.innerHTML = kontenHalaman.innerHTML;
-                layoutUtama.appendChild(divBaru);
-                kontenHalaman.remove();
-            }
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nomor Hak</th>
+                        <th>Jenis Hak</th>
+                        <th>Tahun</th>
+                        <th>Media</th>
+                        <th>Jumlah</th>
+                        <th>Lokasi</th>
+                        <th>No Boks</th>
+                        <th>No Folder</th>
+                        <th>Metode</th>
+                        <th>QR</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof records !=='undefined' && records && records.length) { %>
+                        <% records.forEach(r => { %>
+                            <tr data-id="<%= r.id_buku_tanah %>">
+                                <td><%= r.id_buku_tanah %></td>
+                                <td><%= r.nomor_hak || '-' %></td>
+                                <td><%= r.jenis_hak || '-' %></td>
+                                <td>
+                                    <% let _year='-' ; const tv=r.tahun_terbit; if (tv) { 
+                                        if (tv instanceof Date) { _year=tv.getFullYear(); } 
+                                        else { const s=String(tv).trim(); if (/^\d{4}$/.test(s)) { _year=s; } else { const d=new Date(s); _year=isNaN(d.getTime()) ? '-' : d.getFullYear(); } } 
+                                    } %>
+                                    <%= _year %>
+                                </td>
+                                <td><%= r.media || '-' %></td>
+                                <td><%= (r.jumlah !=null) ? r.jumlah : '-' %></td>
+                                <td><%= r.lokasi_penyimpanan || '-' %></td>
+                                <td><%= r.no_boks_definitif || '-' %></td>
+                                <td><%= r.nomor_folder || '-' %></td>
+                                <td><%= r.metode_perlindungan || '-' %></td>
+                                
+                                <td style="text-align:center;">
+                                    <div class="qr-preview">
+                                        <a href="/buku-tanah/<%= r.id_buku_tanah %>">
+                                            <img src="/buku-tanah/<%= r.id_buku_tanah %>/qr.png" alt="QR" />
+                                        </a>
+                                    </div>
+                                </td>
+                                
+                                <td class="action-links">
+                                    <a href="/buku-tanah/<%= r.id_buku_tanah %>" class="link-detail" title="Lihat"><i class="fas fa-eye"></i></a>
+                                    <a href="/buku-tanah/edit/<%= r.id_buku_tanah %>" class="link-edit" title="Edit"><i class="fas fa-edit"></i></a>
+                                    <form action="/buku-tanah/delete/<%= r.id_buku_tanah %>" method="post" style="display:inline" onsubmit="return confirm('Hapus data?');">
+                                        <button type="submit" class="btn-delete" title="Hapus"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr><td colspan="12" style="text-align:center; padding:20px; color:#6b7280;">Belum ada data buku tanah.</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
 
-            // --- modal download ---
-            const btnOpen = document.getElementById('btn-open-download');
-            const modal = document.getElementById('download-modal');
-            const btnCancel = document.getElementById('btn-download-cancel');
-            const btnStart = document.getElementById('btn-download-start');
-            const searchInput = document.querySelector('input[name="q"]');
+        <div id="source-checkboxes" style="display:none;">
+            <label><input type="checkbox" name="col" value="id_buku_tanah" checked> ID</label>
+            <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor Hak</label>
+            <label><input type="checkbox" name="col" value="jenis_hak" checked> Jenis Hak</label>
+            <label><input type="checkbox" name="col" value="tahun_terbit" checked> Tahun</label>
+            <label><input type="checkbox" name="col" value="media" checked> Media</label>
+            <label><input type="checkbox" name="col" value="jumlah" checked> Jumlah</label>
+            <label><input type="checkbox" name="col" value="lokasi_penyimpanan" checked> Lokasi</label>
+            <label><input type="checkbox" name="col" value="no_boks_definitif" checked> No Boks</label>
+            <label><input type="checkbox" name="col" value="nomor_folder" checked> No Folder</label>
+            <label><input type="checkbox" name="col" value="metode_perlindungan" checked> Metode Proteksi</label>
+        </div>
 
-            btnOpen && btnOpen.addEventListener('click', () => {
-                if (modal) modal.style.display = 'flex';
-            });
-            btnCancel && btnCancel.addEventListener('click', () => {
-                if (modal) modal.style.display = 'none';
-            });
+    </section>
+</div>
 
-            btnStart && btnStart.addEventListener('click', () => {
-                // ambil kolom terpilih
-                const checked = Array.from(document.querySelectorAll('#download-modal input[name="col"]:checked'))
-                    .map(i => i.value);
-                if (!checked.length) {
-                    alert('Pilih minimal 1 kolom.');
-                    return;
-                }
-                // ambil q dari form pencarian (jika ada)
-                let qv = '';
-                const qInput = document.querySelector('form.search-form input[name="q"]');
-                if (qInput) qv = qInput.value || '';
-
-                // bangun URL
-                const params = new URLSearchParams();
-                if (qv && qv.trim() !== '') params.set('q', qv.trim());
-                params.set('columns', checked.join(','));
-
-                // mulai download (navigasi ke endpoint download)
-                const url = '/buku-tanah/download?' + params.toString();
-                // buka di same tab (karena content-disposition attachment browser akan download file)
-                window.location = url;
-
-                // tutup modal
-                if (modal) modal.style.display = 'none';
-            });
-
-            // klik di luar modal -> tutup
-            window.addEventListener('click', function (e) {
-                if (!modal) return;
-                if (e.target === modal) modal.style.display = 'none';
-            });
-        });
-    </script>
+<%- include('../partials/list_template.ejs', { 
+    baseUrl: '/buku-tanah', 
+    contentId: 'konten-buku-tanah' 
+}) %>

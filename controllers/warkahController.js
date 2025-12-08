@@ -1,6 +1,7 @@
 // controllers/warkahController.js
 const db = require('../config/db');
 const { Op } = require('sequelize');
+const QRCode = require('qrcode');
 
 // safe model lookup
 const Warkah = db.warkah || (db.models && (db.models.warkah || db.models.Warkah));
@@ -588,5 +589,61 @@ exports.download = async (req, res) => {
     } catch (err) {
         console.error('warkah.download error:', err);
         return res.status(500).send('Gagal membuat file download');
+    }
+};
+
+/**
+ * GET /warkah/:id/qr.png
+ * Generate PNG QR on-the-fly (mengarah ke halaman detail warkah)
+ */
+exports.qrImage = async (req, res) => {
+    try {
+        if (!ensureModelOrRespond(res)) return;
+        const id = req.params.id;
+        if (!isValidId(id)) return res.status(400).send('ID tidak valid');
+
+        const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+        // detail route untuk warkah pada project Anda menggunakan /warkah/detail/:id
+        const detailUrl = `${baseUrl}/warkah/detail/${Number(id)}`;
+
+        const buffer = await QRCode.toBuffer(detailUrl, {
+            type: 'png',
+            errorCorrectionLevel: 'H',
+            margin: 2,
+            scale: 6
+        });
+
+        res.type('png').send(buffer);
+    } catch (err) {
+        console.error('warkah.qrImage error:', err);
+        return res.status(500).send('Gagal menghasilkan QR');
+    }
+};
+
+/**
+ * GET /warkah/:id/qr/download
+ * Download PNG QR sebagai attachment
+ */
+exports.qrDownload = async (req, res) => {
+    try {
+        if (!ensureModelOrRespond(res)) return;
+        const id = req.params.id;
+        if (!isValidId(id)) return res.status(400).send('ID tidak valid');
+
+        const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+        const detailUrl = `${baseUrl}/warkah/detail/${Number(id)}`;
+
+        const buffer = await QRCode.toBuffer(detailUrl, {
+            type: 'png',
+            errorCorrectionLevel: 'H',
+            margin: 2,
+            scale: 8
+        });
+
+        res.setHeader('Content-Disposition', `attachment; filename="warkah_${id}_qr.png"`);
+        res.type('png').send(buffer);
+    } catch (err) {
+        console.error('warkah.qrDownload error:', err);
+        return res.status(500).send('Gagal download QR');
     }
 };

@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { Op } = require('sequelize');
+const QRCode = require('qrcode');
 
 // safe lookup model (sesuaikan properti kalau berbeda)
 const BukuTanah = db.buku_tanah || (db.models && (db.models.buku_tanah || db.models.Buku_tanah));
@@ -561,5 +562,57 @@ exports.download = async (req, res) => {
     } catch (err) {
         console.error('bukuTanah.download error:', err);
         return res.status(500).send('Gagal membuat file download');
+    }
+};
+
+exports.qrImage = async (req, res) => {
+    try {
+        if (!ensureModelOrRespond(res)) return;
+        const id = req.params.id;
+        if (!isValidId(id)) return res.status(400).send('ID tidak valid');
+
+        // URL yang di-encode (gunakan PUBLIC_BASE_URL jika ada untuk dev lewat ngrok)
+        const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+        const detailUrl = `${baseUrl}/buku-tanah/${Number(id)}`;
+
+        const buffer = await QRCode.toBuffer(detailUrl, {
+            type: 'png',
+            errorCorrectionLevel: 'H',
+            margin: 2,
+            scale: 6
+        });
+
+        res.type('png').send(buffer);
+    } catch (err) {
+        console.error('bukuTanah.qrImage error:', err);
+        return res.status(500).send('Gagal menghasilkan QR');
+    }
+};
+
+/**
+ * qrDownload - download PNG QR sebagai attachment
+ * route: GET /buku-tanah/:id/qr/download
+ */
+exports.qrDownload = async (req, res) => {
+    try {
+        if (!ensureModelOrRespond(res)) return;
+        const id = req.params.id;
+        if (!isValidId(id)) return res.status(400).send('ID tidak valid');
+
+        const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+        const detailUrl = `${baseUrl}/buku-tanah/${Number(id)}`;
+
+        const buffer = await QRCode.toBuffer(detailUrl, {
+            type: 'png',
+            errorCorrectionLevel: 'H',
+            margin: 2,
+            scale: 8
+        });
+
+        res.setHeader('Content-Disposition', `attachment; filename="buku_tanah_${id}_qr.png"`);
+        res.type('png').send(buffer);
+    } catch (err) {
+        console.error('bukuTanah.qrDownload error:', err);
+        return res.status(500).send('Gagal download QR');
     }
 };

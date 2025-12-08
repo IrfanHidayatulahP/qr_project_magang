@@ -32,80 +32,111 @@
                             </div>
                         </div>
 
-                        <table class="table" border="1" cellpadding="6" cellspacing="0"
-                            style="width:100%; border-collapse:collapse;">
-                            <thead>
-                                <tr style="background:#f8fafc;">
-                                    <th>ID</th>
-                                    <th>Nomor DI-208</th>
-                                    <th>Nomor Hak</th>
-                                    <th>Tahun Terbit</th>
-                                    <th>Media</th>
-                                    <th>Jumlah</th>
-                                    <th>Lokasi</th>
-                                    <th>No Boks</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if (!records || records.length===0) { %>
-                                    <tr>
-                                        <td colspan="9" style="text-align:center;">Tidak ada data</td>
+                        <div class="table-responsive">
+                            <table class="table" border="1" cellpadding="6" cellspacing="0"
+                                style="width:100%; border-collapse:collapse;">
+                                <thead>
+                                    <tr style="background:#f8fafc;">
+                                        <th>ID</th>
+                                        <th>Nomor DI-208</th>
+                                        <th>Nomor Hak</th>
+                                        <th>Tahun Terbit</th>
+                                        <th>Media</th>
+                                        <th>Jumlah</th>
+                                        <th>Lokasi</th>
+                                        <th>No Boks</th>
+                                        <th>QR</th>
+                                        <th>Aksi</th>
                                     </tr>
-                                    <% } else { %>
-                                        <% records.forEach(function(r) { %>
-                                            <tr>
-                                                <td>
-                                                    <%= r.id_warkah %>
-                                                </td>
-                                                <td>
-                                                    <%= r.nomor_di_208 || '-' %>
-                                                </td>
-                                                <td>
-                                                    <%= r.nomor_hak || '-' %>
-                                                </td>
-                                                <td>
-                                                    <% let yearDisplay='-' ; if (typeof r.tahun_terbit !=='undefined' &&
-                                                        r.tahun_terbit !==null && r.tahun_terbit !=='' ) { try { if
-                                                        (r.tahun_terbit instanceof Date ||
-                                                        Object.prototype.toString.call(r.tahun_terbit)==='[object Date]'
-                                                        ) { yearDisplay=(new Date(r.tahun_terbit)).getFullYear(); } else
-                                                        { const raw=r.tahun_terbit; const d=new Date(raw); if
-                                                        (!isNaN(d.getTime())) yearDisplay=d.getFullYear(); else { const
-                                                        s=String(raw); yearDisplay=(/^\d{4}/.test(s)) ?
-                                                        s.match(/^\d{4}/)[0] : s; } } } catch (e) { yearDisplay='-' ; }
-                                                        } %>
-                                                        <%= yearDisplay %>
-                                                </td>
-                                                <td>
-                                                    <%= r.media || '-' %>
-                                                </td>
-                                                <td>
-                                                    <%= (typeof r.jumlah !=='undefined' && r.jumlah !==null) ? r.jumlah
-                                                        : '-' %>
-                                                </td>
-                                                <td>
-                                                    <%= r.lokasi_penyimpanan || '-' %>
-                                                </td>
-                                                <td>
-                                                    <%= r.no_boks_definitif || '-' %>
-                                                </td>
-                                                <td>
-                                                    <a href="/warkah/detail/<%= r.id_warkah %>">Lihat</a> |
-                                                    <a href="/warkah/edit/<%= r.id_warkah %>">Edit</a> |
-                                                    <form action="/warkah/delete/<%= r.id_warkah %>" method="POST"
-                                                        style="display:inline;"
-                                                        onsubmit="return confirm('Hapus data warkah ini?');">
-                                                        <button type="submit"
-                                                            style="background:none;border:none;color:#c00;cursor:pointer;padding:0;">Hapus</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                            <% }) %>
-                                                <% } %>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <% if (!records || records.length===0) { %>
+                                        <tr>
+                                            <td colspan="10" style="text-align:center;">Tidak ada data</td>
+                                        </tr>
+                                        <% } else { %>
+                                            <% records.forEach(function(r) { %>
+                                                <tr>
+                                                    <td>
+                                                        <%= r.id_warkah %>
+                                                    </td>
+                                                    <td>
+                                                        <%= r.nomor_di_208 || '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <%= r.nomor_hak || '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <% let yearDisplay='-' ; if (typeof r.tahun_terbit
+                                                            !=='undefined' && r.tahun_terbit !==null && r.tahun_terbit
+                                                            !=='' ) { try { if (r.tahun_terbit instanceof Date ||
+                                                            Object.prototype.toString.call(r.tahun_terbit)==='[object Date]'
+                                                            ) { yearDisplay=(new Date(r.tahun_terbit)).getFullYear(); }
+                                                            else { const raw=r.tahun_terbit; const d=new Date(raw); if
+                                                            (!isNaN(d.getTime())) yearDisplay=d.getFullYear(); else {
+                                                            const s=String(raw); yearDisplay=(/^\d{4}/.test(s)) ?
+                                                            s.match(/^\d{4}/)[0] : s; } } } catch (e) { yearDisplay='-'
+                                                            ; } } %>
+                                                            <%= yearDisplay %>
+                                                    </td>
+                                                    <td>
+                                                        <%= r.media || '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <%= (typeof r.jumlah !=='undefined' && r.jumlah !==null) ?
+                                                            r.jumlah : '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <%= r.lokasi_penyimpanan || '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <%= r.no_boks_definitif || '-' %>
+                                                    </td>
+
+                                                    <!-- QR preview -->
+                                                    <td style="text-align:center;">
+                                                        <div class="qr-preview" title="QR ID <%= r.id_warkah %>">
+                                                            <a href="/warkah/detail/<%= r.id_warkah %>">
+                                                                <img src="/warkah/<%= r.id_warkah %>/qr.png"
+                                                                    alt="QR <%= r.id_warkah %>"
+                                                                    style="width:64px;height:64px;object-fit:contain;border:1px solid #eee;padding:4px;background:#fff;display:block;margin:0 auto;" />
+                                                            </a>
+                                                        </div>
+                                                    </td>
+
+                                                    <td>
+                                                        <a href="/warkah/detail/<%= r.id_warkah %>">Lihat</a> |
+                                                        <a href="/warkah/edit/<%= r.id_warkah %>">Edit</a> |
+                                                        <form action="/warkah/delete/<%= r.id_warkah %>" method="POST"
+                                                            style="display:inline;"
+                                                            onsubmit="return confirm('Hapus data warkah ini?');">
+                                                            <button type="submit"
+                                                                style="background:none;border:none;color:#c00;cursor:pointer;padding:0;">Hapus</button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
     </section>
+
+    <!-- QR Modal -->
+    <div id="qr-modal"
+        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div
+            style="background:white; width:420px; max-width:95%; border-radius:8px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,0.2); text-align:center;">
+            <h5 style="margin-top:0;">QR Warkah</h5>
+            <img id="qr-modal-img" src="" alt="QR"
+                style="max-width:100%; height:auto; border:1px solid #eee; padding:8px; background:#fff;" />
+            <div style="margin-top:12px;">
+                <a id="qr-modal-download" href="#" class="btn-add" style="margin-right:8px;" target="_blank"
+                    rel="noopener">Download</a>
+                <button id="qr-modal-close" class="btn-add" style="background:#6b7280;">Tutup</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Download -->
     <div id="download-modal"
@@ -157,7 +188,7 @@
 
     <script>
         (function () {
-            // modal handling
+            // modal handling for CSV download
             const btnOpen = document.getElementById('btn-open-download');
             const modal = document.getElementById('download-modal');
             const btnCancel = document.getElementById('btn-download-cancel');
@@ -186,7 +217,6 @@
                 if (qv && qv.trim() !== '') params.set('q', qv.trim());
                 params.set('columns', checked.join(','));
 
-                // url endpoint download: /warkah/download (router mount assumed)
                 const url = '/warkah/download?' + params.toString();
                 window.location = url;
 
@@ -196,6 +226,37 @@
             window.addEventListener('click', function (e) {
                 if (!modal) return;
                 if (e.target === modal) modal.style.display = 'none';
+            });
+
+            // QR modal handling
+            document.addEventListener('click', function (e) {
+                const target = e.target;
+                if (target.matches('.btn-show-qr')) {
+                    const id = target.getAttribute('data-id');
+                    const imgUrl = `/warkah/${id}/qr.png`;
+                    const downloadUrl = `/warkah/${id}/qr/download`;
+                    const imgEl = document.getElementById('qr-modal-img');
+                    const dlEl = document.getElementById('qr-modal-download');
+
+                    if (imgEl) imgEl.src = imgUrl;
+                    if (dlEl) {
+                        dlEl.href = downloadUrl;
+                        dlEl.setAttribute('download', `warkah_${id}_qr.png`);
+                    }
+                    const modalQr = document.getElementById('qr-modal');
+                    if (modalQr) modalQr.style.display = 'flex';
+                }
+
+                if (target && target.id === 'qr-modal-close') {
+                    const modalQr = document.getElementById('qr-modal');
+                    if (modalQr) modalQr.style.display = 'none';
+                }
+            });
+
+            // klik di luar modal -> tutup QR modal juga
+            window.addEventListener('click', function (e) {
+                const modalQr = document.getElementById('qr-modal');
+                if (modalQr && e.target === modalQr) modalQr.style.display = 'none';
             });
         })();
     </script>

@@ -18,8 +18,12 @@ router.post('/edit/:id', ensureAuthenticated, ctrl.update);
 // delete
 router.post('/delete/:id', ensureAuthenticated, ctrl.delete);
 
-// --- specific routes BEFORE generic :id ---
+// download CSV
 router.get('/download', ensureAuthenticated, ctrl.download);
+
+// --- QR routes: letakkan sebelum generic :id ---
+router.get('/:id/qr.png', ensureAuthenticated, ctrl.qrImage);
+router.get('/:id/qr/download', ensureAuthenticated, ctrl.qrDownload);
 
 // detail (generic)
 router.get('/:id', ensureAuthenticated, ctrl.showDetail);

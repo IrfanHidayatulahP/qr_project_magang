@@ -1,6 +1,7 @@
 // controllers/suratUkurController.js
 const db = require('../config/db');
 const { Op } = require('sequelize');
+const QRCode = require('qrcode');  
 
 // safe lookup model
 const SuratUkur = db.surat_ukur || (db.models && (db.models.surat_ukur || db.models.Surat_ukur || db.models.SuratUkur));
@@ -569,5 +570,60 @@ exports.download = async (req, res) => {
     } catch (err) {
         console.error('suratUkur.download error:', err);
         return res.status(500).send('Gagal membuat file download');
+    }
+};
+
+/**
+ * GET /surat-ukur/:id/qr.png
+ * Generate PNG QR on-the-fly (arahkan ke halaman detail)
+ */
+exports.qrImage = async (req, res) => {
+    try {
+        if (!ensureModelOrRespond(res)) return;
+        const id = req.params.id;
+        if (!isValidId(id)) return res.status(400).send('ID tidak valid');
+
+        const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+        const detailUrl = `${baseUrl}/surat-ukur/${Number(id)}`;
+
+        const buffer = await QRCode.toBuffer(detailUrl, {
+            type: 'png',
+            errorCorrectionLevel: 'H',
+            margin: 2,
+            scale: 6
+        });
+
+        res.type('png').send(buffer);
+    } catch (err) {
+        console.error('suratUkur.qrImage error:', err);
+        return res.status(500).send('Gagal menghasilkan QR');
+    }
+};
+
+/**
+ * GET /surat-ukur/:id/qr/download
+ * Download PNG QR sebagai attachment
+ */
+exports.qrDownload = async (req, res) => {
+    try {
+        if (!ensureModelOrRespond(res)) return;
+        const id = req.params.id;
+        if (!isValidId(id)) return res.status(400).send('ID tidak valid');
+
+        const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+        const detailUrl = `${baseUrl}/surat-ukur/${Number(id)}`;
+
+        const buffer = await QRCode.toBuffer(detailUrl, {
+            type: 'png',
+            errorCorrectionLevel: 'H',
+            margin: 2,
+            scale: 8
+        });
+
+        res.setHeader('Content-Disposition', `attachment; filename="surat_ukur_${id}_qr.png"`);
+        res.type('png').send(buffer);
+    } catch (err) {
+        console.error('suratUkur.qrDownload error:', err);
+        return res.status(500).send('Gagal download QR');
     }
 };

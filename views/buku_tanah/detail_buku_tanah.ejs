@@ -1,100 +1,128 @@
-<!-- views/buku_tanah/detail_buku_tanah.ejs -->
 <%- include('../partials/header.ejs') %>
 
+<div id="detail-content-buku-tanah" style="display: none;">
+    <div class="row g-4">
+                        
+        <div class="col-md-6 border-end-md">
+            <h6 class="text-secondary text-uppercase small fw-bold mb-4 letter-spacing-1">
+                <i class="fas fa-info-circle me-2"></i>Data Identitas
+            </h6>
 
-    <section class="container">
-        <h1>Detail Buku Tanah</h1>
+            <div class="row g-4">
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Jenis Hak</label>
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-2 rounded-2">
+                        <%= buku.jenis_hak || '-' %>
+                    </span>
+                </div>
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Tahun Terbit</label>
+                    <span class="fw-bold text-dark fs-6">
+                        <% 
+                            let _year = '-'; 
+                            const tv = buku.tahun_terbit; 
+                            if (tv) { 
+                                const s = String(tv).trim(); 
+                                // Cek apakah formatnya YYYY atau Date String
+                                _year = /^\d{4}$/.test(s) ? s : new Date(s).getFullYear(); 
+                                if (isNaN(_year)) _year = '-';
+                            } 
+                        %>
+                        <%= _year %>
+                    </span>
+                </div>
+                
+                <div class="col-12"><hr class="border-light my-0"></div>
 
-
-        <% if (error) { %>
-            <div class="alert alert-error">
-                <%= error %>
-            </div>
-            <% } %>
-                <% if (success) { %>
-                    <div class="alert alert-success">
-                        <%= success %>
-                    </div>
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Media Arsip</label>
+                    <% if(buku.media === 'Digital') { %>
+                        <div class="d-flex align-items-center text-info fw-bold">
+                            <i class="fas fa-laptop me-2"></i> Digital
+                        </div>
+                    <% } else if(buku.media === 'Microfilm') { %>
+                        <div class="d-flex align-items-center text-warning fw-bold">
+                            <i class="fas fa-film me-2"></i> Microfilm
+                        </div>
+                    <% } else { %>
+                        <div class="d-flex align-items-center text-secondary fw-bold">
+                            <i class="fas fa-file-alt me-2"></i> Kertas
+                        </div>
                     <% } %>
+                </div>
 
+                <div class="col-6">
+                    <label class="small text-muted mb-1 d-block">Perkembangan</label>
+                    <span class="fw-bold text-dark"><%= buku.tingkat_perkembangan || '-' %></span>
+                </div>
 
-                        <table>
-                            <tr>
-                                <th>ID</th>
-                                <td>
-                                    <%= buku.id_buku_tanah %>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Nomor Hak</th>
-                                <td>
-                                    <%= buku.nomor_hak || '-' %>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Jenis Hak</th>
-                                <td>
-                                    <%= buku.jenis_hak || '-' %>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Tahun Terbit</th>
-                                <td>
-                                    <% let _year='-' ; const tv=buku.tahun_terbit; if (tv !==null && typeof tv
-                                        !=='undefined' && tv !=='' ) { if (tv instanceof Date) { _year=tv.getFullYear();
-                                        } else { const s=String(tv).trim(); if (/^\d{4}$/.test(s)) { _year=s; } else {
-                                        const d=new Date(s); _year=isNaN(d.getTime()) ? '-' : d.getFullYear(); } } } %>
-                                        <%= _year %>
-                                </td>
+                <div class="col-12">
+                    <label class="small text-muted mb-1 d-block">Jumlah Fisik</label>
+                    <span class="fw-bold text-dark"><%= (buku.jumlah != null) ? buku.jumlah : '-' %> Lembar/Berkas</span>
+                </div>
+            </div>
+        </div>
 
-                            </tr>
-                            <tr>
-                                <th>Media</th>
-                                <td>
-                                    <%= buku.media || '-' %>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Jumlah</th>
-                                <td>
-                                    <%= buku.jumlah !=null ? buku.jumlah : '-' %>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Tingkat Perkembangan</th>
-                                <td>
-                                    <%= buku.tingkat_perkembangan || '-' %>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Lokasi Penyimpanan</th>
-                                <td>
-                                    <%= buku.lokasi_penyimpanan || '-' %>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>No Boks Definitif</th>
-                                <td>
-                                    <%= buku.no_boks_definitif || '-' %>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Nomor Folder</th>
-                                <td>
-                                    <%= buku.nomor_folder !=null ? buku.nomor_folder : '-' %>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Metode Perlindungan</th>
-                                <td>
-                                    <%= buku.metode_perlindungan || '-' %>
-                                </td>
-                            </tr>
-                        </table>
+        <div class="col-md-6 ps-md-4">
+            <h6 class="text-secondary text-uppercase small fw-bold mb-4 letter-spacing-1">
+                <i class="fas fa-map-marker-alt me-2"></i>Lokasi Penyimpanan
+            </h6>
 
+            <div class="bg-light p-3 rounded-3 border border-dashed mb-3">
+                <div class="d-flex align-items-start mb-3">
+                    <div class="me-3 mt-1 text-danger">
+                        <i class="fas fa-warehouse fa-lg"></i>
+                    </div>
+                    <div>
+                        <label class="small text-muted mb-0">Kode Lokasi / Rak</label>
+                        <div class="fs-5 fw-bold text-dark"><%= buku.lokasi_penyimpanan || 'Belum Ditentukan' %></div>
+                    </div>
+                </div>
+                
+                <div class="row g-2 small">
+                    <div class="col-6">
+                        <div class="bg-white p-2 rounded border">
+                            <span class="text-muted d-block" style="font-size:0.75rem">No. Boks</span>
+                            <span class="fw-bold text-dark"><%= buku.no_boks_definitif || '-' %></span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-white p-2 rounded border">
+                            <span class="text-muted d-block" style="font-size:0.75rem">No. Folder</span>
+                            <span class="fw-bold text-dark"><%= buku.nomor_folder != null ? buku.nomor_folder : '-' %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                        <p>
-                            <a href="/buku-tanah/edit/<%= buku.id_buku_tanah %>">Edit</a> |
-                            <a href="/buku-tanah">Kembali</a>
-                        </p>
-    </section>
+            <div class="mt-4">
+                <label class="small text-muted mb-1 d-block">Metode Perlindungan</label>
+                <% if(buku.metode_perlindungan === 'Vaulting') { %>
+                    <span class="badge bg-dark"><i class="fas fa-dungeon me-1"></i> Vaulting</span>
+                <% } else if(buku.metode_perlindungan === 'Cloud') { %>
+                    <span class="badge bg-info"><i class="fas fa-cloud me-1"></i> Cloud</span>
+                <% } else { %>
+                    <span class="badge bg-secondary"><i class="fas fa-shield-alt me-1"></i> <%= buku.metode_perlindungan || 'Standar' %></span>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/detail_template.ejs', { 
+    title: 'Detail Buku Tanah',
+    parentName: 'Buku Tanah',
+    parentUrl: '/buku-tanah',
+    
+    // Data Spesifik
+    dataId: buku.id_buku_tanah,
+    mainIdentifierLabel: 'Nomor Hak',
+    mainIdentifier: buku.nomor_hak || '-',
+    
+    // Actions
+    editUrl: '/buku-tanah/edit/' + buku.id_buku_tanah,
+    deleteUrl: '/buku-tanah/delete/' + buku.id_buku_tanah,
+    
+    icon: 'fas fa-book-open', 
+    contentId: 'detail-content-buku-tanah' 
+}) %>

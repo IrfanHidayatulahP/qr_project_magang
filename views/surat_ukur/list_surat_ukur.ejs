@@ -1,358 +1,121 @@
 <%- include('../partials/header.ejs') %>
 
-    <div id="konten-halaman-surat-ukur" style="display: none;">
-
-        <style>
-            /* Layout & styling sederhana */
-            .container-fluid {
-                width: 100%;
-            }
-
-            .header-action {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-            }
-
-            .page-title {
-                font-size: 24px;
-                color: #1e3a8a;
-                font-weight: bold;
-            }
-
-            .table-wrapper {
-                overflow-x: auto;
-                background: white;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            }
-
-            .table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 0;
-            }
-
-            .table th,
-            .table td {
-                padding: 12px 15px;
-                text-align: left;
-                border-bottom: 1px solid #e5e7eb;
-                font-size: 14px;
-            }
-
-            .table th {
-                background-color: #f8fafc;
-                font-weight: 600;
-                color: #1e3a8a;
-                white-space: nowrap;
-            }
-
-            .table tr:hover {
-                background-color: #f1f5f9;
-            }
-
-            .search-form {
-                display: flex;
-                gap: 10px;
-                margin-bottom: 20px;
-            }
-
-            input[type="text"] {
-                padding: 8px 12px;
-                border: 1px solid #d1d5db;
-                border-radius: 4px;
-                width: 300px;
-            }
-
-            button {
-                padding: 8px 16px;
-                background-color: #1e40af;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-            }
-
-            .alert {
-                padding: 15px;
-                border-radius: 6px;
-                margin-bottom: 20px;
-                font-size: 14px;
-            }
-
-            .alert-error {
-                background: #fee2e2;
-                color: #991b1b;
-                border: 1px solid #fecaca;
-            }
-
-            .alert-success {
-                background: #dcfce7;
-                color: #166534;
-                border: 1px solid #bbf7d0;
-            }
-
-            .btn-add {
-                display: inline-block;
-                padding: 8px 16px;
-                background-color: #1e40af;
-                color: white;
-                text-decoration: none;
-                border-radius: 4px;
-                font-size: 14px;
-            }
-
-            .action-links a {
-                text-decoration: none;
-                margin-right: 5px;
-                font-weight: 500;
-            }
-
-            .link-detail {
-                color: #1e40af;
-            }
-
-            .link-edit {
-                color: #d97706;
-            }
-
-            .btn-delete {
-                color: #dc2626;
-                background: none;
-                border: none;
-                padding: 0;
-                cursor: pointer;
-                font-weight: 500;
-            }
-
-            /* Responsive small tweaks for modal labels */
-            #download-modal label {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                padding: 4px 6px;
-                border-radius: 4px;
-                background: #f8fafc;
-                margin: 2px;
-                font-size: 13px;
-            }
-        </style>
-
-        <section class="container-fluid">
-
-            <div class="header-action">
-                <h1 class="page-title">Daftar Surat Ukur</h1>
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <a class="btn-add" href="/surat-ukur/create"><i class="fas fa-plus"></i> Tambah Surat Ukur</a>
-                    <button id="btn-open-download" class="btn-add" type="button"><i class="fas fa-download"></i>
-                        Download</button>
-                </div>
+<div id="konten-surat-ukur" style="display: none;">
+    <section class="container-fluid">
+        
+        <div class="header-action">
+            <h1 class="page-title">Daftar Surat Ukur</h1>
+            <div style="display:flex; gap:10px;">
+                <a class="btn-add" href="/surat-ukur/create"><i class="fas fa-plus"></i> Tambah</a>
+                <button id="btn-open-download" class="btn-add" type="button"><i class="fas fa-download"></i> Download</button>
             </div>
-
-            <% if (typeof error !=='undefined' && error) { %>
-                <div class="alert alert-error">
-                    <%= error %>
-                </div>
-                <% } %>
-
-                    <% if (typeof success !=='undefined' && success) { %>
-                        <div class="alert alert-success">
-                            <%= success %>
-                        </div>
-                        <% } %>
-
-                            <form method="get" action="/surat-ukur" class="search-form">
-                                <input type="text" name="q" placeholder="Cari ID / Nomor Surat Ukur / Lokasi"
-                                    value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>" />
-                                <button type="submit"><i class="fas fa-search"></i> Cari</button>
-                            </form>
-
-                            <div class="table-wrapper">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Nomor Surat Ukur</th>
-                                            <th>Nomor Hak</th>
-                                            <th>Jenis Hak</th>
-                                            <th>Tahun</th>
-                                            <th>Media</th>
-                                            <th>Jumlah</th>
-                                            <th>Lokasi</th>
-                                            <th>No Boks</th>
-                                            <th>No Folder</th>
-                                            <th>Metode Proteksi</th>
-                                            <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-
-                                        <% if (Array.isArray(records) && records.length) { records.forEach(function(r) {
-                                            // Hitung tahun terbit dengan hati-hati let _year='-' ; const
-                                            tv=r.tahun_terbit; if (tv !==null && typeof tv !=='undefined' && tv !=='' )
-                                            { try { if (tv instanceof Date ||
-                                            Object.prototype.toString.call(tv)==='[object Date]' ) { _year=(new
-                                            Date(tv)).getFullYear(); } else { const s=String(tv).trim(); if
-                                            (/^\d{4}$/.test(s)) _year=s; else { const d=new Date(s);
-                                            _year=isNaN(d.getTime()) ? '-' : d.getFullYear(); } } } catch (e) {
-                                            _year='-' ; } } %>
-                                            <tr>
-                                                <td>
-                                                    <%= r.id_surat_ukur %>
-                                                </td>
-                                                <td>
-                                                    <%= r.nomor_surat_ukur || '-' %>
-                                                </td>
-                                                <td>
-                                                    <%= r.nomor_hak || '-' %>
-                                                </td>
-                                                <td>
-                                                    <%= r.jenis_hak || '-' %>
-                                                </td>
-                                                <td>
-                                                    <%= _year %>
-                                                </td>
-                                                <td>
-                                                    <%= r.media || '-' %>
-                                                </td>
-                                                <td>
-                                                    <%= (r.jumlah !=null) ? r.jumlah : '-' %>
-                                                </td>
-                                                <td>
-                                                    <%= r.lokasi_penyimpanan || '-' %>
-                                                </td>
-                                                <td>
-                                                    <%= r.no_boks_definitif || '-' %>
-                                                </td>
-                                                <td>
-                                                    <%= (r.nomor_folder !=null) ? r.nomor_folder : '-' %>
-                                                </td>
-                                                <td>
-                                                    <%= r.metode_perlindungan || '-' %>
-                                                </td>
-                                                <td class="action-links">
-                                                    <a href="/surat-ukur/<%= r.id_surat_ukur %>" class="link-detail"
-                                                        title="Lihat Detail"><i class="fas fa-eye"></i></a>
-                                                    <a href="/surat-ukur/edit/<%= r.id_surat_ukur %>" class="link-edit"
-                                                        title="Edit"><i class="fas fa-edit"></i></a>
-                                                    <form action="/surat-ukur/delete/<%= r.id_surat_ukur %>"
-                                                        method="post" style="display:inline"
-                                                        onsubmit="return confirm('Hapus data surat ukur ini?');">
-                                                        <button type="submit" class="btn-delete" title="Hapus"><i
-                                                                class="fas fa-trash"></i></button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                            <% }); } else { %>
-                                                <tr>
-                                                    <td colspan="12"
-                                                        style="text-align:center; padding:20px; color:#6b7280;">Belum
-                                                        ada data surat ukur.</td>
-                                                </tr>
-                                                <% } %>
-
-                                    </tbody>
-                                </table>
-                            </div>
-
-        </section>
-    </div>
-
-    <!-- Modal Download -->
-    <div id="download-modal"
-        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
-        <div
-            style="background:white; width:520px; max-width:95%; border-radius:8px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,0.2);">
-            <h3 style="margin-top:0">Download Data Surat Ukur</h3>
-            <p>Pilih kolom yang ingin di-include di file CSV:</p>
-            <form id="download-form" onsubmit="return false;">
-                <div style="display:flex;flex-wrap:wrap;gap:8px; margin-bottom:12px;">
-                    <label><input type="checkbox" name="col" value="id_surat_ukur" checked> ID</label>
-                    <label><input type="checkbox" name="col" value="nomor_surat_ukur" checked> Nomor Surat Ukur</label>
-                    <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor Hak</label>
-                    <label><input type="checkbox" name="col" value="jenis_hak" checked> Jenis Hak</label>
-                    <label><input type="checkbox" name="col" value="tahun_terbit" checked> Tahun</label>
-                    <label><input type="checkbox" name="col" value="media" checked> Media</label>
-                    <label><input type="checkbox" name="col" value="jumlah" checked> Jumlah</label>
-                    <label><input type="checkbox" name="col" value="tingkat_perkembangan" checked> Tingkat
-                        Perkembangan</label>
-                    <label><input type="checkbox" name="col" value="lokasi_penyimpanan" checked> Lokasi
-                        Penyimpanan</label>
-                    <label><input type="checkbox" name="col" value="no_boks_definitif" checked> No Boks</label>
-                    <label><input type="checkbox" name="col" value="nomor_folder" checked> No Folder</label>
-                    <label><input type="checkbox" name="col" value="metode_perlindungan" checked> Metode
-                        Proteksi</label>
-                </div>
-
-                <div style="display:flex; gap:10px; justify-content:flex-end;">
-                    <button id="btn-download-cancel" type="button" class="btn-add"
-                        style="background:#6b7280;">Batal</button>
-                    <button id="btn-download-start" type="button" class="btn-add"><i class="fas fa-file-csv"></i>
-                        Download CSV</button>
-                </div>
-            </form>
         </div>
-    </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Pindahkan konten ke dalam .main-content (hanya sekali)
-            const kontenHalaman = document.getElementById('konten-halaman-surat-ukur');
-            const layoutUtama = document.querySelector('.main-content');
-            if (layoutUtama && kontenHalaman) {
-                const divBaru = document.createElement('div');
-                divBaru.innerHTML = kontenHalaman.innerHTML;
-                layoutUtama.appendChild(divBaru);
-                kontenHalaman.remove();
-            }
+        <% if (typeof error !=='undefined' && error) { %> <div class="alert alert-error"><%= error %></div> <% } %>
+        <% if (typeof success !=='undefined' && success) { %> <div class="alert alert-success"><%= success %></div> <% } %>
 
-            // --- modal download handling ---
-            const btnOpen = document.getElementById('btn-open-download');
-            const modal = document.getElementById('download-modal');
-            const btnCancel = document.getElementById('btn-download-cancel');
-            const btnStart = document.getElementById('btn-download-start');
+        <form method="get" action="/surat-ukur" class="search-form">
+            <input type="text" name="q" placeholder="Cari ID / No Surat Ukur / Lokasi..." value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>" />
+            <button type="submit"><i class="fas fa-search"></i> Cari</button>
+        </form>
 
-            btnOpen && btnOpen.addEventListener('click', () => {
-                if (modal) modal.style.display = 'flex';
-            });
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nomor Surat Ukur</th>
+                        <th>Nomor Hak</th>
+                        <th>Jenis Hak</th>
+                        <th>Tahun</th>
+                        <th>Media</th>
+                        <th>Jumlah</th>
+                        <th>Lokasi</th>
+                        <th>No Boks</th>
+                        <th>No Folder</th>
+                        <th>Metode</th>
+                        <th>QR</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (Array.isArray(records) && records.length) { %>
+                        <% records.forEach(r => { %>
+                            <tr data-id="<%= r.id_surat_ukur %>">
+                                <td><%= r.id_surat_ukur %></td>
+                                <td><%= r.nomor_surat_ukur || '-' %></td>
+                                <td><%= r.nomor_hak || '-' %></td>
+                                <td><%= r.jenis_hak || '-' %></td>
+                                <td>
+                                    <% 
+                                        let _year = '-'; 
+                                        const tv = r.tahun_terbit; 
+                                        if (tv) { 
+                                            // Logic parsing tahun yang lebih ringkas
+                                            if (tv instanceof Date) { _year = tv.getFullYear(); }
+                                            else { 
+                                                const s = String(tv).trim(); 
+                                                if (/^\d{4}$/.test(s)) { _year = s; } 
+                                                else { const d = new Date(s); _year = isNaN(d.getTime()) ? '-' : d.getFullYear(); } 
+                                            } 
+                                        } 
+                                    %>
+                                    <%= _year %>
+                                </td>
+                                <td><%= r.media || '-' %></td>
+                                <td><%= (r.jumlah != null) ? r.jumlah : '-' %></td>
+                                <td><%= r.lokasi_penyimpanan || '-' %></td>
+                                <td><%= r.no_boks_definitif || '-' %></td>
+                                <td><%= (r.nomor_folder != null) ? r.nomor_folder : '-' %></td>
+                                <td><%= r.metode_perlindungan || '-' %></td>
+                                
+                                <td style="text-align:center;">
+                                    <div class="qr-preview">
+                                        <a href="/surat-ukur/<%= r.id_surat_ukur %>">
+                                            <img src="/surat-ukur/<%= r.id_surat_ukur %>/qr.png" alt="QR" />
+                                        </a>
+                                    </div>
+                                </td>
+                                
+                                <td class="action-links">
+                                    <a href="/surat-ukur/<%= r.id_surat_ukur %>" class="link-detail" title="Lihat"><i class="fas fa-eye"></i></a>
+                                    <a href="/surat-ukur/edit/<%= r.id_surat_ukur %>" class="link-edit" title="Edit"><i class="fas fa-edit"></i></a>
+                                    <form action="/surat-ukur/delete/<%= r.id_surat_ukur %>" method="post" style="display:inline" onsubmit="return confirm('Hapus data surat ukur ini?');">
+                                        <button type="submit" class="btn-delete" title="Hapus"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="13" style="text-align:center; padding:20px; color:#6b7280;">
+                                Belum ada data surat ukur.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
 
-            btnCancel && btnCancel.addEventListener('click', () => {
-                if (modal) modal.style.display = 'none';
-            });
+        <div id="source-checkboxes" style="display:none;">
+            <label><input type="checkbox" name="col" value="id_surat_ukur" checked> ID</label>
+            <label><input type="checkbox" name="col" value="nomor_surat_ukur" checked> No. Surat Ukur</label>
+            <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor Hak</label>
+            <label><input type="checkbox" name="col" value="jenis_hak" checked> Jenis Hak</label>
+            <label><input type="checkbox" name="col" value="tahun_terbit" checked> Tahun</label>
+            <label><input type="checkbox" name="col" value="media" checked> Media</label>
+            <label><input type="checkbox" name="col" value="jumlah" checked> Jumlah</label>
+            <label><input type="checkbox" name="col" value="tingkat_perkembangan" checked> Perkembangan</label>
+            <label><input type="checkbox" name="col" value="lokasi_penyimpanan" checked> Lokasi</label>
+            <label><input type="checkbox" name="col" value="no_boks_definitif" checked> No Boks</label>
+            <label><input type="checkbox" name="col" value="nomor_folder" checked> No Folder</label>
+            <label><input type="checkbox" name="col" value="metode_perlindungan" checked> Metode Proteksi</label>
+        </div>
 
-            btnStart && btnStart.addEventListener('click', () => {
-                const checked = Array.from(document.querySelectorAll('#download-modal input[name="col"]:checked'))
-                    .map(i => i.value);
-                if (!checked.length) {
-                    alert('Pilih minimal 1 kolom.');
-                    return;
-                }
+    </section>
+</div>
 
-                // ambil q dari form pencarian (jika ada)
-                let qv = '';
-                const qInput = document.querySelector('form.search-form input[name="q"]');
-                if (qInput) qv = qInput.value || '';
-
-                const params = new URLSearchParams();
-                if (qv && qv.trim() !== '') params.set('q', qv.trim());
-                params.set('columns', checked.join(','));
-
-                // Karena router biasanya di-mount di /surat-ukur, endpoint download adalah /surat-ukur/download
-                const url = '/surat-ukur/download?' + params.toString();
-                // navigasi ke url akan memicu download (Content-Disposition pada response)
-                window.location = url;
-
-                if (modal) modal.style.display = 'none';
-            });
-
-            // klik di luar modal -> tutup
-            window.addEventListener('click', function (e) {
-                if (!modal) return;
-                if (e.target === modal) modal.style.display = 'none';
-            });
-        });
-    </script>
-
-    <%- include('../partials/footer.ejs') %>
+<%- include('../partials/list_template.ejs', { 
+    baseUrl: '/surat-ukur', 
+    contentId: 'konten-surat-ukur' 
+}) %>
