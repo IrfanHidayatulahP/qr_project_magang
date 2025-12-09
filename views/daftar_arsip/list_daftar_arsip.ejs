@@ -1,0 +1,187 @@
+<%- include('../partials/header.ejs') %>
+
+<div id="konten-daftar-arsip" style="display: none;">
+    <section class="container-fluid">
+        
+        <div class="header-action mb-4">
+            <div>
+                <h1 class="page-title mb-1">Daftar Arsip Vital</h1>
+                <p class="text-muted small mb-0">Kelola gabungan data Buku Tanah, Surat Ukur, dan Warkah dalam satu daftar.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a class="btn-add shadow-sm" href="/daftar-arsip/create">
+                    <i class="fas fa-plus-circle"></i> Buat Daftar
+                </a>
+                <button id="btn-open-download" class="btn-add btn-secondary shadow-sm" type="button">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+
+        <% if (typeof error !=='undefined' && error) { %> 
+            <div class="alert alert-error shadow-sm border-0"><i class="fas fa-exclamation-triangle me-2"></i><%= error %></div> 
+        <% } %>
+        <% if (typeof success !=='undefined' && success) { %> 
+            <div class="alert alert-success shadow-sm border-0"><i class="fas fa-check-circle me-2"></i><%= success %></div> 
+        <% } %>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-2">
+                <form method="get" action="/daftar-arsip" class="search-form mb-0 w-100">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-0 ps-3"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" name="q" class="form-control border-0 shadow-none" placeholder="Cari berdasarkan Nomor Hak, Kode Klasifikasi, atau Uraian..." value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>" />
+                        <button type="submit" class="btn btn-primary px-4 rounded-3 m-1">Cari Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="table-wrapper shadow-sm border-0 rounded-3 overflow-hidden">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width: 60px; text-align: center;" class="py-3 text-uppercase text-secondary small fw-bold">No</th>
+                        <th style="width: 25%;" class="py-3 text-uppercase text-secondary small fw-bold">Identitas Arsip</th>
+                        <th style="width: 30%;" class="py-3 text-uppercase text-secondary small fw-bold">Uraian Isi</th>
+                        <th style="width: 35%;" class="py-3 text-uppercase text-secondary small fw-bold">Ketersediaan Fisik</th>
+                        <th style="width: 100px; text-align: center;" class="py-3 text-uppercase text-secondary small fw-bold">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof records !=='undefined' && records && records.length) { %>
+                        <% records.forEach(r => { %>
+                            <tr data-id="<%= r.id_daftar_arsip %>" style="border-bottom: 1px solid #f1f5f9;">
+                                <td class="text-center fw-bold text-secondary">
+                                    <%= r.nomor_urut %>
+                                </td>
+
+                                <td class="align-top py-3">
+                                    <div class="d-flex flex-column gap-1">
+                                        <span class="fw-bold text-dark fs-6 text-break">
+                                            <%= r.nomor_hak || '-' %>
+                                        </span>
+                                        <div class="d-flex gap-2 mt-1">
+                                            <span class="badge bg-light text-dark border fw-normal">
+                                                <i class="fas fa-tag me-1 text-muted"></i><%= r.kode_klasifikasi || '-' %>
+                                            </span>
+                                            <% if(r.jenis_arsip_vital) { %>
+                                                <span class="badge bg-info bg-opacity-10 text-info border border-info fw-normal">
+                                                    <%= r.jenis_arsip_vital %>
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="align-top py-3">
+                                    <div class="text-secondary mb-2 text-break" style="font-size: 0.9rem; line-height: 1.5;">
+                                        <%= r.nomor_item_arsip_uraian || '-' %>
+                                    </div>
+                                    <% if(r.kurun_waktu_berkas) { %>
+                                        <small class="text-muted bg-light px-2 py-1 rounded">
+                                            <i class="far fa-calendar-alt me-1"></i> Tahun: <strong><%= r.kurun_waktu_berkas %></strong>
+                                        </small>
+                                    <% } %>
+                                </td>
+
+                                <td class="align-top py-3">
+                                    <div class="d-flex flex-column gap-2">
+                                        
+                                        <div class="d-flex align-items-center bg-white border rounded p-2 shadow-sm position-relative overflow-hidden" style="border-left: 4px solid #3b82f6 !important;">
+                                            <div class="me-3 text-primary"><i class="fas fa-book fa-lg"></i></div>
+                                            <div class="flex-grow-1" style="font-size: 0.85rem; line-height: 1.3;">
+                                                <div class="d-flex justify-content-between fw-bold text-dark">
+                                                    <span>Buku Tanah</span>
+                                                    <span class="text-muted small"><%= r.jumlah_buku_tanah || '-' %> Lbr</span>
+                                                </div>
+                                                <div class="text-muted small">
+                                                    <%= r.media_buku_tanah || '-' %> &bull; 
+                                                    <i class="fas fa-map-marker-alt ms-1"></i> <%= r.lokasi_simpan_bt_ruang_rak || '-' %>
+                                                    <% if(r.lokasi_simpan_bt_no_boks) { %>(Boks: <%= r.lokasi_simpan_bt_no_boks %>)<% } %>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex align-items-center bg-white border rounded p-2 shadow-sm position-relative overflow-hidden" style="border-left: 4px solid #10b981 !important;">
+                                            <div class="me-3 text-success"><i class="fas fa-ruler-combined fa-lg"></i></div>
+                                            <div class="flex-grow-1" style="font-size: 0.85rem; line-height: 1.3;">
+                                                <div class="d-flex justify-content-between fw-bold text-dark">
+                                                    <span>Surat Ukur</span>
+                                                    <span class="text-muted small"><%= r.jumlah_surat_ukur || '-' %> Lbr</span>
+                                                </div>
+                                                <div class="text-muted small">
+                                                    <%= r.media_surat_ukur || '-' %> &bull; 
+                                                    <i class="fas fa-map-marker-alt ms-1"></i> <%= r.lokasi_simpan_su_ruang_rak || '-' %>
+                                                    <% if(r.lokasi_simpan_su_no_boks) { %>(Boks: <%= r.lokasi_simpan_su_no_boks %>)<% } %>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex align-items-center bg-white border rounded p-2 shadow-sm position-relative overflow-hidden" style="border-left: 4px solid #f59e0b !important;">
+                                            <div class="me-3 text-warning"><i class="fas fa-file-archive fa-lg"></i></div>
+                                            <div class="flex-grow-1" style="font-size: 0.85rem; line-height: 1.3;">
+                                                <div class="d-flex justify-content-between fw-bold text-dark">
+                                                    <span>Warkah</span>
+                                                    <span class="text-muted small"><%= r.jumlah_warkah || '-' %> Lbr</span>
+                                                </div>
+                                                <div class="text-muted small">
+                                                    <%= r.media_warkah || '-' %> &bull; 
+                                                    <i class="fas fa-map-marker-alt ms-1"></i> <%= r.lokasi_simpan_warkah_ruang_rak || '-' %>
+                                                    <% if(r.lokasi_simpan_warkah_no_boks) { %>(Boks: <%= r.lokasi_simpan_warkah_no_boks %>)<% } %>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </td>
+
+                                <td class="text-center align-middle">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <a href="/daftar-arsip/detail/<%= r.id_daftar_arsip %>" class="btn btn-sm btn-outline-primary border-0" title="Lihat Detail">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="/daftar-arsip/edit/<%= r.id_daftar_arsip %>" class="btn btn-sm btn-outline-warning border-0" title="Edit">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <form action="/daftar-arsip/delete/<%= r.id_daftar_arsip %>" method="post" style="display:inline" onsubmit="return confirm('Hapus daftar ini? Data asli dokumen tidak akan terhapus.');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Hapus">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <div class="mb-2"><i class="fas fa-folder-open fa-3x opacity-25"></i></div>
+                                <p class="mb-0">Belum ada data daftar arsip.</p>
+                                <small>Silakan buat daftar baru untuk memulai.</small>
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="source-checkboxes" style="display:none;">
+            <label><input type="checkbox" name="col" value="nomor_urut" checked> No Urut</label>
+            <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor Hak</label>
+            <label><input type="checkbox" name="col" value="kode_klasifikasi" checked> Klasifikasi</label>
+            <label><input type="checkbox" name="col" value="media_buku_tanah" checked> Media BT</label>
+            <label><input type="checkbox" name="col" value="lokasi_simpan_bt_ruang_rak" checked> Lokasi BT</label>
+            <label><input type="checkbox" name="col" value="media_surat_ukur" checked> Media SU</label>
+            <label><input type="checkbox" name="col" value="lokasi_simpan_su_ruang_rak" checked> Lokasi SU</label>
+            <label><input type="checkbox" name="col" value="media_warkah" checked> Media Warkah</label>
+            <label><input type="checkbox" name="col" value="lokasi_simpan_warkah_ruang_rak" checked> Lokasi Warkah</label>
+        </div>
+
+    </section>
+</div>
+
+<%- include('../partials/list_template.ejs', { 
+    baseUrl: '/daftar-arsip', 
+    contentId: 'konten-daftar-arsip' 
+}) %>
