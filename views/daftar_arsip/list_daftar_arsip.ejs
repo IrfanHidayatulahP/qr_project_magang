@@ -138,14 +138,13 @@
 
                                 <td class="text-center align-middle">
                                     <div class="d-flex justify-content-center gap-1">
-                                        <a href="/daftar-arsip/detail/<%= r.id_daftar_arsip %>" class="btn btn-sm btn-outline-primary border-0" title="Lihat Detail">
+                                        <a href="/daftar-arsip/detail/<%= r.id_daftar_arsip %>" class="btn btn-sm btn-outline-primary border-0" title="Lihat Detail Lengkap">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="/daftar-arsip/edit/<%= r.id_daftar_arsip %>" class="btn btn-sm btn-outline-warning border-0" title="Edit">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </a>
-                                        <form action="/daftar-arsip/delete/<%= r.id_daftar_arsip %>" method="post" style="display:inline" onsubmit="return confirm('Hapus daftar ini? Data asli dokumen tidak akan terhapus.');">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Hapus">
+                                        
+                                        <form action="/daftar-arsip/delete/<%= r.id_daftar_arsip %>" method="post" style="display:inline" 
+                                              onsubmit="return confirm('PERINGATAN KERAS!\n\nAnda akan menghapus:\n1. Data di daftar ini\n2. Data Asli Buku Tanah\n3. Data Asli Surat Ukur\n4. Data Asli Warkah\n\nData yang dihapus TIDAK BISA KEMBALI. Yakin ingin melanjutkan?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Hapus Permanen Semuanya">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>

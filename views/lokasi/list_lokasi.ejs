@@ -1,0 +1,74 @@
+<%- include('../partials/header.ejs') %>
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2>Daftar Lokasi</h2>
+            <div>
+                <a class="btn" href="/lokasi/create">Tambah Lokasi</a>
+            </div>
+        </div>
+
+
+        <form action="/lokasi" method="GET" class="mt">
+            <div class="form-row">
+                <input type="text" name="q" placeholder="Cari id/kode/ruangan/no rak"
+                    value="<%= typeof filter_q !== 'undefined' ? filter_q : '' %>">
+                <button class="btn" type="submit">Cari</button>
+            </div>
+        </form>
+
+
+        <div class="mt">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Kode</th>
+                        <th>Ruangan</th>
+                        <th>No Rak</th>
+                        <th>Kapasitas</th>
+                        <th>Terpakai</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (Array.isArray(records) && records.length) { %>
+                        <% records.forEach(function(r){ %>
+                            <tr>
+                                <td>
+                                    <%= r.id_lokasi %>
+                                </td>
+                                <td>
+                                    <%= r.kode_lokasi || '-' %>
+                                </td>
+                                <td>
+                                    <%= r.ruangan || '-' %>
+                                </td>
+                                <td>
+                                    <%= r.no_rak || '-' %>
+                                </td>
+                                <td>
+                                    <%= r.kapasitas %>
+                                </td>
+                                <td>
+                                    <%= r.terpakai %>
+                                </td>
+                                <td>
+                                    <a class="btn ghost" href="/lokasi/<%= r.id_lokasi %>">Detail</a>
+                                    <a class="btn" href="/lokasi/edit/<%= r.id_lokasi %>">Edit</a>
+                                    <form action="/lokasi/delete/<%= r.id_lokasi %>" method="POST"
+                                        style="display:inline" onsubmit="return confirm('Hapus lokasi ini?');">
+                                        <button class="btn" type="submit">Hapus</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="7">Tidak ada data lokasi.</td>
+                                    </tr>
+                                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <%- include('../partials/footer') %>

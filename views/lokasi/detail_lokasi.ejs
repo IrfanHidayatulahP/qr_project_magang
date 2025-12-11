@@ -1,0 +1,74 @@
+<%- include('../partials/header.ejs') %>
+    <div class="card">
+        <h2>Detail Lokasi - ID: <%= lokasi.id_lokasi %>
+        </h2>
+        <table class="mt">
+            <tbody>
+                <tr>
+                    <th>ID</th>
+                    <td>
+                        <%= lokasi.id_lokasi %>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Kode Lokasi</th>
+                    <td>
+                        <%= lokasi.kode_lokasi || '-' %>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Ruangan</th>
+                    <td>
+                        <%= lokasi.ruangan || '-' %>
+                    </td>
+                </tr>
+                <tr>
+                    <th>No Rak</th>
+                    <td>
+                        <%= lokasi.no_rak || '-' %>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Label Baris</th>
+                    <td>
+                        <%= lokasi.label_baris || '-' %>
+                    </td>
+                </tr>
+                <tr>
+                    <th>No Pos</th>
+                    <td>
+                        <%= lokasi.no_pos || '-' %>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Kapasitas</th>
+                    <td>
+                        <%= lokasi.kapasitas %>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Terpakai</th>
+                    <td>
+                        <%= lokasi.terpakai %>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Notes</th>
+                    <td>
+                        <%= lokasi.notes || '-' %>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+
+        <div class="mt">
+            <a class="btn ghost" href="/lokasi">Kembali</a>
+            <a class="btn" href="/lokasi/edit/<%= lokasi.id_lokasi %>">Edit</a>
+            <form action="/lokasi/delete/<%= lokasi.id_lokasi %>" method="POST" style="display:inline"
+                onsubmit="return confirm('Hapus lokasi ini?');">
+                <button class="btn">Hapus</button>
+            </form>
+        </div>
+    </div>
+    <%- include('../partials/footer') %>

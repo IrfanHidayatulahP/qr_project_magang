@@ -24,8 +24,7 @@
 
         <div class="col-md-4">
             <label for="tahun_terbit" class="form-label fw-semibold text-dark small">Tahun Terbit</label>
-            <input type="text" class="form-control" name="tahun_terbit" id="tahun_terbit" 
-                   placeholder="YYYY atau DD-MM-YYYY"
+            <input type="date" class="form-control" name="tahun_terbit" id="tahun_terbit"
                    value="<%= (typeof old !== 'undefined' && old.tahun_terbit) ? old.tahun_terbit : '' %>">
         </div>
 

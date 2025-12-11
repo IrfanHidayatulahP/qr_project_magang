@@ -1,0 +1,37 @@
+<%- include('../partials/header.ejs') %>
+    <div class="card">
+        <h2>Tambah Lokasi</h2>
+        <form action="/lokasi/create" method="POST">
+            <div class="form-row mt">
+                <input type="text" name="kode_lokasi" placeholder="Kode Lokasi" value="<%= old.kode_lokasi || '' %>">
+                <input type="text" name="ruangan" placeholder="Ruangan" value="<%= old.ruangan || '' %>">
+            </div>
+
+
+            <div class="form-row mt">
+                <input type="text" name="no_rak" placeholder="No Rak" value="<%= old.no_rak || '' %>">
+                <input type="text" name="label_baris" placeholder="Label Baris" value="<%= old.label_baris || '' %>">
+            </div>
+
+
+            <div class="form-row mt">
+                <input type="text" name="no_pos" placeholder="No Pos" value="<%= old.no_pos || '' %>">
+                <input type="number" name="kapasitas" placeholder="Kapasitas (integer)"
+                    value="<%= typeof old.kapasitas !== 'undefined' ? old.kapasitas : 0 %>">
+            </div>
+
+
+            <div class="form-row mt">
+                <input type="number" name="terpakai" placeholder="Terpakai (integer)"
+                    value="<%= typeof old.terpakai !== 'undefined' ? old.terpakai : 0 %>">
+                <input type="text" name="notes" placeholder="Notes" value="<%= old.notes || '' %>">
+            </div>
+
+
+            <div class="mt">
+                <button class="btn" type="submit">Simpan</button>
+                <a class="btn ghost" href="/lokasi">Batal</a>
+            </div>
+        </form>
+    </div>
+    <%- include('../partials/footer') %>

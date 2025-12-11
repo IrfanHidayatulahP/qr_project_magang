@@ -41,8 +41,7 @@
 
         <div class="col-md-6">
             <label for="tahun_terbit" class="form-label fw-semibold text-dark small">Tahun Terbit</label>
-            <input type="text" class="form-control" name="tahun_terbit" id="tahun_terbit" 
-                   placeholder="YYYY atau DD-MM-YYYY"
+            <input type="date" class="form-control" name="tahun_terbit" id="tahun_terbit"
                    value="<%= (typeof old !== 'undefined' && old.tahun_terbit) ? old.tahun_terbit : '' %>">
         </div>
 
@@ -60,7 +59,7 @@
 
     <div class="row g-3 mb-4">
         <div class="col-md-6">
-            <label for="jumlah" class="form-label fw-semibold text-dark small">Jumlah</label>
+            <label for="jumlah" class="form-label fw-semibold text-dark small">Jumlah Lembar/Berkas</label>
             <div class="input-group">
                 <input type="number" class="form-control" name="jumlah" id="jumlah" placeholder="0"
                        value="<%= (typeof old !== 'undefined' && old.jumlah != null) ? old.jumlah : '' %>">
@@ -100,6 +99,7 @@
                         <option value="" disabled>Tidak ada data lokasi</option>
                     <% } %>
                 </select>
+                <div class="form-text text-muted small"><i class="fas fa-info-circle me-1"></i>Pilih kode lokasi rak yang sudah didaftarkan.</div>
             </div>
 
             <div class="col-md-6">

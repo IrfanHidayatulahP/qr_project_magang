@@ -9,7 +9,7 @@ const bukuTanahRoutes = require('./routes/bukuTanahRoutes');
 const suratUkurRoutes = require('./routes/suratUkurRoutes');
 const warkahRoutes = require('./routes/warkahRoutes');
 const daftarArsipRoutes = require('./routes/daftarArsipRoutes');
-
+const lokasiRoutes = require('./routes/lokasiRoutes');
 
 const app = express();
 
@@ -45,6 +45,7 @@ app.use('/buku-tanah', bukuTanahRoutes);
 app.use('/surat-ukur', suratUkurRoutes);
 app.use('/warkah', warkahRoutes);
 app.use('/daftar-arsip', daftarArsipRoutes);
+app.use('/lokasi', lokasiRoutes);
 
 // 404 handler
 app.use((req, res, next) => {

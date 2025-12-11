@@ -1,0 +1,38 @@
+<%- include('../partials/header.ejs') %>
+    <div class="card">
+        <h2>Edit Lokasi - ID: <%= lokasi.id_lokasi %>
+        </h2>
+        <form action="/lokasi/edit/<%= lokasi.id_lokasi %>" method="POST">
+            <div class="form-row mt">
+                <input type="text" name="kode_lokasi" placeholder="Kode Lokasi" value="<%= lokasi.kode_lokasi || '' %>">
+                <input type="text" name="ruangan" placeholder="Ruangan" value="<%= lokasi.ruangan || '' %>">
+            </div>
+
+
+            <div class="form-row mt">
+                <input type="text" name="no_rak" placeholder="No Rak" value="<%= lokasi.no_rak || '' %>">
+                <input type="text" name="label_baris" placeholder="Label Baris" value="<%= lokasi.label_baris || '' %>">
+            </div>
+
+
+            <div class="form-row mt">
+                <input type="text" name="no_pos" placeholder="No Pos" value="<%= lokasi.no_pos || '' %>">
+                <input type="number" name="kapasitas" placeholder="Kapasitas (integer)"
+                    value="<%= typeof lokasi.kapasitas !== 'undefined' ? lokasi.kapasitas : 0 %>">
+            </div>
+
+
+            <div class="form-row mt">
+                <input type="number" name="terpakai" placeholder="Terpakai (integer)"
+                    value="<%= typeof lokasi.terpakai !== 'undefined' ? lokasi.terpakai : 0 %>">
+                <input type="text" name="notes" placeholder="Notes" value="<%= lokasi.notes || '' %>">
+            </div>
+
+
+            <div class="mt">
+                <button class="btn" type="submit">Update</button>
+                <a class="btn ghost" href="/lokasi">Batal</a>
+            </div>
+        </form>
+    </div>
+    <%- include('../partials/footer') %>
