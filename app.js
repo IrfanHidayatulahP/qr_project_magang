@@ -3,6 +3,8 @@ require('dotenv').config(); // cukup panggil sekali di sini
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const authRoutes = require('./routes/authRoutes');
 const bukuTanahRoutes = require('./routes/bukuTanahRoutes');
@@ -20,6 +22,34 @@ const PORT = process.env.PORT || 3000;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Dengan potongan di bawah ini (minimal perubahan)
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: true,
+    credentials: true
+  }
+});
+
+// simpan io di "app" supaya controller bisa akses via req.app.get('io')
+app.set('io', io);
+
+io.on('connection', async (socket) => {
+  console.log('Socket connected:', socket.id);
+
+  // Kirim angka awal ke socket yang baru connect
+  try {
+    const counts = await daftarArsipRoutes.getCounts();
+    socket.emit('daftarArsip:counts', counts);
+  } catch (e) {
+    console.error('Failed to send initial counts to socket', e);
+  }
+
+  socket.on('disconnect', () => {
+    console.log('Socket disconnected:', socket.id);
+  });
+});
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -53,7 +83,7 @@ app.use((req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 

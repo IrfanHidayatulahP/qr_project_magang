@@ -1,74 +1,140 @@
 <%- include('../partials/header.ejs') %>
-    <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-            <h2>Daftar Lokasi</h2>
+
+<div id="konten-lokasi" style="display: none;">
+    <section class="container-fluid">
+        
+        <div class="header-action mb-4">
             <div>
-                <a class="btn" href="/lokasi/create">Tambah Lokasi</a>
+                <h1 class="page-title mb-1">Daftar Lokasi Penyimpanan</h1>
+                <p class="text-muted small mb-0">Kelola data rak, lemari, dan ruangan arsip.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a class="btn-add shadow-sm" href="/lokasi/create">
+                    <i class="fas fa-plus-circle"></i> Tambah Lokasi
+                </a>
+                <button id="btn-open-download" class="btn-add btn-secondary shadow-sm" type="button">
+                    <i class="fas fa-download"></i> Download
+                </button>
             </div>
         </div>
 
+        <% if (typeof error !=='undefined' && error) { %> 
+            <div class="alert alert-error shadow-sm border-0"><i class="fas fa-exclamation-triangle me-2"></i><%= error %></div> 
+        <% } %>
+        <% if (typeof success !=='undefined' && success) { %> 
+            <div class="alert alert-success shadow-sm border-0"><i class="fas fa-check-circle me-2"></i><%= success %></div> 
+        <% } %>
 
-        <form action="/lokasi" method="GET" class="mt">
-            <div class="form-row">
-                <input type="text" name="q" placeholder="Cari id/kode/ruangan/no rak"
-                    value="<%= typeof filter_q !== 'undefined' ? filter_q : '' %>">
-                <button class="btn" type="submit">Cari</button>
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-2">
+                <form method="get" action="/lokasi" class="search-form mb-0 w-100">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-0 ps-3"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" name="q" class="form-control border-0 shadow-none" placeholder="Cari Kode Lokasi, Ruangan, atau Nomor Rak..." value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>" />
+                        <button type="submit" class="btn btn-primary px-4 rounded-3 m-1">Cari Data</button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
 
-
-        <div class="mt">
-            <table>
-                <thead>
+        <div class="table-wrapper shadow-sm border-0 rounded-3 overflow-hidden">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
                     <tr>
-                        <th>ID</th>
-                        <th>Kode</th>
-                        <th>Ruangan</th>
-                        <th>No Rak</th>
-                        <th>Kapasitas</th>
-                        <th>Terpakai</th>
-                        <th>Aksi</th>
+                        <th style="width: 50px; text-align: center;" class="py-3 text-uppercase text-secondary small fw-bold">ID</th>
+                        <th style="width: 20%;" class="py-3 text-uppercase text-secondary small fw-bold">Kode Lokasi</th>
+                        <th style="width: 25%;" class="py-3 text-uppercase text-secondary small fw-bold">Detail Ruangan</th>
+                        <th style="width: 25%;" class="py-3 text-uppercase text-secondary small fw-bold">Kapasitas</th>
+                        <th style="width: 120px; text-align: center;" class="py-3 text-uppercase text-secondary small fw-bold">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <% if (Array.isArray(records) && records.length) { %>
-                        <% records.forEach(function(r){ %>
-                            <tr>
+                        <% records.forEach(function(r) { %>
+                            <tr data-id="<%= r.id_lokasi %>" style="border-bottom: 1px solid #f1f5f9;">
+                                
+                                <td class="text-center fw-bold text-secondary"><%= r.id_lokasi %></td>
+
                                 <td>
-                                    <%= r.id_lokasi %>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary bg-opacity-10 text-primary p-2 rounded me-2">
+                                            <i class="fas fa-barcode"></i>
+                                        </div>
+                                        <span class="fw-bold text-dark fs-6"><%= r.kode_lokasi || '-' %></span>
+                                    </div>
                                 </td>
+
                                 <td>
-                                    <%= r.kode_lokasi || '-' %>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-semibold text-dark"><i class="fas fa-door-open me-2 text-muted"></i><%= r.ruangan || '-' %></span>
+                                        <span class="text-muted small mt-1"><i class="fas fa-layer-group me-2 text-muted"></i>Rak: <strong><%= r.no_rak || '-' %></strong></span>
+                                    </div>
                                 </td>
+
                                 <td>
-                                    <%= r.ruangan || '-' %>
+                                    <% 
+                                        const kap = Number(r.kapasitas) || 0;
+                                        const ter = Number(r.terpakai) || 0;
+                                        const persentase = kap > 0 ? Math.round((ter / kap) * 100) : 0;
+                                        let warnaProgress = 'bg-success';
+                                        if(persentase > 70) warnaProgress = 'bg-warning';
+                                        if(persentase > 90) warnaProgress = 'bg-danger';
+                                    %>
+                                    <div class="d-flex justify-content-between mb-1 small">
+                                        <span class="fw-bold"><%= ter %> / <%= kap %></span>
+                                        <span class="text-muted"><%= persentase %>% Penuh</span>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar <%= warnaProgress %>" role="progressbar" style="width: <%= persentase %>%;" aria-valuenow="<%= persentase %>" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
                                 </td>
-                                <td>
-                                    <%= r.no_rak || '-' %>
-                                </td>
-                                <td>
-                                    <%= r.kapasitas %>
-                                </td>
-                                <td>
-                                    <%= r.terpakai %>
-                                </td>
-                                <td>
-                                    <a class="btn ghost" href="/lokasi/<%= r.id_lokasi %>">Detail</a>
-                                    <a class="btn" href="/lokasi/edit/<%= r.id_lokasi %>">Edit</a>
-                                    <form action="/lokasi/delete/<%= r.id_lokasi %>" method="POST"
-                                        style="display:inline" onsubmit="return confirm('Hapus lokasi ini?');">
-                                        <button class="btn" type="submit">Hapus</button>
-                                    </form>
+
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        
+                                        <a href="/lokasi/<%= r.id_lokasi %>" class="btn btn-sm btn-outline-primary border-0" title="Lihat Detail">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        
+                                        <a href="/lokasi/edit/<%= r.id_lokasi %>" class="btn btn-sm btn-outline-warning border-0" title="Edit">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        
+                                        <form action="/lokasi/delete/<%= r.id_lokasi %>" method="POST" style="display:inline" onsubmit="return confirm('Hapus lokasi ini? Data arsip yang menggunakan lokasi ini mungkin akan kehilangan referensi.');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Hapus">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
-                            <% }) %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="7">Tidak ada data lokasi.</td>
-                                    </tr>
-                                    <% } %>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <div class="mb-2"><i class="fas fa-map-marked-alt fa-3x opacity-25"></i></div>
+                                <p class="mb-0">Belum ada data lokasi penyimpanan.</p>
+                                <small>Silakan tambah lokasi baru.</small>
+                            </td>
+                        </tr>
+                    <% } %>
                 </tbody>
             </table>
         </div>
-    </div>
-    <%- include('../partials/footer') %>
+
+        <div id="source-checkboxes" style="display:none;">
+            <label><input type="checkbox" name="col" value="id_lokasi" checked> ID</label>
+            <label><input type="checkbox" name="col" value="kode_lokasi" checked> Kode Lokasi</label>
+            <label><input type="checkbox" name="col" value="ruangan" checked> Ruangan</label>
+            <label><input type="checkbox" name="col" value="no_rak" checked> No Rak</label>
+            <label><input type="checkbox" name="col" value="kapasitas" checked> Kapasitas</label>
+            <label><input type="checkbox" name="col" value="terpakai" checked> Terpakai</label>
+        </div>
+
+    </section>
+</div>
+
+<%- include('../partials/list_template.ejs', { 
+    baseUrl: '/lokasi', 
+    contentId: 'konten-lokasi' 
+}) %>

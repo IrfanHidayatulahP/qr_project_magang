@@ -1,37 +1,95 @@
 <%- include('../partials/header.ejs') %>
-    <div class="card">
-        <h2>Tambah Lokasi</h2>
-        <form action="/lokasi/create" method="POST">
-            <div class="form-row mt">
-                <input type="text" name="kode_lokasi" placeholder="Kode Lokasi" value="<%= old.kode_lokasi || '' %>">
-                <input type="text" name="ruangan" placeholder="Ruangan" value="<%= old.ruangan || '' %>">
+
+<div id="form-content-lokasi" style="display: none;">
+    
+    <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2">
+        <i class="fas fa-info-circle me-2"></i>Identitas Lokasi
+    </h6>
+    
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <label for="kode_lokasi" class="form-label fw-semibold text-dark small">Kode Lokasi <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="fas fa-barcode text-muted"></i></span>
+                <input type="text" class="form-control border-start-0 ps-0" name="kode_lokasi" id="kode_lokasi" 
+                       placeholder="Contoh: R1-B2-01"
+                       value="<%= (typeof old !== 'undefined' && old.kode_lokasi) ? old.kode_lokasi : '' %>" required>
             </div>
+            <div class="form-text small">Kode unik untuk identifikasi rak/lemari.</div>
+        </div>
 
-
-            <div class="form-row mt">
-                <input type="text" name="no_rak" placeholder="No Rak" value="<%= old.no_rak || '' %>">
-                <input type="text" name="label_baris" placeholder="Label Baris" value="<%= old.label_baris || '' %>">
+        <div class="col-md-6">
+            <label for="ruangan" class="form-label fw-semibold text-dark small">Nama Ruangan</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="fas fa-door-open text-muted"></i></span>
+                <input type="text" class="form-control border-start-0 ps-0" name="ruangan" id="ruangan"
+                       placeholder="Contoh: Ruang Arsip A"
+                       value="<%= (typeof old !== 'undefined' && old.ruangan) ? old.ruangan : '' %>">
             </div>
-
-
-            <div class="form-row mt">
-                <input type="text" name="no_pos" placeholder="No Pos" value="<%= old.no_pos || '' %>">
-                <input type="number" name="kapasitas" placeholder="Kapasitas (integer)"
-                    value="<%= typeof old.kapasitas !== 'undefined' ? old.kapasitas : 0 %>">
-            </div>
-
-
-            <div class="form-row mt">
-                <input type="number" name="terpakai" placeholder="Terpakai (integer)"
-                    value="<%= typeof old.terpakai !== 'undefined' ? old.terpakai : 0 %>">
-                <input type="text" name="notes" placeholder="Notes" value="<%= old.notes || '' %>">
-            </div>
-
-
-            <div class="mt">
-                <button class="btn" type="submit">Simpan</button>
-                <a class="btn ghost" href="/lokasi">Batal</a>
-            </div>
-        </form>
+        </div>
     </div>
-    <%- include('../partials/footer') %>
+
+    <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2 mt-4">
+        <i class="fas fa-layer-group me-2"></i>Detail Posisi
+    </h6>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label for="no_rak" class="form-label fw-semibold text-dark small">Nomor Rak</label>
+            <input type="text" class="form-control" name="no_rak" id="no_rak"
+                   value="<%= (typeof old !== 'undefined' && old.no_rak) ? old.no_rak : '' %>">
+        </div>
+        <div class="col-md-4">
+            <label for="label_baris" class="form-label fw-semibold text-dark small">Label Baris</label>
+            <input type="text" class="form-control" name="label_baris" id="label_baris"
+                   value="<%= (typeof old !== 'undefined' && old.label_baris) ? old.label_baris : '' %>">
+        </div>
+        <div class="col-md-4">
+            <label for="no_pos" class="form-label fw-semibold text-dark small">Nomor Pos</label>
+            <input type="text" class="form-control" name="no_pos" id="no_pos"
+                   value="<%= (typeof old !== 'undefined' && old.no_pos) ? old.no_pos : '' %>">
+        </div>
+    </div>
+
+    <div class="bg-light p-4 rounded-3 border border-dashed mb-4">
+        <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1">
+            <i class="fas fa-chart-pie me-2"></i>Kapasitas Penyimpanan
+        </h6>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="kapasitas" class="form-label fw-semibold text-dark small">Total Kapasitas</label>
+                <div class="input-group">
+                    <input type="number" class="form-control" name="kapasitas" id="kapasitas" min="0"
+                           value="<%= (typeof old !== 'undefined' && old.kapasitas) ? old.kapasitas : 0 %>">
+                    <span class="input-group-text bg-white text-muted">Item</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label for="terpakai" class="form-label fw-semibold text-dark small">Jumlah Terpakai</label>
+                <div class="input-group">
+                    <input type="number" class="form-control" name="terpakai" id="terpakai" min="0"
+                           value="<%= (typeof old !== 'undefined' && old.terpakai) ? old.terpakai : 0 %>">
+                    <span class="input-group-text bg-white text-muted">Item</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <label for="notes" class="form-label fw-semibold text-dark small">Catatan Tambahan</label>
+            <textarea class="form-control" name="notes" id="notes" rows="3"><%= (typeof old !== 'undefined' && old.notes) ? old.notes : '' %></textarea>
+        </div>
+    </div>
+
+</div>
+
+<%- include('../partials/add_template.ejs', { 
+    title: 'Tambah Lokasi',
+    parentName: 'Daftar Lokasi',
+    parentUrl: '/lokasi',
+    formAction: '/lokasi/create',
+    icon: 'fas fa-map-marker-alt', 
+    contentId: 'form-content-lokasi' 
+}) %>
