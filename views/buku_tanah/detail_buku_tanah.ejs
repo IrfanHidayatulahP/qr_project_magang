@@ -23,7 +23,6 @@
                             const tv = buku.tahun_terbit; 
                             if (tv) { 
                                 const s = String(tv).trim(); 
-                                // Cek apakah formatnya YYYY atau Date String
                                 _year = /^\d{4}$/.test(s) ? s : new Date(s).getFullYear(); 
                                 if (isNaN(_year)) _year = '-';
                             } 
@@ -105,6 +104,36 @@
                     <span class="badge bg-secondary"><i class="fas fa-shield-alt me-1"></i> <%= buku.metode_perlindungan || 'Standar' %></span>
                 <% } %>
             </div>
+
+            <!-- Files detail -->
+            <div class="mt-4">
+                <h6 class="text-secondary small fw-bold mb-2">Dokumen (PDF)</h6>
+                <% 
+                    let detailFiles = [];
+                    if (buku.files) {
+                        try { detailFiles = JSON.parse(buku.files); } catch(e) { detailFiles = []; }
+                    }
+                %>
+
+                <% if (detailFiles.length) { %>
+                    <ul class="list-unstyled">
+                        <% detailFiles.forEach(f => { %>
+                            <li style="margin-bottom:8px;">
+                                <a href="/<%= f %>" target="_blank" class="text-decoration-none">
+                                    <i class="fas fa-file-pdf me-2" style="color:#dc2626"></i>
+                                    <%= (f.split('/').pop()) %>
+                                </a>
+                            </li>
+                        <% }) %>
+                    </ul>
+                <% } else { %>
+                    <div class="mb-2 text-muted">Belum ada dokumen PDF untuk item ini.</div>
+                    <a href="/buku-tanah/edit/<%= buku.id_buku_tanah %>#upload-file" class="btn btn-primary btn-sm">
+                        <i class="fas fa-upload me-1"></i> Upload Dokumen
+                    </a>
+                <% } %>
+            </div>
+
         </div>
     </div>
 </div>

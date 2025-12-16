@@ -3,38 +3,36 @@ const express = require('express');
 const router = express.Router();
 const ctrl = require('../controllers/bukuTanahController');
 const { ensureAuthenticated } = require('../middlewares/authMiddleware');
+const { uploadFor } = require('../middlewares/uploadFile'); // <- path sesuai projek
 
-// listing: GET /buku-tanah  -> handled by app.use prefix
-router.get('/', ensureAuthenticated, (req, res, next) => {
-    console.log('GET /buku-tanah dipanggil, session.user =', req.session?.user?.username || null);
-    return ctrl.showIndex(req, res, next);
-});
+const uploader = uploadFor('buku_tanah');
 
-// create form: GET /buku-tanah/create
+// LIST
+router.get('/', ensureAuthenticated, ctrl.showIndex);
 router.get('/create', ensureAuthenticated, ctrl.showCreateForm);
-// create action: POST /buku-tanah/create
-router.post('/create', ensureAuthenticated, ctrl.create);
 
-// edit form: GET /buku-tanah/edit/:id
+// NOTE: tambahkan uploader.fields di route create
+router.post('/create',
+    ensureAuthenticated,
+    uploader.array('files', 10), // menerima hingga 10 PDF
+    ctrl.create
+);
+
+// edit
 router.get('/edit/:id', ensureAuthenticated, ctrl.showEditForm);
-// update action: POST /buku-tanah/edit/:id
-router.post('/edit/:id', ensureAuthenticated, ctrl.update);
 
-// delete action (POST): POST /buku-tanah/delete/:id
+// update: beri juga uploader untuk menangani file replacement
+router.post('/edit/:id',
+    ensureAuthenticated,
+    uploader.array('files', 10),
+    ctrl.update
+);
+
+// delete, download, qr routes tetap sama...
 router.post('/delete/:id', ensureAuthenticated, ctrl.delete);
-
-// download all as CSV -> mounted path will be /buku-tanah/download
 router.get('/download', ensureAuthenticated, ctrl.download);
-
-// ------------------- QR routes (letakkan SEBELUM route generic :id) -------------------
-// GET /buku-tanah/:id/qr.png  -> returns image/png (on-the-fly)
 router.get('/:id/qr.png', ensureAuthenticated, ctrl.qrImage);
-
-// GET /buku-tanah/:id/qr/download -> attachment PNG
 router.get('/:id/qr/download', ensureAuthenticated, ctrl.qrDownload);
-
-// ------------------- generic detail route (harus di akhir) -------------------
-// detail: GET /buku-tanah/:id  (generic)
 router.get('/:id', ensureAuthenticated, ctrl.showDetail);
 
 module.exports = router;

@@ -124,6 +124,63 @@
                     <% }) %>
                 </select>
             </div>
+
+            <!-- UPLOAD / FILES SECTION -->
+            <div class="mt-4" id="upload-file">
+                <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2">
+                    <i class="fas fa-file-pdf me-2"></i>File Dokumen (PDF)
+                </h6>
+
+                <% 
+                    let existingFiles = [];
+                    if (buku.files) {
+                        try { existingFiles = JSON.parse(buku.files); } catch(e) {}
+                    }
+                %>
+
+                <div class="row g-3">
+                    <div class="col-12">
+
+                        <% if (existingFiles.length > 0) { %>
+                            <label class="form-label fw-semibold small">File Saat Ini</label>
+                            <ul class="list-unstyled mb-2">
+                                <% existingFiles.forEach(f => { %>
+                                    <li class="mb-1">
+                                        <a href="/<%= f %>" target="_blank">
+                                            <i class="fas fa-file-pdf text-danger me-2"></i>
+                                            <%= f.split('/').pop() %>
+                                        </a>
+                                    </li>
+                                <% }) %>
+                            </ul>
+                            <div class="form-text text-muted small">
+                                Upload baru akan <strong>mengganti</strong> file lama.
+                            </div>
+                        <% } else { %>
+                            <div class="alert alert-warning small">
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                Belum ada file PDF untuk Buku Tanah ini.
+                            </div>
+                        <% } %>
+
+                        <label class="form-label fw-semibold small mt-3">
+                            Upload File PDF
+                        </label>
+                        <input 
+                            type="file"
+                            class="form-control"
+                            name="files"
+                            accept="application/pdf"
+                            multiple
+                        >
+
+                        <div class="form-text small text-muted">
+                            Bisa upload lebih dari satu file PDF.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END upload -->
         </div>
     </div>
 </div>

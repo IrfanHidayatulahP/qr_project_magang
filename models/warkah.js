@@ -78,6 +78,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(255),
       allowNull: false
     },
+    files: {
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
     keterangan: {
       type: DataTypes.TEXT,
       allowNull: true

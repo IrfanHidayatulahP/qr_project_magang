@@ -1,142 +1,133 @@
 <%- include('partials/header.ejs') %>
 
-    <% let displayTotal=(typeof totalDokumen !=='undefined' ) ? totalDokumen : 0; let displayBulanIni=(typeof
-        dokumenBulanIni !=='undefined' ) ? dokumenBulanIni : 0; let displayPanter=(typeof panter !=='undefined' ) ?
-        panter : 0; %>
+<main class="main-content">
 
-        <div class="mb-4">
-            <h3 class="fw-bold text-dark">Dashboard Overview</h3>
-            <p class="text-muted">Berikut ringkasan data pertanahan</p>
-        </div>
+    <% 
+       let displayTotal = (typeof totalDokumen !== 'undefined') ? totalDokumen : 0; 
+       let displayBulanIni = (typeof dokumenBulanIni !== 'undefined') ? dokumenBulanIni : 0; 
+       let displayPanter = (typeof panter !== 'undefined') ? panter : 0; 
+    %>
 
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm text-white h-100"
-                    style="background-color: #FFC107; border-radius: 12px;">
-                    <div class="card-body p-4">
-                        <h6 class="text-uppaercase mb-2 opacity-75 fw-bold">Total Dokumen</h6>
-                        <h2 class="fw-bold display-4 mb-0"><span id="totalDokumen">
-                                <%= displayTotal %>
-                            </span></h2>
-                    </div>
-                </div>
-            </div>
+    <div class="mb-4">
+        <h3 class="fw-bold text-dark">Dashboard Overview</h3>
+        <p class="text-muted">Berikut ringkasan data pertanahan</p>
+    </div>
 
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm text-white h-100"
-                    style="background-color: #17A2B8; border-radius: 12px;">
-                    <div class="card-body p-4">
-                        <h6 class="text-uppercase mb-2 opacity-75 fw-bold">Dokumen Bulan Ini</h6>
-                        <h2 class="fw-bold display-4 mb-0"><span id="dokumenBulanIni">
-                                <%= displayBulanIni %>
-                            </span></h2>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm text-white h-100"
-                    style="background-color: #DC3545; border-radius: 12px;">
-                    <div class="card-body p-4">
-                        <h6 class="text-uppercase mb-2 opacity-75 fw-bold">Pending (Panter)</h6>
-                        <h2 class="fw-bold display-4 mb-0"><span id="panter">
-                                <%= displayPanter %>
-                            </span>
-                        </h2>
-                    </div>
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-white h-100" style="background-color: #FFC107; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h6 class="text-uppercase mb-2 opacity-75 fw-bold">Total Dokumen</h6>
+                    <h2 class="fw-bold display-4 mb-0"><span id="totalDokumen"><%= displayTotal %></span></h2>
                 </div>
             </div>
         </div>
 
-        <h4 class="fw-bold text-secondary mb-3">Menu Pengelolaan</h4>
-
-        <div class="row g-4">
-            <div class="col-lg-7 col-md-12">
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <a href="/buku-tanah" class="text-decoration-none">
-                            <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
-                                <div class="card-body text-center py-4">
-                                    <i class="fas fa-book fa-3x mb-3 text-dark"></i>
-                                    <h5 class="fw-bold text-dark m-0">Buku Tanah</h5>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a href="/surat-ukur" class="text-decoration-none">
-                            <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
-                                <div class="card-body text-center py-4">
-                                    <i class="fas fa-ruler-combined fa-3x mb-3 text-dark"></i>
-                                    <h5 class="fw-bold text-dark m-0">Surat Ukur</h5>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a href="/warkah" class="text-decoration-none">
-                            <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
-                                <div class="card-body text-center py-4">
-                                    <i class="fas fa-file-invoice fa-3x mb-3 text-dark"></i>
-                                    <h5 class="fw-bold text-dark m-0">Warkah</h5>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="col-md-6">
-                        <a href="/daftar-arsip" class="text-decoration-none">
-                            <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
-                                <div class="card-body text-center py-4">
-                                    <i class="fas fa-list fa-3x mb-3 text-dark"></i>
-                                    <h5 class="fw-bold text-dark m-0">Daftar Arsip</h5>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-white h-100" style="background-color: #17A2B8; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h6 class="text-uppercase mb-2 opacity-75 fw-bold">Dokumen Bulan Ini</h6>
+                    <h2 class="fw-bold display-4 mb-0"><span id="dokumenBulanIni"><%= displayBulanIni %></span></h2>
                 </div>
             </div>
         </div>
 
-        <style>
-            .card-hover {
-                transition: transform 0.2s;
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-white h-100" style="background-color: #DC3545; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h6 class="text-uppercase mb-2 opacity-75 fw-bold">Pending (Panter)</h6>
+                    <h2 class="fw-bold display-4 mb-0"><span id="panter"><%= displayPanter %></span></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="fw-bold text-secondary mb-3">Menu Pengelolaan</h4>
+
+    <div class="row g-4">
+        <div class="col-lg-7 col-md-12">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <a href="/buku-tanah" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
+                            <div class="card-body text-center py-4">
+                                <i class="fas fa-book fa-3x mb-3 text-dark"></i>
+                                <h5 class="fw-bold text-dark m-0">Buku Tanah</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="/surat-ukur" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
+                            <div class="card-body text-center py-4">
+                                <i class="fas fa-ruler-combined fa-3x mb-3 text-dark"></i>
+                                <h5 class="fw-bold text-dark m-0">Surat Ukur</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="/warkah" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
+                            <div class="card-body text-center py-4">
+                                <i class="fas fa-file-invoice fa-3x mb-3 text-dark"></i>
+                                <h5 class="fw-bold text-dark m-0">Warkah</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="/daftar-arsip" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
+                            <div class="card-body text-center py-4">
+                                <i class="fas fa-list fa-3x mb-3 text-dark"></i>
+                                <h5 class="fw-bold text-dark m-0">Daftar Arsip</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .card-hover { transition: transform 0.2s; }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+        }
+    </style>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        (function () {
+            try {
+                const socket = io();
+
+                socket.on('connect', () => {
+                    console.log('Connected to websocket, id=', socket.id);
+                });
+
+                socket.on('daftarArsip:counts', (data) => {
+                    if (!data) return;
+                    // update UI (safety checks)
+                    const totalEl = document.getElementById('totalDokumen');
+                    const bulanEl = document.getElementById('dokumenBulanIni');
+                    const panterEl = document.getElementById('panter');
+
+                    if (totalEl) totalEl.textContent = (data.total !== undefined) ? data.total : totalEl.textContent;
+                    if (bulanEl) bulanEl.textContent = (data.bulanIni !== undefined) ? data.bulanIni : bulanEl.textContent;
+                    if (panterEl) panterEl.textContent = (data.panter !== undefined) ? data.panter : panterEl.textContent;
+                });
+
+            } catch (e) {
+                console.warn('Socket init error', e);
             }
+        })();
+    </script>
 
-            .card-hover:hover {
-                transform: translateY(-5px);
-                cursor: pointer;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
-            }
-        </style>
+</main>
 
-        <!-- socket.io client -->
-        <script src="/socket.io/socket.io.js"></script>
-        <script>
-            (function () {
-                try {
-                    const socket = io();
-
-                    socket.on('connect', () => {
-                        console.log('Connected to websocket, id=', socket.id);
-                    });
-
-                    socket.on('daftarArsip:counts', (data) => {
-                        if (!data) return;
-                        // update UI (safety checks)
-                        const totalEl = document.getElementById('totalDokumen');
-                        const bulanEl = document.getElementById('dokumenBulanIni');
-                        const panterEl = document.getElementById('panter');
-
-                        if (totalEl) totalEl.textContent = (data.total !== undefined) ? data.total : totalEl.textContent;
-                        if (bulanEl) bulanEl.textContent = (data.bulanIni !== undefined) ? data.bulanIni : bulanEl.textContent;
-                        if (panterEl) panterEl.textContent = (data.panter !== undefined) ? data.panter : panterEl.textContent;
-                    });
-
-                } catch (e) {
-                    console.warn('Socket init error', e);
-                }
-            })();
-        </script>
-
-        <%- include('partials/footer.ejs') %>
+<%- include('partials/footer.ejs') %>

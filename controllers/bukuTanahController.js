@@ -161,46 +161,50 @@ exports.showCreateForm = async (req, res) => {
 };
 
 /** create - simpan buku_tanah baru (raw SQL agar pakai created_at/updated_at) */
+// controllers/bukuTanahController.js (potongan create yang diperbarui)
 exports.create = async (req, res) => {
     if (!ensureModelOrRespond(res)) return;
+    const uploaded = Array.isArray(req.uploadedFiles) ? req.uploadedFiles : [];
+
+    // helper cleanup jika terjadi error
+    async function cleanupUploadedFiles() {
+        for (const f of uploaded) {
+            try { if (f && f.fullpath) await fs.unlink(f.fullpath).catch(() => { }); } catch (e) { }
+        }
+    }
+
     const t = await db.sequelize.transaction();
     try {
         const {
-            nomor_hak,
-            jenis_hak,
-            tahun_terbit,
-            media,
-            jumlah,
-            tingkat_perkembangan,
-            lokasi_penyimpanan,
-            no_boks_definitif,
-            nomor_folder,
-            metode_perlindungan
+            nomor_hak, jenis_hak, tahun_terbit, media,
+            jumlah, tingkat_perkembangan, lokasi_penyimpanan,
+            no_boks_definitif, nomor_folder, metode_perlindungan
         } = req.body;
 
-        // --- validasi enum & parsing sama seperti sebelumnya ---
+        // Validasi enum / numeric sama seperti Anda punya (singkat di sini)
         if (jenis_hak && !ALLOWED_JENIS_HAK.includes(jenis_hak)) {
-            await t.rollback();
+            await t.rollback(); await cleanupUploadedFiles();
             return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('jenis_hak tidak valid'));
         }
         if (media && !ALLOWED_MEDIA.includes(media)) {
-            await t.rollback();
+            await t.rollback(); await cleanupUploadedFiles();
             return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('media tidak valid'));
         }
         if (tingkat_perkembangan && !ALLOWED_TINGKAT_PERKEMBANGAN.includes(tingkat_perkembangan)) {
-            await t.rollback();
+            await t.rollback(); await cleanupUploadedFiles();
             return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('tingkat_perkembangan tidak valid'));
         }
         if (metode_perlindungan && !ALLOWED_METODE_PROTEKSI.includes(metode_perlindungan)) {
-            await t.rollback();
+            await t.rollback(); await cleanupUploadedFiles();
             return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('metode_perlindungan tidak valid'));
         }
 
+        // parse jumlah & nomor_folder & tahun
         let jumlahVal = null;
         if (typeof jumlah !== 'undefined' && jumlah !== '' && jumlah !== null) {
             const n = Number(String(jumlah).replace(',', '.'));
             if (!Number.isFinite(n) || n < 0) {
-                await t.rollback();
+                await t.rollback(); await cleanupUploadedFiles();
                 return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('jumlah harus angka >= 0'));
             }
             jumlahVal = Number.isInteger(n) ? n : n;
@@ -210,7 +214,7 @@ exports.create = async (req, res) => {
         if (typeof nomor_folder !== 'undefined' && nomor_folder !== '' && nomor_folder !== null) {
             const nf = Number(nomor_folder);
             if (!Number.isInteger(nf) || nf < 0) {
-                await t.rollback();
+                await t.rollback(); await cleanupUploadedFiles();
                 return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('nomor_folder harus integer >= 0'));
             }
             nomorFolderVal = nf;
@@ -221,11 +225,16 @@ exports.create = async (req, res) => {
             tahunVal = parseDateIndo(tahun_terbit);
         }
 
-        // raw insert -> sisipkan qr_path sebagai empty string '' (kolom NOT NULL terpenuhi)
+        // files list dari middleware -> relativePath (uploads/buku_tanah/filename.pdf)
+        const filesList = uploaded.map(f => f.relativePath);
+        const filesJson = filesList.length ? JSON.stringify(filesList) : null;
+
+        // insert awal (qr_path kosong string supaya NOT NULL terpenuhi)
         const now = new Date();
         const sql = `INSERT INTO buku_tanah
-            (nomor_hak, jenis_hak, tahun_terbit, media, jumlah, tingkat_perkembangan, lokasi_penyimpanan, no_boks_definitif, nomor_folder, metode_perlindungan, qr_path, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+      (nomor_hak, jenis_hak, tahun_terbit, media, jumlah, tingkat_perkembangan, lokasi_penyimpanan,
+       no_boks_definitif, nomor_folder, metode_perlindungan, qr_path, files, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
         const replacements = [
             nomor_hak || null,
@@ -238,21 +247,22 @@ exports.create = async (req, res) => {
             no_boks_definitif || null,
             nomorFolderVal,
             metode_perlindungan || null,
-            '', // qr_path placeholder (akan diupdate setelah file dibuat)
-            now,
-            now
+            '', // qr_path placeholder
+            filesJson, // simpan list file
+            now, now
         ];
 
         await db.sequelize.query(sql, { replacements, transaction: t });
 
-        // commit dulu agar LAST_INSERT_ID tersedia dan konsisten
+        // commit dulu
         await t.commit();
 
-        // ambil last insert id (MySQL)
+        // ambil last insert id
         const [[{ lastId }]] = await db.sequelize.query('SELECT LAST_INSERT_ID() as lastId;');
         const id = lastId;
 
-        // generate QR file permanen ke public/qrcodes/
+        // Jika ingin, update files menjadi path lengkap/format lain. Di sini kita simpan relatif (sudah disimpan).
+        // Generate QR otomatis (opsional, karena qr_path NOT NULL di model)
         try {
             const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
             const detailUrl = `${baseUrl}/buku-tanah/${Number(id)}`;
@@ -272,19 +282,20 @@ exports.create = async (req, res) => {
 
             await fs.writeFile(filepath, buffer);
 
-            // update kolom qr_path di DB
+            // update qr_path ke 'qrcodes/filename'
             await db.sequelize.query('UPDATE buku_tanah SET qr_path = ? WHERE id_buku_tanah = ?', {
                 replacements: [`qrcodes/${filename}`, id]
             });
         } catch (fileErr) {
-            // jangan crash seluruh proses; log dan biarkan record ada tanpa qr_path.
             console.error('Gagal generate/write QR file:', fileErr);
+            // tidak rollback; record tetap ada
         }
 
         return res.redirect('/buku-tanah?success=' + encodeURIComponent('Buku Tanah berhasil ditambahkan'));
     } catch (err) {
-        try { await t.rollback(); } catch (e) {/* ignore */ }
-        console.error('bukuTanah.create error (raw insert + qr):', err);
+        console.error('bukuTanah.create error:', err);
+        try { await t.rollback(); } catch (e) { }
+        await cleanupUploadedFiles();
         return res.redirect('/buku-tanah/create?error=' + encodeURIComponent('Gagal menyimpan data buku tanah'));
     }
 };
@@ -422,12 +433,28 @@ exports.update = async (req, res) => {
         if (typeof no_boks_definitif !== 'undefined') item.no_boks_definitif = no_boks_definitif || null;
         if (typeof metode_perlindungan !== 'undefined') item.metode_perlindungan = metode_perlindungan || null;
 
+        const uploaded = Array.isArray(req.uploadedFiles) ? req.uploadedFiles : [];
+        if (uploaded.length) {
+            // hapus old files (jika diperlukan)
+            if (item.files) {
+                try {
+                    const oldArr = JSON.parse(item.files);
+                    for (const p of oldArr) {
+                        const abs = path.join(process.cwd(), p);
+                        if (fsSync.existsSync(abs)) fsSync.unlinkSync(abs);
+                    }
+                } catch (e) { }
+            }
+            const newFilesRel = uploaded.map(f => f.relativePath);
+            item.files = JSON.stringify(newFilesRel);
+        }
+
         await item.save({
             transaction: t,
             fields: [
                 'nomor_hak', 'jenis_hak', 'tahun_terbit', 'media', 'jumlah',
                 'tingkat_perkembangan', 'lokasi_penyimpanan', 'no_boks_definitif',
-                'nomor_folder', 'metode_perlindungan'
+                'nomor_folder', 'metode_perlindungan', 'files'
             ],
             silent: true
         });

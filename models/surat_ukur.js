@@ -58,6 +58,10 @@ module.exports = function(sequelize, DataTypes) {
     qr_path: {
       type: DataTypes.STRING(255),
       allowNull: false
+    },
+    files: {
+      type: DataTypes.STRING(255),
+      allowNull: false
     }
   }, {
     sequelize,

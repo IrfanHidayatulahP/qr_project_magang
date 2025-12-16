@@ -1,191 +1,194 @@
 <%- include('../partials/header.ejs') %>
 
-    <div id="konten-surat-ukur" style="display: none;">
+<main class="main-content">
+
+    <div id="konten-surat-ukur">
         <section class="container-fluid">
 
-            <div class="header-action">
-                <h1 class="page-title">Daftar Surat Ukur</h1>
-                <div style="display:flex; gap:10px;">
-                    <a class="btn-add" href="/surat-ukur/create"><i class="fas fa-plus"></i> Tambah</a>
-                    <button id="btn-open-download" class="btn-add" type="button"><i class="fas fa-download"></i>
-                        Download</button>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold text-dark m-0">Daftar Surat Ukur</h3>
+                <div class="d-flex gap-2">
+                    <a href="/surat-ukur/create" class="btn btn-primary shadow-sm">
+                        <i class="fas fa-plus me-1"></i> Tambah
+                    </a>
+                    <button id="btn-open-download" class="btn btn-success shadow-sm" type="button">
+                        <i class="fas fa-download me-1"></i> Download
+                    </button>
                 </div>
             </div>
 
             <% if (typeof error !=='undefined' && error) { %>
-                <div class="alert alert-error">
-                    <%= error %>
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i> <%= error %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <% } %>
-                    <% if (typeof success !=='undefined' && success) { %>
-                        <div class="alert alert-success">
-                            <%= success %>
+            <% } %>
+
+            <% if (typeof success !=='undefined' && success) { %>
+                <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> <%= success %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-body p-4">
+
+                    <form method="get" action="/surat-ukur" class="mb-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" name="q" class="form-control border-start-0 bg-light" 
+                                placeholder="Cari ID / No Surat Ukur / Lokasi..." 
+                                value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>">
+                            <button class="btn btn-primary px-4" type="submit">Cari</button>
                         </div>
-                        <% } %>
+                    </form>
 
-                            <form method="get" action="/surat-ukur" class="search-form">
-                                <input type="text" name="q" placeholder="Cari ID / No Surat Ukur / Lokasi..."
-                                    value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>" />
-                                <button type="submit"><i class="fas fa-search"></i> Cari</button>
-                            </form>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" style="white-space: nowrap;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>No. Surat Ukur</th>
+                                    <th>Nomor Hak</th>
+                                    <th>Jenis Hak</th>
+                                    <th>Tahun</th>
+                                    <th>Media</th>
+                                    <th>Jumlah</th>
+                                    <th>Lokasi</th>
+                                    <th>No Boks</th>
+                                    <th>No Folder</th>
+                                    <th>Metode</th>
+                                    <th class="text-center">QR</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (Array.isArray(records) && records.length) { %>
+                                    <% records.forEach(r => { %>
+                                        <tr data-id="<%= r.id_surat_ukur %>">
+                                            <td class="fw-bold text-secondary"><%= r.id_surat_ukur %></td>
+                                            <td><%= r.nomor_surat_ukur || '-' %></td>
+                                            <td><%= r.nomor_hak || '-' %></td>
+                                            <td>
+                                                <span class="badge bg-info text-dark bg-opacity-10 border border-info px-2 py-1">
+                                                    <%= r.jenis_hak || '-' %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <% 
+                                                    let _year='-'; 
+                                                    const tv=r.tahun_terbit; 
+                                                    if (tv) { 
+                                                        if (tv instanceof Date) { _year=tv.getFullYear(); } 
+                                                        else { 
+                                                            const s=String(tv).trim(); 
+                                                            if (/^\d{4}$/.test(s)) { _year=s; } 
+                                                            else { const d=new Date(s); _year=isNaN(d.getTime()) ? '-' : d.getFullYear(); } 
+                                                        } 
+                                                    } 
+                                                %>
+                                                <%= _year %>
+                                            </td>
+                                            <td><%= r.media || '-' %></td>
+                                            <td><%= (r.jumlah != null) ? r.jumlah : '-' %></td>
+                                            <td><i class="fas fa-map-marker-alt text-danger me-1"></i><%= r.lokasi_penyimpanan || '-' %></td>
+                                            <td><%= r.no_boks_definitif || '-' %></td>
+                                            <td><%= (r.nomor_folder != null) ? r.nomor_folder : '-' %></td>
+                                            <td><%= r.metode_perlindungan || '-' %></td>
 
-                            <div class="table-wrapper">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Nomor Surat Ukur</th>
-                                            <th>Nomor Hak</th>
-                                            <th>Jenis Hak</th>
-                                            <th>Tahun</th>
-                                            <th>Media</th>
-                                            <th>Jumlah</th>
-                                            <th>Lokasi</th>
-                                            <th>No Boks</th>
-                                            <th>No Folder</th>
-                                            <th>Metode</th>
-                                            <th>QR</th>
-                                            <th>Aksi</th>
+                                            <td class="text-center">
+                                                <div class="d-flex flex-column align-items-center gap-2">
+                                                    <a href="/surat-ukur/<%= r.id_surat_ukur %>">
+                                                        <img src="/surat-ukur/<%= r.id_surat_ukur %>/qr.png" 
+                                                             alt="QR" class="img-thumbnail" 
+                                                             style="width:50px; height:50px; object-fit:contain;"
+                                                             onerror="this.style.display='none';" />
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-outline-dark btn-show-qr" 
+                                                            data-id="<%= r.id_surat_ukur %>">
+                                                        <i class="fas fa-expand me-1"></i> Lihat
+                                                    </button>
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center">
+                                                <div class="d-flex justify-content-center gap-1">
+                                                    <a href="/surat-ukur/<%= r.id_surat_ukur %>" class="btn btn-sm btn-info text-white" title="Lihat">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="/surat-ukur/edit/<%= r.id_surat_ukur %>" class="btn btn-sm btn-warning text-white" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form action="/surat-ukur/delete/<%= r.id_surat_ukur %>" method="post" style="display:inline" onsubmit="return confirm('Hapus data surat ukur ini?');">
+                                                        <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% if (Array.isArray(records) && records.length) { %>
-                                            <% records.forEach(r=> { %>
-                                                <tr data-id="<%= r.id_surat_ukur %>">
-                                                    <td>
-                                                        <%= r.id_surat_ukur %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.nomor_surat_ukur || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.nomor_hak || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.jenis_hak || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <% let _year='-' ; const tv=r.tahun_terbit; if (tv) { if (tv
-                                                            instanceof Date) { _year=tv.getFullYear(); } else { const
-                                                            s=String(tv).trim(); if (/^\d{4}$/.test(s)) { _year=s; }
-                                                            else { const d=new Date(s); _year=isNaN(d.getTime()) ? '-' :
-                                                            d.getFullYear(); } } } %>
-                                                            <%= _year %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.media || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= (r.jumlah !=null) ? r.jumlah : '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.lokasi_penyimpanan || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.no_boks_definitif || '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= (r.nomor_folder !=null) ? r.nomor_folder : '-' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= r.metode_perlindungan || '-' %>
-                                                    </td>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="13" class="text-center py-5 text-muted">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <i class="fas fa-ruler-combined fa-3x mb-3 text-secondary opacity-50"></i>
+                                                <h6 class="fw-bold">Belum ada data Surat Ukur</h6>
+                                                <small>Silakan tambahkan data baru melalui tombol Tambah.</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
 
-                                                    <td style="text-align:center;">
-                                                        <div class="qr-preview" title="QR ID <%= r.id_surat_ukur %>">
-                                                            <a href="/surat-ukur/<%= r.id_surat_ukur %>">
-                                                                <img src="/surat-ukur/<%= r.id_surat_ukur %>/qr.png"
-                                                                    alt="QR"
-                                                                    style="width:64px;height:64px;object-fit:contain;border:1px solid #eee;padding:4px;background:#fff;"
-                                                                    onerror="this.style.display='none';" />
-                                                            </a>
-                                                            <div style="margin-top:6px;">
-                                                                <button type="button" class="btn-show-qr"
-                                                                    data-id="<%= r.id_surat_ukur %>"
-                                                                    style="padding:6px 8px;border-radius:4px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;">Lihat</button>
-                                                            </div>
-                                                        </div>
-                                                    </td>
+                </div>
+            </div>
 
-                                                    <td class="action-links">
-                                                        <a href="/surat-ukur/<%= r.id_surat_ukur %>" class="link-detail"
-                                                            title="Lihat"><i class="fas fa-eye"></i></a>
-                                                        <a href="/surat-ukur/edit/<%= r.id_surat_ukur %>"
-                                                            class="link-edit" title="Edit"><i
-                                                                class="fas fa-edit"></i></a>
-                                                        <form action="/surat-ukur/delete/<%= r.id_surat_ukur %>"
-                                                            method="post" style="display:inline"
-                                                            onsubmit="return confirm('Hapus data surat ukur ini?');">
-                                                            <button type="submit" class="btn-delete" title="Hapus"><i
-                                                                    class="fas fa-trash"></i></button>
-                                                        </form>
-                                                    </td>
-                                                </tr>
-                                                <% }) %>
-                                                    <% } else { %>
-                                                        <tr>
-                                                            <td colspan="13"
-                                                                style="text-align:center; padding:20px; color:#6b7280;">
-                                                                Belum ada data surat ukur.
-                                                            </td>
-                                                        </tr>
-                                                        <% } %>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div id="source-checkboxes" style="display:none;">
-                                <label><input type="checkbox" name="col" value="id_surat_ukur" checked> ID</label>
-                                <label><input type="checkbox" name="col" value="nomor_surat_ukur" checked> No. Surat
-                                    Ukur</label>
-                                <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor Hak</label>
-                                <label><input type="checkbox" name="col" value="jenis_hak" checked> Jenis Hak</label>
-                                <label><input type="checkbox" name="col" value="tahun_terbit" checked> Tahun</label>
-                                <label><input type="checkbox" name="col" value="media" checked> Media</label>
-                                <label><input type="checkbox" name="col" value="jumlah" checked> Jumlah</label>
-                                <label><input type="checkbox" name="col" value="tingkat_perkembangan" checked>
-                                    Perkembangan</label>
-                                <label><input type="checkbox" name="col" value="lokasi_penyimpanan" checked>
-                                    Lokasi</label>
-                                <label><input type="checkbox" name="col" value="no_boks_definitif" checked> No
-                                    Boks</label>
-                                <label><input type="checkbox" name="col" value="nomor_folder" checked> No Folder</label>
-                                <label><input type="checkbox" name="col" value="metode_perlindungan" checked> Metode
-                                    Proteksi</label>
-                            </div>
+            <div id="source-checkboxes" style="display:none;">
+                <label><input type="checkbox" name="col" value="id_surat_ukur" checked> ID</label>
+                <label><input type="checkbox" name="col" value="nomor_surat_ukur" checked> No. Surat Ukur</label>
+                <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor Hak</label>
+                <label><input type="checkbox" name="col" value="jenis_hak" checked> Jenis Hak</label>
+                <label><input type="checkbox" name="col" value="tahun_terbit" checked> Tahun</label>
+                <label><input type="checkbox" name="col" value="media" checked> Media</label>
+                <label><input type="checkbox" name="col" value="jumlah" checked> Jumlah</label>
+                <label><input type="checkbox" name="col" value="tingkat_perkembangan" checked> Perkembangan</label>
+                <label><input type="checkbox" name="col" value="lokasi_penyimpanan" checked> Lokasi</label>
+                <label><input type="checkbox" name="col" value="no_boks_definitif" checked> No Boks</label>
+                <label><input type="checkbox" name="col" value="nomor_folder" checked> No Folder</label>
+                <label><input type="checkbox" name="col" value="metode_perlindungan" checked> Metode Proteksi</label>
+            </div>
 
         </section>
     </div>
 
-    <!-- QR Modal -->
-    <div id="qr-modal"
-        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
-        <div
-            style="background:white; width:480px; max-width:95%; border-radius:8px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,0.2); text-align:center;">
-            <h4 style="margin-top:0; margin-bottom:8px;">QR Surat Ukur</h4>
-            <img id="qr-modal-img" src="" alt="QR"
-                style="max-width:100%; height:auto; border:1px solid #eee; padding:8px; background:#fff;" />
-            <div style="margin-top:12px; display:flex; gap:8px; justify-content:center;">
-                <a id="qr-modal-download" href="#" class="btn-add"
-                    style="text-decoration:none; padding:8px 12px; background:#1e40af; color:white; border-radius:6px;"
-                    target="_blank" rel="noopener">Unduh</a>
-                <button id="qr-modal-close" class="btn-add"
-                    style="background:#6b7280; color:white; border-radius:6px; padding:8px 12px;">Tutup</button>
+    <div id="qr-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(2px);">
+        <div class="bg-white rounded-3 p-4 shadow-lg text-center" style="width:400px; max-width:90%;">
+            <h5 class="fw-bold mb-3">QR Code Surat Ukur</h5>
+            
+            <div class="bg-light p-3 rounded border mb-3">
+                <img id="qr-modal-img" src="" alt="QR" class="img-fluid" />
+            </div>
+            
+            <div class="d-flex justify-content-center gap-2">
+                <a id="qr-modal-download" href="#" class="btn btn-primary" target="_blank" rel="noopener">
+                    <i class="fas fa-download me-1"></i> Unduh
+                </a>
+                <button id="qr-modal-close" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Tutup
+                </button>
             </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // pindahkan konten (jika layout wrapper digunakan seperti partial list_template)
-            const konten = document.getElementById('konten-surat-ukur');
-            const layoutUtama = document.querySelector('.main-content');
-            if (layoutUtama && konten) {
-                const divBaru = document.createElement('div');
-                divBaru.innerHTML = konten.innerHTML;
-                layoutUtama.appendChild(divBaru);
-                konten.remove();
-            }
+            // NOTE: Script pemindah konten dihapus karena struktur HTML sudah benar (di dalam main)
 
             // QR modal logic
             const qrModal = document.getElementById('qr-modal');
@@ -194,10 +197,10 @@
             const qrClose = document.getElementById('qr-modal-close');
 
             document.addEventListener('click', function (e) {
-                const target = e.target;
-
+                const target = e.target.closest('.btn-show-qr'); // Gunakan closest agar icon dalam tombol juga bisa diklik
+                
                 // tombol lihat QR
-                if (target.matches('.btn-show-qr')) {
+                if (target) {
                     const id = target.getAttribute('data-id');
                     if (!id) return;
 
@@ -218,9 +221,8 @@
                 }
 
                 // tombol tutup modal
-                if (target && target.id === 'qr-modal-close') {
+                if (e.target.closest('#qr-modal-close')) {
                     if (qrModal) qrModal.style.display = 'none';
-                    // reset src to avoid stale image
                     if (qrImg) qrImg.src = '';
                 }
             });
@@ -234,7 +236,7 @@
                 }
             });
 
-            // (optional) keyboard ESC close
+            // keyboard ESC close
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape' && qrModal && qrModal.style.display === 'flex') {
                     qrModal.style.display = 'none';
@@ -244,4 +246,4 @@
         });
     </script>
 
-    <%- include('../partials/list_template.ejs', { baseUrl: '/surat-ukur' , contentId: 'konten-surat-ukur' }) %>
+</main> <%- include('../partials/list_template.ejs', { baseUrl: '/surat-ukur' , contentId: 'konten-surat-ukur' }) %>

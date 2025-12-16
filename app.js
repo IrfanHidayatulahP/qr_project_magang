@@ -54,6 +54,9 @@ io.on('connection', async (socket) => {
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// allows direct access via /uploads/<model>/<filename>
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // allows direct access via /qrcodes/<filename> (e.g. /qrcodes/buku_tanah_123.png)
 app.use('/qrcodes', express.static(path.join(__dirname, 'public', 'qrcodes')));
 
