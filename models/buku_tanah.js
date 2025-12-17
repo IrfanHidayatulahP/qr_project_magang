@@ -62,7 +62,9 @@ module.exports = function(sequelize, DataTypes) {
     sequelize,
     tableName: 'buku_tanah',
     hasTrigger: true,
-    timestamps: true,
+    timestamps: true,      // Aktifkan timestamp otomatis
+    createdAt: 'created_at', // Mapping: createdAt (model) -> created_at (db)
+    updatedAt: 'updated_at', // Mapping: updatedAt (model) -> updated_at (db)
     indexes: [
       {
         name: "PRIMARY",

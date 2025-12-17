@@ -1,166 +1,206 @@
 <%- include('../partials/header.ejs') %>
 
-<div id="form-content-warkah" style="display: none;">
-    
-    <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2">
-        <i class="fas fa-info-circle me-2"></i>Identitas Warkah
-    </h6>
-    
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <label for="nomor_di_208" class="form-label fw-semibold text-dark small">Nomor DI-208 <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" name="nomor_di_208" id="nomor_di_208" 
-                   value="<%= (typeof old !== 'undefined' && old.nomor_di_208) ? old.nomor_di_208 : '' %>" required>
-        </div>
+    <div id="form-content-warkah" style="display: none;">
 
-        <div class="col-md-6">
-            <label for="nomor_hak" class="form-label fw-semibold text-dark small">Nomor Hak</label>
-            <div class="input-group">
-                <span class="input-group-text bg-light border-end-0"><i class="fas fa-hashtag text-muted"></i></span>
-                <input type="text" class="form-control border-start-0 ps-0" name="nomor_hak" id="nomor_hak" 
-                       value="<%= (typeof old !== 'undefined' && old.nomor_hak) ? old.nomor_hak : '' %>">
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <label for="tahun_terbit" class="form-label fw-semibold text-dark small">Tahun Terbit</label>
-            <input type="date" class="form-control" name="tahun_terbit" id="tahun_terbit"
-                   value="<%= (typeof old !== 'undefined' && old.tahun_terbit) ? old.tahun_terbit : '' %>">
-        </div>
-
-        <div class="col-md-4">
-            <label for="kode_klasifikasi" class="form-label fw-semibold text-dark small">Kode Klasifikasi</label>
-            <input type="text" class="form-control" name="kode_klasifikasi" id="kode_klasifikasi"
-                   value="<%= (typeof old !== 'undefined' && old.kode_klasifikasi) ? old.kode_klasifikasi : '' %>">
-        </div>
-
-        <div class="col-md-4">
-            <label for="jenis_arsip_vital" class="form-label fw-semibold text-dark small">Jenis Arsip Vital</label>
-            <input type="text" class="form-control" name="jenis_arsip_vital" id="jenis_arsip_vital"
-                   value="<%= (typeof old !== 'undefined' && old.jenis_arsip_vital) ? old.jenis_arsip_vital : '' %>">
-        </div>
-
-        <div class="col-12">
-            <label for="uraian_informasi_arsip" class="form-label fw-semibold text-dark small">Uraian Informasi Arsip</label>
-            <textarea class="form-control" name="uraian_informasi_arsip" id="uraian_informasi_arsip" rows="2"><%= (typeof old !== 'undefined' && old.uraian_informasi_arsip) ? old.uraian_informasi_arsip : '' %></textarea>
-        </div>
-    </div>
-
-    <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2 mt-4">
-        <i class="fas fa-history me-2"></i>Retensi Arsip
-    </h6>
-    
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <label for="jangka_simpan_aktif" class="form-label fw-semibold text-dark small">Jangka Simpan Aktif</label>
-            <input type="text" class="form-control" name="jangka_simpan_aktif" id="jangka_simpan_aktif"
-                   value="<%= (typeof old !== 'undefined' && old.jangka_simpan_aktif) ? old.jangka_simpan_aktif : '' %>">
-        </div>
-        <div class="col-md-4">
-            <label for="jangka_simpan_inaktif" class="form-label fw-semibold text-dark small">Jangka Simpan Inaktif</label>
-            <input type="text" class="form-control" name="jangka_simpan_inaktif" id="jangka_simpan_inaktif"
-                   value="<%= (typeof old !== 'undefined' && old.jangka_simpan_inaktif) ? old.jangka_simpan_inaktif : '' %>">
-        </div>
-        <div class="col-md-4">
-            <label for="jangka_simpan_keterangan" class="form-label fw-semibold text-dark small">Ket. Jangka Simpan</label>
-            <input type="text" class="form-control" name="jangka_simpan_keterangan" id="jangka_simpan_keterangan"
-                   value="<%= (typeof old !== 'undefined' && old.jangka_simpan_keterangan) ? old.jangka_simpan_keterangan : '' %>">
-        </div>
-    </div>
-
-    <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2 mt-4">
-        <i class="fas fa-file-alt me-2"></i>Detail Fisik
-    </h6>
-
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <label for="media" class="form-label fw-semibold text-dark small">Media Arsip</label>
-            <select class="form-select" name="media" id="media">
-                <option value="">-- Pilih Media --</option>
-                <option value="Kertas" <%= (typeof old !== 'undefined' && old.media==='Kertas') ? 'selected' : '' %>>Kertas</option>
-                <option value="Digital" <%= (typeof old !== 'undefined' && old.media==='Digital') ? 'selected' : '' %>>Digital</option>
-                <option value="Microfilm" <%= (typeof old !== 'undefined' && old.media==='Microfilm') ? 'selected' : '' %>>Microfilm</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label for="jumlah" class="form-label fw-semibold text-dark small">Jumlah</label>
-            <div class="input-group">
-                <input type="number" class="form-control" name="jumlah" id="jumlah" placeholder="0"
-                       value="<%= (typeof old !== 'undefined' && old.jumlah) ? old.jumlah : '' %>">
-                <span class="input-group-text bg-light text-muted">Lembar</span>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <label for="tingkat_perkembangan" class="form-label fw-semibold text-dark small">Tingkat Perkembangan</label>
-            <select class="form-select" name="tingkat_perkembangan" id="tingkat_perkembangan">
-                <option value="">-- Pilih --</option>
-                <option value="Asli" <%= (typeof old !== 'undefined' && old.tingkat_perkembangan==='Asli') ? 'selected' : '' %>>Asli</option>
-                <option value="Copy" <%= (typeof old !== 'undefined' && old.tingkat_perkembangan==='Copy') ? 'selected' : '' %>>Copy</option>
-                <option value="Salinan" <%= (typeof old !== 'undefined' && old.tingkat_perkembangan==='Salinan') ? 'selected' : '' %>>Salinan</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="bg-light p-4 rounded-3 border border-dashed">
-        <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1">
-            <i class="fas fa-map-marker-alt me-2"></i>Lokasi Penyimpanan
+        <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2">
+            <i class="fas fa-info-circle me-2"></i>Identitas Warkah
         </h6>
 
-        <div class="row g-3">
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label for="nomor_di_208" class="form-label fw-semibold text-dark small">Nomor DI-208 <span
+                        class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="nomor_di_208" id="nomor_di_208"
+                    value="<%= (typeof old !== 'undefined' && old.nomor_di_208) ? old.nomor_di_208 : '' %>" required>
+            </div>
+
+            <div class="col-md-6">
+                <label for="nomor_hak" class="form-label fw-semibold text-dark small">Nomor Hak</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i
+                            class="fas fa-hashtag text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0" name="nomor_hak" id="nomor_hak"
+                        value="<%= (typeof old !== 'undefined' && old.nomor_hak) ? old.nomor_hak : '' %>">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <label for="tahun_terbit" class="form-label fw-semibold text-dark small">Tahun Terbit</label>
+                <input type="date" class="form-control" name="tahun_terbit" id="tahun_terbit"
+                    value="<%= (typeof old !== 'undefined' && old.tahun_terbit) ? old.tahun_terbit : '' %>">
+            </div>
+
+            <div class="col-md-4">
+                <label for="kode_klasifikasi" class="form-label fw-semibold text-dark small">Kode Klasifikasi</label>
+                <input type="text" class="form-control" name="kode_klasifikasi" id="kode_klasifikasi"
+                    value="<%= (typeof old !== 'undefined' && old.kode_klasifikasi) ? old.kode_klasifikasi : '' %>">
+            </div>
+
+            <div class="col-md-4">
+                <label for="jenis_arsip_vital" class="form-label fw-semibold text-dark small">Jenis Arsip Vital</label>
+                <input type="text" class="form-control" name="jenis_arsip_vital" id="jenis_arsip_vital"
+                    value="<%= (typeof old !== 'undefined' && old.jenis_arsip_vital) ? old.jenis_arsip_vital : '' %>">
+            </div>
+
             <div class="col-12">
-                <label for="lokasi_penyimpanan" class="form-label fw-semibold text-dark small">Lokasi Rak / Ruangan</label>
-                <select class="form-select" name="lokasi_penyimpanan" id="lokasi_penyimpanan">
-                    <option value="">-- Pilih Kode Lokasi --</option>
-                    <% if (typeof locations !== 'undefined' && Array.isArray(locations) && locations.length > 0) { %>
-                        <% locations.forEach(function(loc) { 
-                            var label = (loc.kode_lokasi || '') + (loc.ruangan ? (' — ' + loc.ruangan) : '') + (loc.no_rak ? (' / Rak ' + loc.no_rak) : '');
-                            var isSelected = (typeof old !== 'undefined' && old.lokasi_penyimpanan === loc.kode_lokasi) ? 'selected' : ''; 
-                        %>
-                            <option value="<%= loc.kode_lokasi %>" <%= isSelected %>><%= label %></option>
-                        <% }); %>
-                    <% } else { %>
-                        <option value="" disabled>Tidak ada data lokasi</option>
-                    <% } %>
+                <label for="uraian_informasi_arsip" class="form-label fw-semibold text-dark small">Uraian Informasi
+                    Arsip</label>
+                <textarea class="form-control" name="uraian_informasi_arsip" id="uraian_informasi_arsip"
+                    rows="2"><%= (typeof old !== 'undefined' && old.uraian_informasi_arsip) ? old.uraian_informasi_arsip : '' %></textarea>
+            </div>
+        </div>
+
+        <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2 mt-4">
+            <i class="fas fa-history me-2"></i>Retensi Arsip
+        </h6>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label for="jangka_simpan_aktif" class="form-label fw-semibold text-dark small">Jangka Simpan
+                    Aktif</label>
+                <input type="text" class="form-control" name="jangka_simpan_aktif" id="jangka_simpan_aktif"
+                    value="<%= (typeof old !== 'undefined' && old.jangka_simpan_aktif) ? old.jangka_simpan_aktif : '' %>">
+            </div>
+            <div class="col-md-4">
+                <label for="jangka_simpan_inaktif" class="form-label fw-semibold text-dark small">Jangka Simpan
+                    Inaktif</label>
+                <input type="text" class="form-control" name="jangka_simpan_inaktif" id="jangka_simpan_inaktif"
+                    value="<%= (typeof old !== 'undefined' && old.jangka_simpan_inaktif) ? old.jangka_simpan_inaktif : '' %>">
+            </div>
+            <div class="col-md-4">
+                <label for="jangka_simpan_keterangan" class="form-label fw-semibold text-dark small">Ket. Jangka
+                    Simpan</label>
+                <input type="text" class="form-control" name="jangka_simpan_keterangan" id="jangka_simpan_keterangan"
+                    value="<%= (typeof old !== 'undefined' && old.jangka_simpan_keterangan) ? old.jangka_simpan_keterangan : '' %>">
+            </div>
+        </div>
+
+        <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2 mt-4">
+            <i class="fas fa-file-alt me-2"></i>Detail Fisik
+        </h6>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label for="media" class="form-label fw-semibold text-dark small">Media Arsip</label>
+                <select class="form-select" name="media" id="media">
+                    <option value="">-- Pilih Media --</option>
+                    <option value="Kertas" <%=(typeof old !=='undefined' && old.media==='Kertas' ) ? 'selected' : '' %>
+                        >Kertas</option>
+                    <option value="Digital" <%=(typeof old !=='undefined' && old.media==='Digital' ) ? 'selected' : ''
+                        %>>Digital</option>
+                    <option value="Microfilm" <%=(typeof old !=='undefined' && old.media==='Microfilm' ) ? 'selected'
+                        : '' %>>Microfilm</option>
                 </select>
             </div>
-
-            <div class="col-md-6">
-                <label for="no_boks_definitif" class="form-label fw-semibold text-dark small">No. Boks Definitif</label>
-                <input type="text" class="form-control" name="no_boks_definitif" id="no_boks_definitif"
-                       value="<%= (typeof old !== 'undefined' && old.no_boks_definitif) ? old.no_boks_definitif : '' %>">
+            <div class="col-md-4">
+                <label for="jumlah" class="form-label fw-semibold text-dark small">Jumlah</label>
+                <div class="input-group">
+                    <input type="number" class="form-control" name="jumlah" id="jumlah" placeholder="0"
+                        value="<%= (typeof old !== 'undefined' && old.jumlah) ? old.jumlah : '' %>">
+                    <span class="input-group-text bg-light text-muted">Lembar</span>
+                </div>
             </div>
-            <div class="col-md-6">
-                <label for="nomor_folder" class="form-label fw-semibold text-dark small">Nomor Folder</label>
-                <input type="number" class="form-control" name="nomor_folder" id="nomor_folder"
-                       value="<%= (typeof old !== 'undefined' && old.nomor_folder) ? old.nomor_folder : '' %>">
-            </div>
-
-            <div class="col-md-6">
-                <label for="metode_perlindungan" class="form-label fw-semibold text-dark small">Metode Perlindungan</label>
-                <select class="form-select" name="metode_perlindungan">
+            <div class="col-md-4">
+                <label for="tingkat_perkembangan" class="form-label fw-semibold text-dark small">Tingkat
+                    Perkembangan</label>
+                <select class="form-select" name="tingkat_perkembangan" id="tingkat_perkembangan">
                     <option value="">-- Pilih --</option>
-                    <option value="Vaulting" <%= (typeof old !== 'undefined' && old.metode_perlindungan==='Vaulting') ? 'selected' : '' %>>Vaulting</option>
-                    <option value="Cloud" <%= (typeof old !== 'undefined' && old.metode_perlindungan==='Cloud') ? 'selected' : '' %>>Cloud</option>
-                    <option value="Physical" <%= (typeof old !== 'undefined' && old.metode_perlindungan==='Physical') ? 'selected' : '' %>>Physical</option>
+                    <option value="Asli" <%=(typeof old !=='undefined' && old.tingkat_perkembangan==='Asli' )
+                        ? 'selected' : '' %>>Asli</option>
+                    <option value="Copy" <%=(typeof old !=='undefined' && old.tingkat_perkembangan==='Copy' )
+                        ? 'selected' : '' %>>Copy</option>
+                    <option value="Salinan" <%=(typeof old !=='undefined' && old.tingkat_perkembangan==='Salinan' )
+                        ? 'selected' : '' %>>Salinan</option>
                 </select>
             </div>
         </div>
-    </div>
 
-    <div class="row mt-4">
-        <div class="col-12">
-            <label for="keterangan" class="form-label fw-semibold text-dark small">Keterangan Tambahan</label>
-            <textarea class="form-control" name="keterangan" id="keterangan" rows="3"><%= (typeof old !== 'undefined' && old.keterangan) ? old.keterangan : '' %></textarea>
+        <div class="bg-light p-4 rounded-3 border border-dashed">
+            <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1">
+                <i class="fas fa-map-marker-alt me-2"></i>Lokasi Penyimpanan
+            </h6>
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <label for="lokasi_penyimpanan" class="form-label fw-semibold text-dark small">Lokasi Rak /
+                        Ruangan</label>
+                    <select class="form-select" name="lokasi_penyimpanan" id="lokasi_penyimpanan">
+                        <option value="">-- Pilih Kode Lokasi --</option>
+                        <% if (typeof locations !=='undefined' && Array.isArray(locations) && locations.length> 0) { %>
+                            <% locations.forEach(function(loc) { var label=(loc.kode_lokasi || '' ) + (loc.ruangan ? ('
+                                — ' + loc.ruangan) : '') + (loc.no_rak ? (' / Rak ' + loc.no_rak) : '');
+                            var isSelected = (typeof old !== ' undefined' && old.lokasi_penyimpanan===loc.kode_lokasi)
+                                ? 'selected' : '' ; %>
+                                <option value="<%= loc.kode_lokasi %>" <%=isSelected %>><%= label %>
+                                </option>
+                                <% }); %>
+                                    <% } else { %>
+                                        <option value="" disabled>Tidak ada data lokasi</option>
+                                        <% } %>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="no_boks_definitif" class="form-label fw-semibold text-dark small">No. Boks
+                        Definitif</label>
+                    <input type="text" class="form-control" name="no_boks_definitif" id="no_boks_definitif"
+                        value="<%= (typeof old !== 'undefined' && old.no_boks_definitif) ? old.no_boks_definitif : '' %>">
+                </div>
+                <div class="col-md-6">
+                    <label for="nomor_folder" class="form-label fw-semibold text-dark small">Nomor Folder</label>
+                    <input type="number" class="form-control" name="nomor_folder" id="nomor_folder"
+                        value="<%= (typeof old !== 'undefined' && old.nomor_folder) ? old.nomor_folder : '' %>">
+                </div>
+
+                <div class="col-md-6">
+                    <label for="metode_perlindungan" class="form-label fw-semibold text-dark small">Metode
+                        Perlindungan</label>
+                    <select class="form-select" name="metode_perlindungan">
+                        <option value="">-- Pilih --</option>
+                        <option value="Vaulting" <%=(typeof old !=='undefined' && old.metode_perlindungan==='Vaulting' )
+                            ? 'selected' : '' %>>Vaulting</option>
+                        <option value="Cloud" <%=(typeof old !=='undefined' && old.metode_perlindungan==='Cloud' )
+                            ? 'selected' : '' %>>Cloud</option>
+                        <option value="Physical" <%=(typeof old !=='undefined' && old.metode_perlindungan==='Physical' )
+                            ? 'selected' : '' %>>Physical</option>
+                    </select>
+                </div>
+            </div>
         </div>
+
+        <div class="col-12 mt-4">
+            <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2">
+                <i class="fas fa-file-pdf me-2"></i>Upload Dokumen PDF
+            </h6>
+
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label for="files" class="form-label fw-semibold text-dark small">
+                        File Warkah (PDF)
+                    </label>
+
+                    <input type="file" class="form-control" name="files" id="files" accept="application/pdf" multiple>
+
+                    <div class="form-text text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Format file harus <strong>PDF</strong>. Anda dapat mengupload <strong>lebih dari satu</strong>
+                        file.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <label for="keterangan" class="form-label fw-semibold text-dark small">Keterangan Tambahan</label>
+                <textarea class="form-control" name="keterangan" id="keterangan"
+                    rows="3"><%= (typeof old !== 'undefined' && old.keterangan) ? old.keterangan : '' %></textarea>
+            </div>
+        </div>
+
     </div>
 
-</div>
-
-<%- include('../partials/add_template.ejs', { 
-    title: 'Tambah Warkah',
-    parentName: 'Daftar Warkah',
-    parentUrl: '/warkah',
-    formAction: '/warkah/create',
-    icon: 'fas fa-file-archive', 
-    contentId: 'form-content-warkah' 
-}) %>
+    <%- include('../partials/add_template.ejs', { title: 'Tambah Warkah' , parentName: 'Daftar Warkah' ,
+        parentUrl: '/warkah' , formAction: '/warkah/create' , icon: 'fas fa-file-archive' ,
+        contentId: 'form-content-warkah' }) %>

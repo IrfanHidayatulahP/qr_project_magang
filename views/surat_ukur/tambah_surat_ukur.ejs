@@ -123,6 +123,35 @@
                     <% }) %>
                 </select>
             </div>
+
+            <div class="col-12 mt-4">
+                <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2">
+                    <i class="fas fa-file-pdf me-2"></i>Upload Dokumen PDF
+                </h6>
+
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label for="files" class="form-label fw-semibold text-dark small">
+                            File Surat Ukur (PDF)
+                        </label>
+
+                        <input 
+                            type="file" 
+                            class="form-control"
+                            name="files"
+                            id="files"
+                            accept="application/pdf"
+                            multiple
+                        >
+
+                        <div class="form-text text-muted small">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Format file harus <strong>PDF</strong>. Anda dapat mengupload <strong>lebih dari satu</strong> file.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

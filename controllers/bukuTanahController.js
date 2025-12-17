@@ -90,21 +90,26 @@ exports.showIndex = async (req, res) => {
         };
 
         if (q) {
+            // PERBAIKAN: Masukkan semua kemungkinan pencarian ke dalam satu array OR
+            const searchConditions = [
+                { nomor_hak: { [Op.like]: `%${q}%` } },
+                { lokasi_penyimpanan: { [Op.like]: `%${q}%` } },
+                { no_boks_definitif: { [Op.like]: `%${q}%` } },
+                { jenis_hak: { [Op.like]: `%${q}%` } }, // Tambahkan ini agar jenis hak juga bisa dicari
+                { media: { [Op.like]: `%${q}%` } }      // Tambahkan ini agar media juga bisa dicari
+            ];
+
+            // Jika input berupa angka valid, tambahkan pencarian berdasarkan ID juga
             if (isValidId(q)) {
-                const r = await BukuTanah.findByPk(Number(q), baseOptions);
-                records = r ? [r] : [];
-            } else {
-                records = await BukuTanah.findAll({
-                    ...baseOptions,
-                    where: {
-                        [Op.or]: [
-                            { nomor_hak: { [Op.like]: `%${q}%` } },
-                            { lokasi_penyimpanan: { [Op.like]: `%${q}%` } },
-                            { no_boks_definitif: { [Op.like]: `%${q}%` } }
-                        ]
-                    }
-                });
+                searchConditions.push({ id_buku_tanah: Number(q) });
             }
+
+            records = await BukuTanah.findAll({
+                ...baseOptions,
+                where: {
+                    [Op.or]: searchConditions
+                }
+            });
         } else {
             records = await BukuTanah.findAll(baseOptions);
         }

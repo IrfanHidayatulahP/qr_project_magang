@@ -111,6 +111,35 @@
                     <span class="badge bg-secondary"><i class="fas fa-shield-alt me-1"></i> <%= surat.metode_perlindungan || 'Standar' %></span>
                 <% } %>
             </div>
+
+            <div class="mt-4">
+                <h6 class="text-secondary small fw-bold mb-2">Dokumen (PDF)</h6>
+                <% 
+                    let detailFiles = [];
+                    if (surat.files) {
+                        try { detailFiles = JSON.parse(surat.files); } catch(e) { detailFiles = []; }
+                    }
+                %>
+
+                <% if (detailFiles.length) { %>
+                    <ul class="list-unstyled">
+                        <% detailFiles.forEach(f => { %>
+                            <li style="margin-bottom:8px;">
+                                <a href="/<%= f %>" target="_blank" class="text-decoration-none">
+                                    <i class="fas fa-file-pdf me-2" style="color:#dc2626"></i>
+                                    <%= (f.split('/').pop()) %>
+                                </a>
+                            </li>
+                        <% }) %>
+                    </ul>
+                <% } else { %>
+                    <div class="mb-2 text-muted">Belum ada dokumen PDF untuk item ini.</div>
+                    <a href="/surat-ukur/edit/<%= surat.id_surat_ukur %>#upload-file" class="btn btn-primary btn-sm">
+                        <i class="fas fa-upload me-1"></i> Upload Dokumen
+                    </a>
+                <% } %>
+            </div>
+
         </div>
     </div>
 </div>

@@ -1,7 +1,10 @@
 // controllers/suratUkurController.js
 const db = require('../config/db');
 const { Op } = require('sequelize');
-const QRCode = require('qrcode');  
+const QRCode = require('qrcode');
+const fs = require('fs').promises;
+const fsSync = require('fs');
+const path = require('path');
 
 // safe lookup model
 const SuratUkur = db.surat_ukur || (db.models && (db.models.surat_ukur || db.models.Surat_ukur || db.models.SuratUkur));
@@ -199,8 +202,18 @@ exports.showEditForm = async (req, res) => {
 /** * create - MENGGUNAKAN RAW SQL (PERBAIKAN)
  * Agar konsisten dengan bukuTanahController dan menghindari error 'Unknown column createdAt'
  */
+/** create - MENGGUNAKAN RAW SQL (PERBAIKAN) */
 exports.create = async (req, res) => {
     if (!ensureModelOrRespond(res)) return;
+    const uploaded = Array.isArray(req.uploadedFiles) ? req.uploadedFiles : [];
+
+    // helper cleanup jika terjadi error
+    async function cleanupUploadedFiles() {
+        for (const f of uploaded) {
+            try { if (f && f.fullpath) await fs.unlink(f.fullpath).catch(() => { }); } catch (e) { }
+        }
+    }
+
     const t = await db.sequelize.transaction();
     try {
         const {
@@ -217,29 +230,30 @@ exports.create = async (req, res) => {
             metode_perlindungan
         } = req.body;
 
-        // --- Validasi Manual ---
+        // validasi seperti sebelumnya...
         if (jenis_hak && !ALLOWED_JENIS_HAK.includes(jenis_hak)) {
-            await t.rollback();
+            await t.rollback(); await cleanupUploadedFiles();
             return res.redirect('/surat-ukur/create?error=' + encodeURIComponent('jenis_hak tidak valid'));
         }
         if (media && !ALLOWED_MEDIA.includes(media)) {
-            await t.rollback();
+            await t.rollback(); await cleanupUploadedFiles();
             return res.redirect('/surat-ukur/create?error=' + encodeURIComponent('media tidak valid'));
         }
         if (tingkat_perkembangan && !ALLOWED_TINGKAT_PERKEMBANGAN.includes(tingkat_perkembangan)) {
-            await t.rollback();
+            await t.rollback(); await cleanupUploadedFiles();
             return res.redirect('/surat-ukur/create?error=' + encodeURIComponent('tingkat_perkembangan tidak valid'));
         }
         if (metode_perlindungan && !ALLOWED_METODE_PROTEKSI.includes(metode_perlindungan)) {
-            await t.rollback();
+            await t.rollback(); await cleanupUploadedFiles();
             return res.redirect('/surat-ukur/create?error=' + encodeURIComponent('metode_perlindungan tidak valid'));
         }
 
+        // parsing numeric / string / date
         let nomorSuratUkurVal = null;
         if (typeof nomor_surat_ukur !== 'undefined' && nomor_surat_ukur !== '' && nomor_surat_ukur !== null) {
             const s = String(nomor_surat_ukur).trim();
             if (s.length > 255) {
-                await t.rollback();
+                await t.rollback(); await cleanupUploadedFiles();
                 return res.redirect('/surat-ukur/create?error=' + encodeURIComponent('nomor_surat_ukur terlalu panjang'));
             }
             nomorSuratUkurVal = s;
@@ -249,7 +263,7 @@ exports.create = async (req, res) => {
         if (typeof jumlah !== 'undefined' && jumlah !== '' && jumlah !== null) {
             const n = Number(String(jumlah).replace(',', '.'));
             if (!Number.isFinite(n) || n < 0) {
-                await t.rollback();
+                await t.rollback(); await cleanupUploadedFiles();
                 return res.redirect('/surat-ukur/create?error=' + encodeURIComponent('jumlah harus angka >= 0'));
             }
             jumlahVal = Number.isInteger(n) ? n : n;
@@ -259,7 +273,7 @@ exports.create = async (req, res) => {
         if (typeof nomor_folder !== 'undefined' && nomor_folder !== '' && nomor_folder !== null) {
             const nf = Number(nomor_folder);
             if (!Number.isInteger(nf) || nf < 0) {
-                await t.rollback();
+                await t.rollback(); await cleanupUploadedFiles();
                 return res.redirect('/surat-ukur/create?error=' + encodeURIComponent('nomor_folder harus integer >= 0'));
             }
             nomorFolderVal = nf;
@@ -270,12 +284,15 @@ exports.create = async (req, res) => {
             tahunVal = parseDateIndo(tahun_terbit);
         }
 
+        // files list dari middleware -> relativePath (uploads/surat_ukur/filename.pdf)
+        const filesList = uploaded.map(f => f.relativePath);
+        const filesJson = filesList.length ? JSON.stringify(filesList) : null;
+
         // --- RAW SQL INSERT ---
-        // Kita gunakan created_at dan updated_at (snake_case) agar sesuai dengan database
         const now = new Date();
         const sql = `INSERT INTO surat_ukur 
-            (nomor_hak, jenis_hak, nomor_surat_ukur, tahun_terbit, media, jumlah, tingkat_perkembangan, lokasi_penyimpanan, no_boks_definitif, nomor_folder, metode_perlindungan, created_at, updated_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+            (nomor_hak, jenis_hak, nomor_surat_ukur, tahun_terbit, media, jumlah, tingkat_perkembangan, lokasi_penyimpanan, no_boks_definitif, nomor_folder, metode_perlindungan, files, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
         const replacements = [
             nomor_hak || null,
@@ -289,6 +306,7 @@ exports.create = async (req, res) => {
             no_boks_definitif || null,
             nomorFolderVal,
             metode_perlindungan || null,
+            filesJson, // simpan list file
             now,
             now
         ];
@@ -297,11 +315,10 @@ exports.create = async (req, res) => {
 
         await t.commit();
         return res.redirect('/surat-ukur?success=' + encodeURIComponent('Surat Ukur berhasil ditambahkan'));
-
     } catch (err) {
         await t.rollback();
         console.error('suratUkur.create error:', err);
-        // Tangkap duplicate error dari MySQL (code 1062 = Duplicate entry)
+        await cleanupUploadedFiles();
         if (err && err.parent && err.parent.errno === 1062) {
             return res.redirect('/surat-ukur/create?error=' + encodeURIComponent('Nomor Hak sudah ada (duplikat)'));
         }
@@ -331,6 +348,7 @@ exports.update = async (req, res) => {
             tingkat_perkembangan, lokasi_penyimpanan, no_boks_definitif, nomor_folder, metode_perlindungan
         } = req.body;
 
+        // validasi (sama seperti sebelum)
         if (typeof jenis_hak !== 'undefined' && jenis_hak !== '' && !ALLOWED_JENIS_HAK.includes(jenis_hak)) {
             await t.rollback();
             return res.redirect('/surat-ukur/edit/' + id + '?error=' + encodeURIComponent('jenis_hak tidak valid'));
@@ -348,6 +366,7 @@ exports.update = async (req, res) => {
             return res.redirect('/surat-ukur/edit/' + id + '?error=' + encodeURIComponent('metode_perlindungan tidak valid'));
         }
 
+        // parsers untuk nomor_surat_ukur, jumlah, nomor_folder, tahun_terbit (sama seperti awal)
         if (typeof nomor_surat_ukur !== 'undefined') {
             if (nomor_surat_ukur === '' || nomor_surat_ukur === null) item.nomor_surat_ukur = null;
             else {
@@ -398,14 +417,33 @@ exports.update = async (req, res) => {
         if (typeof no_boks_definitif !== 'undefined') item.no_boks_definitif = no_boks_definitif || null;
         if (typeof metode_perlindungan !== 'undefined') item.metode_perlindungan = metode_perlindungan || null;
 
+        // handle uploaded files (middleware normalizeUploaded membuat req.uploadedFiles)
+        const uploaded = Array.isArray(req.uploadedFiles) ? req.uploadedFiles : [];
+        if (uploaded.length) {
+            // hapus old files (jika ada)
+            if (item.files) {
+                try {
+                    const oldArr = JSON.parse(item.files);
+                    for (const p of oldArr) {
+                        const abs = path.join(process.cwd(), p);
+                        if (fsSync.existsSync(abs)) {
+                            try { fsSync.unlinkSync(abs); } catch (e) { /* ignore */ }
+                        }
+                    }
+                } catch (e) { /* ignore parse error */ }
+            }
+            const newFilesRel = uploaded.map(f => f.relativePath);
+            item.files = JSON.stringify(newFilesRel);
+        }
+
         await item.save({
             transaction: t,
             fields: [
                 'nomor_hak', 'jenis_hak', 'nomor_surat_ukur', 'tahun_terbit', 'media', 'jumlah',
                 'tingkat_perkembangan', 'lokasi_penyimpanan', 'no_boks_definitif',
-                'nomor_folder', 'metode_perlindungan'
+                'nomor_folder', 'metode_perlindungan', 'files'
             ],
-            silent: true // penting: jangan update timestamps 'updatedAt' otomatis agar tidak error
+            silent: true
         });
 
         await t.commit();

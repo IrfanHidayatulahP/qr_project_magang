@@ -83,6 +83,26 @@
                                     <span class="text-muted">Lokasi</span>
                                     <span class="text-end"><%= data.bt_lokasi %><br><span class="text-muted" style="font-size:10px">Boks: <%= data.bt_boks %></span></span>
                                 </li>
+                                
+                                <li class="list-group-item px-0">
+                                    <span class="text-muted d-block mb-1" style="font-size: 0.85rem;">File Digital:</span>
+                                    <% 
+                                        let btFiles = []; 
+                                        try { btFiles = JSON.parse(data.bt_files); } catch(e){} 
+                                    %>
+                                    <% if(btFiles.length > 0) { %>
+                                        <div class="d-flex flex-column gap-1">
+                                            <% btFiles.forEach(f => { %>
+                                                <a href="/<%= f %>" target="_blank" class="text-decoration-none small text-truncate" style="max-width: 100%;">
+                                                    <i class="fas fa-file-pdf text-danger me-1"></i> <%= f.split('/').pop() %>
+                                                </a>
+                                            <% }) %>
+                                        </div>
+                                    <% } else { %>
+                                        <span class="text-muted small">- Tidak ada file -</span>
+                                    <% } %>
+                                </li>
+
                             </ul>
                             <div class="mt-auto text-center">
                                 <a href="/buku-tanah/<%= data.id_dokumen_bt %>" class="btn btn-sm btn-outline-primary w-100">
@@ -132,6 +152,26 @@
                                     <span class="text-muted">Lokasi</span>
                                     <span class="text-end"><%= data.su_lokasi %><br><span class="text-muted" style="font-size:10px">Boks: <%= data.su_boks %></span></span>
                                 </li>
+
+                                <li class="list-group-item px-0">
+                                    <span class="text-muted d-block mb-1" style="font-size: 0.85rem;">File Digital:</span>
+                                    <% 
+                                        let suFiles = []; 
+                                        try { suFiles = JSON.parse(data.su_files); } catch(e){} 
+                                    %>
+                                    <% if(suFiles.length > 0) { %>
+                                        <div class="d-flex flex-column gap-1">
+                                            <% suFiles.forEach(f => { %>
+                                                <a href="/<%= f %>" target="_blank" class="text-decoration-none small text-truncate" style="max-width: 100%;">
+                                                    <i class="fas fa-file-pdf text-danger me-1"></i> <%= f.split('/').pop() %>
+                                                </a>
+                                            <% }) %>
+                                        </div>
+                                    <% } else { %>
+                                        <span class="text-muted small">- Tidak ada file -</span>
+                                    <% } %>
+                                </li>
+
                             </ul>
                             <div class="mt-auto text-center">
                                 <a href="/surat-ukur/<%= data.id_dokumen_su %>" class="btn btn-sm btn-outline-success w-100">
@@ -183,6 +223,26 @@
                                     <span class="text-muted">Lokasi</span>
                                     <span class="text-end"><%= data.w_lokasi %><br><span class="text-muted" style="font-size:10px">Boks: <%= data.w_boks %></span></span>
                                 </li>
+
+                                <li class="list-group-item px-0">
+                                    <span class="text-muted d-block mb-1" style="font-size: 0.85rem;">File Digital:</span>
+                                    <% 
+                                        let wFiles = []; 
+                                        try { wFiles = JSON.parse(data.w_files); } catch(e){} 
+                                    %>
+                                    <% if(wFiles.length > 0) { %>
+                                        <div class="d-flex flex-column gap-1">
+                                            <% wFiles.forEach(f => { %>
+                                                <a href="/<%= f %>" target="_blank" class="text-decoration-none small text-truncate" style="max-width: 100%;">
+                                                    <i class="fas fa-file-pdf text-danger me-1"></i> <%= f.split('/').pop() %>
+                                                </a>
+                                            <% }) %>
+                                        </div>
+                                    <% } else { %>
+                                        <span class="text-muted small">- Tidak ada file -</span>
+                                    <% } %>
+                                </li>
+
                             </ul>
                             <div class="mt-auto text-center">
                                 <a href="/warkah/<%= data.id_dokumen_warkah %>" class="btn btn-sm btn-outline-warning text-dark w-100">
@@ -208,4 +268,5 @@
 
     </div>
 
-</main> <%- include('../partials/footer.ejs') %>
+</main> 
+<%- include('../partials/footer.ejs') %>

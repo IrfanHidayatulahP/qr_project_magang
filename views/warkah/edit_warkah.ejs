@@ -1,185 +1,133 @@
 <%- include('../partials/header.ejs') %>
 
-<div id="form-content-edit-warkah" style="display: none;">
-    
-    <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2">
-        <i class="fas fa-info-circle me-2"></i>Identitas Warkah
-    </h6>
-    
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <label for="nomor_di_208" class="form-label fw-semibold text-dark small">Nomor DI-208</label>
-            <input type="text" class="form-control" name="nomor_di_208" id="nomor_di_208" 
-                   value="<%= warkah.nomor_di_208 || '' %>">
-        </div>
-
-        <div class="col-md-6">
-            <label for="nomor_hak" class="form-label fw-semibold text-dark small">Nomor Hak</label>
-            <div class="input-group">
-                <span class="input-group-text bg-light border-end-0"><i class="fas fa-hashtag text-muted"></i></span>
-                <input type="text" class="form-control border-start-0 ps-0" name="nomor_hak" id="nomor_hak" 
-                       value="<%= warkah.nomor_hak || '' %>">
-            </div>
-        </div>
-
-        <% 
-            let _tahunInput = '';
-            if (warkah.tahun_terbit) {
-                const tv = warkah.tahun_terbit;
-                if (tv instanceof Date || Object.prototype.toString.call(tv) === '[object Date]') {
-                    _tahunInput = tv.toISOString().split('T')[0];
-                } else {
-                    const s = String(tv).trim();
-                    if (/^\d{4}$/.test(s)) {
-                        _tahunInput = s;
-                    } else {
-                        const d = new Date(s);
-                        _tahunInput = isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
-                    }
-                }
-            }
-        %>
-        <div class="col-md-4">
-            <label for="tahun_terbit" class="form-label fw-semibold text-dark small">Tahun Terbit</label>
-            <input type="text" class="form-control" name="tahun_terbit" id="tahun_terbit"
-                   placeholder="YYYY atau DD-MM-YYYY"
-                   value="<%= _tahunInput %>">
-        </div>
-
-        <div class="col-md-4">
-            <label for="kode_klasifikasi" class="form-label fw-semibold text-dark small">Kode Klasifikasi</label>
-            <input type="text" class="form-control" name="kode_klasifikasi" id="kode_klasifikasi"
-                   value="<%= warkah.kode_klasifikasi || '' %>">
-        </div>
-
-        <div class="col-md-4">
-            <label for="jenis_arsip_vital" class="form-label fw-semibold text-dark small">Jenis Arsip Vital</label>
-            <input type="text" class="form-control" name="jenis_arsip_vital" id="jenis_arsip_vital"
-                   value="<%= warkah.jenis_arsip_vital || '' %>">
-        </div>
-
-        <div class="col-12">
-            <label for="uraian_informasi_arsip" class="form-label fw-semibold text-dark small">Uraian Informasi Arsip</label>
-            <textarea class="form-control" name="uraian_informasi_arsip" id="uraian_informasi_arsip" rows="2"><%= warkah.uraian_informasi_arsip || '' %></textarea>
-        </div>
-    </div>
-
-    <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2 mt-4">
-        <i class="fas fa-history me-2"></i>Retensi Arsip
-    </h6>
-    
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <label for="jangka_simpan_aktif" class="form-label fw-semibold text-dark small">Jangka Simpan Aktif</label>
-            <input type="text" class="form-control" name="jangka_simpan_aktif" id="jangka_simpan_aktif"
-                   value="<%= warkah.jangka_simpan_aktif || '' %>">
-        </div>
-        <div class="col-md-4">
-            <label for="jangka_simpan_inaktif" class="form-label fw-semibold text-dark small">Jangka Simpan Inaktif</label>
-            <input type="text" class="form-control" name="jangka_simpan_inaktif" id="jangka_simpan_inaktif"
-                   value="<%= warkah.jangka_simpan_inaktif || '' %>">
-        </div>
-        <div class="col-md-4">
-            <label for="jangka_simpan_keterangan" class="form-label fw-semibold text-dark small">Ket. Jangka Simpan</label>
-            <input type="text" class="form-control" name="jangka_simpan_keterangan" id="jangka_simpan_keterangan"
-                   value="<%= warkah.jangka_simpan_keterangan || '' %>">
-        </div>
-    </div>
-
-    <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2 mt-4">
-        <i class="fas fa-file-alt me-2"></i>Detail Fisik
-    </h6>
-
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <label for="media" class="form-label fw-semibold text-dark small">Media Arsip</label>
-            <select class="form-select" name="media" id="media">
-                <option value="">-- Pilih Media --</option>
-                <option value="Kertas" <%= warkah.media === 'Kertas' ? 'selected' : '' %>>Kertas</option>
-                <option value="Digital" <%= warkah.media === 'Digital' ? 'selected' : '' %>>Digital</option>
-                <option value="Microfilm" <%= warkah.media === 'Microfilm' ? 'selected' : '' %>>Microfilm</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label for="jumlah" class="form-label fw-semibold text-dark small">Jumlah</label>
-            <div class="input-group">
-                <input type="number" class="form-control" name="jumlah" id="jumlah"
-                       value="<%= (warkah.jumlah != null) ? warkah.jumlah : '' %>">
-                <span class="input-group-text bg-light text-muted">Lembar</span>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <label for="tingkat_perkembangan" class="form-label fw-semibold text-dark small">Tingkat Perkembangan</label>
-            <select class="form-select" name="tingkat_perkembangan" id="tingkat_perkembangan">
-                <option value="">-- Pilih --</option>
-                <option value="Asli" <%= warkah.tingkat_perkembangan === 'Asli' ? 'selected' : '' %>>Asli</option>
-                <option value="Copy" <%= warkah.tingkat_perkembangan === 'Copy' ? 'selected' : '' %>>Copy</option>
-                <option value="Salinan" <%= warkah.tingkat_perkembangan === 'Salinan' ? 'selected' : '' %>>Salinan</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="bg-light p-4 rounded-3 border border-dashed">
-        <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1">
-            <i class="fas fa-map-marker-alt me-2"></i>Lokasi Penyimpanan
+    <div id="form-content-warkah" style="display: none;">
+        <h6 class="text-secondary fw-bold text-uppercase small mb-3 letter-spacing-1 border-bottom pb-2">
+            <i class="fas fa-info-circle me-2"></i>Identitas Warkah
         </h6>
 
-        <div class="row g-3">
-            <div class="col-12">
-                <label for="lokasi_penyimpanan" class="form-label fw-semibold text-dark small">Lokasi Rak / Ruangan</label>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label for="nomor_di_208" class="form-label fw-semibold text-dark small">No. DI 208</label>
+                <input type="text" class="form-control" name="nomor_di_208" id="nomor_di_208"
+                    value="<%= warkah.nomor_di_208 || '' %>">
+            </div>
+
+            <div class="col-md-6">
+                <label for="nomor_hak" class="form-label fw-semibold text-dark small">Nomor Hak</label>
+                <input type="text" class="form-control" name="nomor_hak" id="nomor_hak"
+                    value="<%= warkah.nomor_hak || '' %>">
+            </div>
+
+            <div class="col-md-6">
+                <label for="kode_klasifikasi" class="form-label fw-semibold text-dark small">Kode Klasifikasi</label>
+                <input type="text" class="form-control" name="kode_klasifikasi" id="kode_klasifikasi"
+                    value="<%= warkah.kode_klasifikasi || '' %>">
+            </div>
+
+            <div class="col-md-6">
+                <label for="tahun_terbit" class="form-label fw-semibold text-dark small">Tahun Terbit</label>
+                <% let dateVal='' ; if (warkah.tahun_terbit) { const d=new Date(warkah.tahun_terbit); if
+                    (!isNaN(d.getTime())) dateVal=d.toISOString().split('T')[0]; else
+                    dateVal=String(warkah.tahun_terbit); } %>
+                    <input type="date" class="form-control" name="tahun_terbit" id="tahun_terbit"
+                        value="<%= dateVal %>">
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label for="media" class="form-label fw-semibold text-dark small">Media</label>
+                <select class="form-select" name="media" id="media">
+                    <% const mediaOptions=['Kertas','Digital','Microfilm']; %>
+                        <option value="">-- Pilih Media --</option>
+                        <% mediaOptions.forEach(m=> { %>
+                            <option value="<%= m %>" <%=(warkah.media===m) ? 'selected' : '' %>><%= m %>
+                            </option>
+                            <% }) %>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="jumlah" class="form-label fw-semibold text-dark small">Jumlah</label>
+                <input type="number" class="form-control" name="jumlah" id="jumlah"
+                    value="<%= (warkah.jumlah != null) ? warkah.jumlah : '' %>">
+            </div>
+        </div>
+
+        <div class="bg-light p-4 rounded-3 border border-dashed mb-3">
+            <h6 class="text-secondary fw-bold text-uppercase small mb-3"><i
+                    class="fas fa-map-marker-alt me-2"></i>Lokasi Penyimpanan</h6>
+            <div class="mb-3">
                 <select class="form-select" name="lokasi_penyimpanan" id="lokasi_penyimpanan">
-                    <option value="">-- Pilih Kode Lokasi --</option>
-                    <% if (typeof locations !== 'undefined' && Array.isArray(locations) && locations.length > 0) { %>
-                        <% locations.forEach(function(loc) { 
-                            var label = (loc.kode_lokasi || '') + (loc.ruangan ? (' — ' + loc.ruangan) : '') + (loc.no_rak ? (' / Rak ' + loc.no_rak) : '');
-                            var isSelected = (warkah.lokasi_penyimpanan === loc.kode_lokasi) ? 'selected' : ''; 
-                        %>
-                            <option value="<%= loc.kode_lokasi %>" <%= isSelected %>><%= label %></option>
-                        <% }); %>
-                    <% } else { %>
-                        <option value="<%= warkah.lokasi_penyimpanan %>" selected><%= warkah.lokasi_penyimpanan %></option>
-                    <% } %>
+                    <option value="">-- Pilih Lokasi --</option>
+                    <% if (typeof locations !=='undefined' && Array.isArray(locations)) { %>
+                        <% locations.forEach(loc=> { %>
+                            <option value="<%= loc.kode_lokasi %>" <%=(warkah.lokasi_penyimpanan===loc.kode_lokasi)
+                                ? 'selected' : '' %>>
+                                <%= loc.kode_lokasi %>
+                                    <% if (loc.ruangan) { %> — <%= loc.ruangan %>
+                                            <% } %>
+                                                <% if (loc.no_rak) { %> / Rak <%= loc.no_rak %>
+                                                        <% } %>
+                            </option>
+                            <% }) %>
+                                <% } %>
                 </select>
             </div>
 
-            <div class="col-md-6">
-                <label for="no_boks_definitif" class="form-label fw-semibold text-dark small">No. Boks Definitif</label>
-                <input type="text" class="form-control" name="no_boks_definitif" id="no_boks_definitif"
-                       value="<%= warkah.no_boks_definitif || '' %>">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="no_boks_definitif" class="form-label fw-semibold text-dark small">No. Boks
+                        Definitif</label>
+                    <input type="text" class="form-control" name="no_boks_definitif" id="no_boks_definitif"
+                        value="<%= warkah.no_boks_definitif || '' %>">
+                </div>
+                <div class="col-md-6">
+                    <label for="nomor_folder" class="form-label fw-semibold text-dark small">Nomor Folder</label>
+                    <input type="number" class="form-control" name="nomor_folder" id="nomor_folder"
+                        value="<%= (warkah.nomor_folder != null) ? warkah.nomor_folder : '' %>">
+                </div>
             </div>
-            <div class="col-md-6">
-                <label for="nomor_folder" class="form-label fw-semibold text-dark small">Nomor Folder</label>
-                <input type="number" class="form-control" name="nomor_folder" id="nomor_folder"
-                       value="<%= (warkah.nomor_folder != null) ? warkah.nomor_folder : '' %>">
-            </div>
+        </div>
 
-            <div class="col-md-6">
-                <label for="metode_perlindungan" class="form-label fw-semibold text-dark small">Metode Perlindungan</label>
-                <select class="form-select" name="metode_perlindungan">
-                    <option value="">-- Pilih --</option>
-                    <option value="Vaulting" <%= warkah.metode_perlindungan === 'Vaulting' ? 'selected' : '' %>>Vaulting</option>
-                    <option value="Cloud" <%= warkah.metode_perlindungan === 'Cloud' ? 'selected' : '' %>>Cloud</option>
-                    <option value="Physical" <%= warkah.metode_perlindungan === 'Physical' ? 'selected' : '' %>>Physical</option>
-                </select>
-            </div>
+        <!-- UPLOAD / FILES SECTION -->
+        <div class="mt-4" id="upload-file">
+            <h6 class="text-secondary fw-bold text-uppercase small mb-3 border-bottom pb-2">
+                <i class="fas fa-file-pdf me-2"></i>File Dokumen (PDF)
+            </h6>
+
+            <% let existingFiles=[]; if (warkah.files) { try { existingFiles=JSON.parse(warkah.files); } catch (e) {
+                existingFiles=[]; } } %>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">File Sekarang</label>
+                    <% if (existingFiles.length) { %>
+                        <ul class="list-unstyled mb-2">
+                            <% existingFiles.forEach(function(f) { %>
+                                <li>
+                                    <a href="/<%= f %>" target="_blank" class="text-decoration-none">
+                                        <i class="fas fa-file-pdf text-danger me-2"></i>
+                                        <%= f.split('/').pop() %>
+                                    </a>
+                                </li>
+                                <% }); %>
+                        </ul>
+                        <div class="form-text small text-muted">Upload file baru akan menggantikan file lama.</div>
+                        <% } else { %>
+                            <div class="text-muted small mb-2">Belum ada file PDF untuk warkah ini.</div>
+                            <% } %>
+                </div>
+
+                <div>
+                    <label for="files" class="form-label fw-semibold text-dark small">Upload PDF (ganti file
+                        lama)</label>
+                    <input type="file" class="form-control" name="files" id="files" accept="application/pdf" multiple>
+                    <div class="form-text small text-muted mt-1">Pilih satu atau beberapa file PDF. File baru akan
+                        menggantikan daftar file yang lama.</div>
+                </div>
         </div>
     </div>
 
-    <div class="row mt-4">
-        <div class="col-12">
-            <label for="keterangan" class="form-label fw-semibold text-dark small">Keterangan Tambahan</label>
-            <textarea class="form-control" name="keterangan" id="keterangan" rows="3"><%= warkah.keterangan || '' %></textarea>
-        </div>
-    </div>
-
-</div>
-
-<%- include('../partials/edit_template.ejs', { 
-    title: 'Edit Warkah',
-    parentName: 'Daftar Warkah',
-    parentUrl: '/warkah',
-    breadcrumbActive: 'Edit Data #' + warkah.id_warkah,
-    formAction: '/warkah/edit/' + warkah.id_warkah,
-    icon: 'fas fa-file-archive', 
-    contentId: 'form-content-edit-warkah' 
-}) %>
+    <%- include('../partials/edit_template.ejs', { title: 'Edit Warkah' , parentName: 'Warkah' , parentUrl: '/warkah' ,
+        breadcrumbActive: 'Edit Data #' + warkah.id_warkah, formAction: '/warkah/edit/' + warkah.id_warkah,
+        icon: 'fas fa-pencil-alt' , contentId: 'form-content-warkah' }) %>

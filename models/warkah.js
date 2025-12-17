@@ -91,6 +91,8 @@ module.exports = function(sequelize, DataTypes) {
     tableName: 'warkah',
     hasTrigger: true,
     timestamps: true,
+    createdAt: 'created_at', // PERBAIKAN PENTING
+    updatedAt: 'updated_at', // PERBAIKAN PENTING
     indexes: [
       {
         name: "PRIMARY",
