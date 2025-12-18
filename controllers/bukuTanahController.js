@@ -4,7 +4,7 @@ const QRCode = require('qrcode');
 const fs = require('fs').promises;
 const fsSync = require('fs');
 const path = require('path');
-
+const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, TextRun, ImageRun } = require('docx');
 
 // safe lookup model (sesuaikan properti kalau berbeda)
 const BukuTanah = db.buku_tanah || (db.models && (db.models.buku_tanah || db.models.Buku_tanah));
@@ -530,14 +530,15 @@ exports.showDetail = async (req, res) => {
  *  - q: search query (optional, sama seperti list)
  *  - columns: comma-separated kolom yang ingin diikutsertakan (optional, default: semua kolom)
  */
+// tambah di bagian atas file (jika belum ada)
 exports.download = async (req, res) => {
     try {
         if (!ensureModelOrRespond(res)) return;
 
         const q = (req.query.q || '').toString().trim();
         const columnsParam = (req.query.columns || '').toString().trim();
+        const format = (req.query.format || 'csv').toString().toLowerCase(); // 'csv' atau 'docx'
 
-        // kolom yang diizinkan / tersedia
         const ALLOWED_COLS = [
             'id_buku_tanah', 'nomor_hak', 'jenis_hak', 'tahun_terbit', 'media',
             'jumlah', 'lokasi_penyimpanan', 'no_boks_definitif', 'nomor_folder', 'metode_perlindungan'
@@ -545,9 +546,12 @@ exports.download = async (req, res) => {
 
         const selectedCols = columnsParam
             ? columnsParam.split(',').map(c => c.trim()).filter(c => ALLOWED_COLS.includes(c))
-            : ALLOWED_COLS.slice(); // default: semua kolom
+            : ALLOWED_COLS.slice(); // default semua
 
-        // bangun where sama seperti pada showIndex
+        // pastikan kita selalu punya id_buku_tanah (untuk QR), tapi jangan duplikasi di selectedCols
+        const attributes = Array.from(new Set(['id_buku_tanah', ...selectedCols]));
+
+        // bangun where
         let where = undefined;
         if (q) {
             if (isValidId(q)) {
@@ -557,25 +561,25 @@ exports.download = async (req, res) => {
                     [Op.or]: [
                         { nomor_hak: { [Op.like]: `%${q}%` } },
                         { lokasi_penyimpanan: { [Op.like]: `%${q}%` } },
-                        { no_boks_definitif: { [Op.like]: `%${q}%` } }
+                        { no_boks_definitif: { [Op.like]: `%${q}%` } },
+                        { jenis_hak: { [Op.like]: `%${q}%` } },
+                        { media: { [Op.like]: `%${q}%` } }
                     ]
                 };
             }
         }
 
-        // ambil data (limit sama seperti showIndex)
         const records = await BukuTanah.findAll({
             where,
             order: [['id_buku_tanah', 'DESC']],
             limit: 1000,
-            attributes: selectedCols
+            attributes // gunakan attributes yang sudah memastikan id tersedia
         });
 
-        // helper untuk format nilai (khususnya tahun_terbit)
+        // helper format tanggal/tahun
         function formatCell(key, val) {
             if (val == null) return '';
             if (key === 'tahun_terbit') {
-                // jika Date object
                 if (val instanceof Date && !isNaN(val.getTime())) return String(val.getFullYear());
                 const s = String(val).trim();
                 if (/^\d{4}$/.test(s)) return s;
@@ -585,7 +589,6 @@ exports.download = async (req, res) => {
             return String(val);
         }
 
-        // header friendly names
         const headerMap = {
             id_buku_tanah: 'ID',
             nomor_hak: 'Nomor Hak',
@@ -599,37 +602,124 @@ exports.download = async (req, res) => {
             metode_perlindungan: 'Metode Perlindungan'
         };
 
-        // buat CSV (escape sederhana: ganti " menjadi "")
-        const escapeCsv = (s) => {
-            const str = s == null ? '' : String(s);
-            if (str.indexOf('"') !== -1) {
-                return '"' + str.replace(/"/g, '""') + '"';
-            }
-            // jika ada koma, newline atau leading/trailing spasi, bungkus juga
-            if (/[,\n\r]/.test(str) || /^\s|\s$/.test(str)) {
-                return `"${str.replace(/"/g, '""')}"`;
-            }
-            return str;
-        };
+        // ---------- CSV path ----------
+        if (format === 'csv') {
+            const escapeCsv = (s) => {
+                const str = s == null ? '' : String(s);
+                if (str.indexOf('"') !== -1) {
+                    return '"' + str.replace(/"/g, '""') + '"';
+                }
+                if (/[,\n\r]/.test(str) || /^\s|\s$/.test(str)) {
+                    return `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
 
-        const headers = selectedCols.map(c => headerMap[c] || c);
-        const rows = [headers.join(',')];
+            // gunakan selectedCols (tanpa memaksa id) untuk CSV supaya sesuai pilihan user
+            const csvCols = selectedCols.length ? selectedCols : ALLOWED_COLS.slice();
+            const headers = csvCols.map(c => headerMap[c] || c);
+            const rows = [headers.join(',')];
 
-        for (const rec of records) {
-            const plain = rec && typeof rec.toJSON === 'function' ? rec.toJSON() : rec;
-            const vals = selectedCols.map(col => escapeCsv(formatCell(col, plain[col])));
-            rows.push(vals.join(','));
+            for (const rec of records) {
+                const plain = rec && typeof rec.toJSON === 'function' ? rec.toJSON() : rec;
+                const vals = csvCols.map(col => escapeCsv(formatCell(col, plain[col])));
+                rows.push(vals.join(','));
+            }
+
+            const csvContent = rows.join('\r\n');
+            const filename = `buku_tanah_${(new Date()).toISOString().replace(/[:.]/g, '')}.csv`;
+
+            res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            return res.send(csvContent);
         }
 
-        const csvContent = rows.join('\r\n');
+        // ---------- DOCX path ----------
+        if (format === 'docx') {
+            // buat document
+            const doc = new Document({
+                sections: []
+            });
 
-        const filename = `buku_tanah_${(new Date()).toISOString().replace(/[:.]/g, '')}.csv`;
+            // Header cells: gunakan selectedCols (tampilkan apa yang user pilih)
+            const docCols = selectedCols.length ? selectedCols.slice() : ALLOWED_COLS.slice();
+            const headerCells = docCols.map(c => new TableCell({
+                children: [new Paragraph({ children: [new TextRun({ text: headerMap[c] || c, bold: true })] })],
+                margins: { top: 100, bottom: 100, left: 100, right: 100 }
+            }));
+            // tambahkan kolom QR di akhir
+            headerCells.push(new TableCell({
+                children: [new Paragraph({ children: [new TextRun({ text: 'QR', bold: true })] })],
+                margins: { top: 100, bottom: 100, left: 100, right: 100 }
+            }));
 
-        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-        return res.send(csvContent);
+            const rows = [new TableRow({ children: headerCells })];
+
+            // prepare baseUrl untuk link QR
+            const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+
+            // iterate records dan tambahkan baris (dengan QR image)
+            for (const rec of records) {
+                const plain = rec && typeof rec.toJSON === 'function' ? rec.toJSON() : rec;
+
+                const rowCells = docCols.map(col => {
+                    const txt = formatCell(col, plain[col]);
+                    return new TableCell({
+                        children: [new Paragraph(String(txt || ''))]
+                    });
+                });
+
+                // ambil id yang pasti ada (kita sudah memastikan attributes menyertakan id_buku_tanah)
+                const recId = plain.id_buku_tanah;
+                if (!recId) {
+                    // safety fallback: kalau tidak ada id, masukkan teks error
+                    rowCells.push(new TableCell({ children: [new Paragraph('No ID')] }));
+                } else {
+                    try {
+                        const detailUrl = `${baseUrl}/buku-tanah/${Number(recId)}`;
+                        const qrBuf = await QRCode.toBuffer(detailUrl, {
+                            type: 'png',
+                            errorCorrectionLevel: 'H',
+                            margin: 1,
+                            scale: 6
+                        });
+
+                        // gunakan ImageRun (bukan Media.addImage)
+                        const imageRun = new ImageRun({
+                            data: qrBuf,
+                            transformation: { width: 80, height: 80 }
+                        });
+                        const imgPara = new Paragraph({ children: [imageRun] });
+
+                        rowCells.push(new TableCell({ children: [imgPara] }));
+                    } catch (qrErr) {
+                        console.error('Gagal generate QR untuk id', recId, qrErr);
+                        rowCells.push(new TableCell({ children: [new Paragraph('QR error')] }));
+                    }
+                }
+
+                rows.push(new TableRow({ children: rowCells }));
+            }
+
+            const table = new Table({
+                rows,
+                width: { size: 100, type: WidthType.PERCENTAGE }
+            });
+
+            doc.addSection({ children: [table] });
+
+            const buffer = await Packer.toBuffer(doc);
+
+            const filename = `buku_tanah_${(new Date()).toISOString().replace(/[:.]/g, '')}.docx`;
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            return res.send(buffer);
+        }
+
+        // jika format tidak dikenali
+        return res.status(400).send('Format tidak didukung. Gunakan format=csv atau format=docx');
     } catch (err) {
-        console.error('bukuTanah.download error:', err);
+        console.error('bukuTanah.download (export) error:', err);
         return res.status(500).send('Gagal membuat file download');
     }
 };

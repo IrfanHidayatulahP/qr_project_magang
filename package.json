@@ -15,6 +15,7 @@
     "child_process": "^1.0.2",
     "connect-flash": "^0.1.1",
     "cors": "^2.8.5",
+    "docx": "^9.5.1",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "ejs-mate": "^4.0.0",

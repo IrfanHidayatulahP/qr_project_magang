@@ -5,6 +5,8 @@ const QRCode = require('qrcode');
 const fs = require('fs').promises;
 const fsSync = require('fs');
 const path = require('path');
+// di bagian atas file, bersama import lainnya
+const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, TextRun, ImageRun } = require('docx');
 
 // safe lookup model
 const SuratUkur = db.surat_ukur || (db.models && (db.models.surat_ukur || db.models.Surat_ukur || db.models.SuratUkur));
@@ -85,22 +87,31 @@ exports.showIndex = async (req, res) => {
         };
 
         if (q) {
+            // LOGIKA PENCARIAN FLEKSIBEL
+            // Kita cari di semua kolom yang relevan sekaligus
+            const searchConditions = [
+                { nomor_hak: { [Op.like]: `%${q}%` } },
+                { nomor_surat_ukur: { [Op.like]: `%${q}%` } },
+                { lokasi_penyimpanan: { [Op.like]: `%${q}%` } },
+                { no_boks_definitif: { [Op.like]: `%${q}%` } },
+                // Cast tahun ke string agar bisa dicari dengan LIKE
+                db.sequelize.where(
+                    db.sequelize.cast(db.sequelize.col('tahun_terbit'), 'char'),
+                    { [Op.like]: `%${q}%` }
+                )
+            ];
+
+            // Jika input berupa angka, tambahkan pencarian berdasarkan ID
             if (isValidId(q)) {
-                const r = await SuratUkur.findByPk(Number(q), baseOptions);
-                records = r ? [r] : [];
-            } else {
-                records = await SuratUkur.findAll({
-                    ...baseOptions,
-                    where: {
-                        [Op.or]: [
-                            { nomor_hak: { [Op.like]: `%${q}%` } },
-                            { lokasi_penyimpanan: { [Op.like]: `%${q}%` } },
-                            { no_boks_definitif: { [Op.like]: `%${q}%` } },
-                            { nomor_surat_ukur: { [Op.like]: `%${q}%` } }
-                        ]
-                    }
-                });
+                searchConditions.push({ id_surat_ukur: Number(q) });
             }
+
+            records = await SuratUkur.findAll({
+                ...baseOptions,
+                where: {
+                    [Op.or]: searchConditions
+                }
+            });
         } else {
             records = await SuratUkur.findAll(baseOptions);
         }
@@ -517,6 +528,7 @@ exports.download = async (req, res) => {
 
         const q = (req.query.q || '').toString().trim();
         const columnsParam = (req.query.columns || '').toString().trim();
+        const format = (req.query.format || 'csv').toString().toLowerCase(); // 'csv' atau 'docx'
 
         const ALLOWED_COLS = [
             'id_surat_ukur', 'nomor_hak', 'jenis_hak', 'nomor_surat_ukur', 'tahun_terbit',
@@ -527,6 +539,9 @@ exports.download = async (req, res) => {
         const selectedCols = columnsParam
             ? columnsParam.split(',').map(c => c.trim()).filter(c => ALLOWED_COLS.includes(c))
             : ALLOWED_COLS.slice();
+
+        // Pastikan id_surat_ukur selalu tersedia untuk kebutuhan QR (tidak akan duplikat)
+        const attributes = Array.from(new Set(['id_surat_ukur', ...selectedCols]));
 
         // build where like showIndex
         let where = undefined;
@@ -549,7 +564,7 @@ exports.download = async (req, res) => {
             where,
             order: [['id_surat_ukur', 'DESC']],
             limit: 1000,
-            attributes: selectedCols
+            attributes
         });
 
         function formatCell(key, val) {
@@ -579,32 +594,122 @@ exports.download = async (req, res) => {
             metode_perlindungan: 'Metode Perlindungan'
         };
 
-        const escapeCsv = (s) => {
-            const str = s == null ? '' : String(s);
-            if (str.indexOf('"') !== -1) {
-                return '"' + str.replace(/"/g, '""') + '"';
-            }
-            if (/[,\n\r]/.test(str) || /^\s|\s$/.test(str)) {
-                return `"${str.replace(/"/g, '""')}"`;
-            }
-            return str;
-        };
+        // ---------- CSV path ----------
+        if (format === 'csv') {
+            const escapeCsv = (s) => {
+                const str = s == null ? '' : String(s);
+                if (str.indexOf('"') !== -1) {
+                    return '"' + str.replace(/"/g, '""') + '"';
+                }
+                if (/[,\n\r]/.test(str) || /^\s|\s$/.test(str)) {
+                    return `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
 
-        const headers = selectedCols.map(c => headerMap[c] || c);
-        const rows = [headers.join(',')];
+            // gunakan selectedCols (tanpa memaksa id) untuk CSV supaya sesuai pilihan user
+            const csvCols = selectedCols.length ? selectedCols : ALLOWED_COLS.slice();
+            const headers = csvCols.map(c => headerMap[c] || c);
+            const rows = [headers.join(',')];
 
-        for (const rec of records) {
-            const plain = rec && typeof rec.toJSON === 'function' ? rec.toJSON() : rec;
-            const vals = selectedCols.map(col => escapeCsv(formatCell(col, plain[col])));
-            rows.push(vals.join(','));
+            for (const rec of records) {
+                const plain = rec && typeof rec.toJSON === 'function' ? rec.toJSON() : rec;
+                const vals = csvCols.map(col => escapeCsv(formatCell(col, plain[col])));
+                rows.push(vals.join(','));
+            }
+
+            const csvContent = rows.join('\r\n');
+            const filename = `surat_ukur_${(new Date()).toISOString().replace(/[:.]/g, '')}.csv`;
+
+            res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            return res.send(csvContent);
         }
 
-        const csvContent = rows.join('\r\n');
-        const filename = `surat_ukur_${(new Date()).toISOString().replace(/[:.]/g, '')}.csv`;
+        // ---------- DOCX path ----------
+        if (format === 'docx') {
+            // buat document
+            const doc = new Document({
+                sections: []
+            });
 
-        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-        return res.send(csvContent);
+            // Header cells: gunakan selectedCols (tampilkan apa yang user pilih)
+            const docCols = selectedCols.length ? selectedCols.slice() : ALLOWED_COLS.slice();
+            const headerCells = docCols.map(c => new TableCell({
+                children: [new Paragraph({ children: [new TextRun({ text: headerMap[c] || c, bold: true })] })],
+                margins: { top: 100, bottom: 100, left: 100, right: 100 }
+            }));
+            // tambahkan kolom QR di akhir
+            headerCells.push(new TableCell({
+                children: [new Paragraph({ children: [new TextRun({ text: 'QR', bold: true })] })],
+                margins: { top: 100, bottom: 100, left: 100, right: 100 }
+            }));
+
+            const rows = [new TableRow({ children: headerCells })];
+
+            // prepare baseUrl untuk link QR
+            const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+
+            // iterate records dan tambahkan baris (dengan QR image)
+            for (const rec of records) {
+                const plain = rec && typeof rec.toJSON === 'function' ? rec.toJSON() : rec;
+
+                const rowCells = docCols.map(col => {
+                    const txt = formatCell(col, plain[col]);
+                    return new TableCell({
+                        children: [new Paragraph(String(txt || ''))]
+                    });
+                });
+
+                // ambil id yang pasti ada (kita sudah memastikan attributes menyertakan id_surat_ukur)
+                const recId = plain.id_surat_ukur;
+                if (!recId) {
+                    // safety fallback: kalau tidak ada id, masukkan teks error
+                    rowCells.push(new TableCell({ children: [new Paragraph('No ID')] }));
+                } else {
+                    try {
+                        const detailUrl = `${baseUrl}/surat-ukur/${Number(recId)}`;
+                        const qrBuf = await QRCode.toBuffer(detailUrl, {
+                            type: 'png',
+                            errorCorrectionLevel: 'H',
+                            margin: 1,
+                            scale: 6
+                        });
+
+                        // gunakan ImageRun
+                        const imageRun = new ImageRun({
+                            data: qrBuf,
+                            transformation: { width: 80, height: 80 }
+                        });
+                        const imgPara = new Paragraph({ children: [imageRun] });
+
+                        rowCells.push(new TableCell({ children: [imgPara] }));
+                    } catch (qrErr) {
+                        console.error('Gagal generate QR untuk id', recId, qrErr);
+                        rowCells.push(new TableCell({ children: [new Paragraph('QR error')] }));
+                    }
+                }
+
+                rows.push(new TableRow({ children: rowCells }));
+            }
+
+            const table = new Table({
+                rows,
+                width: { size: 100, type: WidthType.PERCENTAGE }
+            });
+
+            doc.addSection({ children: [table] });
+
+            const buffer = await Packer.toBuffer(doc);
+
+            const filename = `surat_ukur_${(new Date()).toISOString().replace(/[:.]/g, '')}.docx`;
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            return res.send(buffer);
+        }
+
+        // jika format tidak dikenali
+        return res.status(400).send('Format tidak didukung. Gunakan format=csv atau format=docx');
     } catch (err) {
         console.error('suratUkur.download error:', err);
         return res.status(500).send('Gagal membuat file download');

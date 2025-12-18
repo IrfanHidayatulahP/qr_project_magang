@@ -1,172 +1,211 @@
 <%- include('../partials/header.ejs') %>
 
-<main class="main-content">
+    <main class="main-content">
 
-    <div id="konten-buku-tanah">
-        <section class="container-fluid">
+        <div id="konten-buku-tanah">
+            <section class="container-fluid">
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold text-dark m-0">Daftar Buku Tanah</h3>
-                <div class="d-flex gap-2">
-                    <a href="/buku-tanah/create" class="btn btn-primary shadow-sm">
-                        <i class="fas fa-plus me-1"></i> Tambah
-                    </a>
-                    <button id="btn-open-download" class="btn btn-success shadow-sm" type="button">
-                        <i class="fas fa-download me-1"></i> Download
-                    </button>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold text-dark m-0">Daftar Buku Tanah</h3>
+                    <div class="d-flex gap-2">
+                        <a href="/buku-tanah/create" class="btn btn-primary shadow-sm">
+                            <i class="fas fa-plus me-1"></i> Tambah
+                        </a>
+                        <button id="btn-open-download" class="btn btn-success shadow-sm" type="button">
+                            <i class="fas fa-download me-1"></i> Download
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <% if (typeof error !=='undefined' && error) { %>
-                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i> <%= error %>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <% } %>
+                <% if (typeof error !=='undefined' && error) { %>
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <%= error %>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <% } %>
 
-            <% if (typeof success !=='undefined' && success) { %>
-                <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-                    <i class="fas fa-check-circle me-2"></i> <%= success %>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <% } %>
+                        <% if (typeof success !=='undefined' && success) { %>
+                            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <%= success %>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                            </div>
+                            <% } %>
 
-            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="card-body p-4">
+                                <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                                    <div class="card-body p-4">
 
-                    <form method="get" action="/buku-tanah" class="mb-4">
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0">
-                                <i class="fas fa-search text-muted"></i>
-                            </span>
-                            <input type="text" name="q" class="form-control border-start-0 bg-light" 
-                                placeholder="Cari ID / Nomor Hak / Lokasi..." 
-                                value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>">
-                            <button class="btn btn-primary px-4" type="submit">Cari</button>
-                        </div>
-                    </form>
-
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle" style="white-space: nowrap;">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nomor Hak</th>
-                                    <th>Jenis Hak</th>
-                                    <th>Tahun</th>
-                                    <th>Media</th>
-                                    <th>Jumlah</th>
-                                    <th>Lokasi</th>
-                                    <th class="text-center">Files (PDF)</th>
-                                    <th class="text-center">QR</th>
-                                    <th class="text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if (typeof records !=='undefined' && records && records.length) { %>
-                                    <% records.forEach(r => { %>
-                                        <tr data-id="<%= r.id_buku_tanah %>">
-                                            <td class="fw-bold text-secondary"><%= r.id_buku_tanah %></td>
-                                            <td><%= r.nomor_hak || '-' %></td>
-                                            <td>
-                                                <span class="badge bg-info text-dark bg-opacity-10 border border-info px-2 py-1">
-                                                    <%= r.jenis_hak || '-' %>
+                                        <!-- tambahkan class "search-form" supaya script modal bisa baca input q -->
+                                        <form method="get" action="/buku-tanah" class="mb-4 search-form">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="fas fa-search text-muted"></i>
                                                 </span>
-                                            </td>
-                                            <td>
-                                                <% 
-                                                    let _year='-'; 
-                                                    const tv=r.tahun_terbit; 
-                                                    if (tv) { 
-                                                        if (tv instanceof Date) { _year=tv.getFullYear(); } 
-                                                        else { 
-                                                            const s=String(tv).trim(); 
-                                                            if (/^\d{4}$/.test(s)) { _year=s; } 
-                                                            else { const d=new Date(s); _year=isNaN(d.getTime()) ? '-' : d.getFullYear(); } 
-                                                        } 
-                                                    } 
-                                                %>
-                                                <%= _year %>
-                                            </td>
-                                            <td><%= r.media || '-' %></td>
-                                            <td><%= (r.jumlah != null) ? r.jumlah : '-' %></td>
-                                            <td>
-                                                <i class="fas fa-map-marker-alt text-danger me-1"></i> 
-                                                <%= r.lokasi_penyimpanan || '-' %>
-                                            </td>
-
-                                            <td class="text-center">
-                                                <% let files=[]; if (r.files) { try { files=JSON.parse(r.files); } catch(e) { files=[]; } } %>
-                                                
-                                                <% if (files.length) { %>
-                                                    <div class="d-flex justify-content-center gap-2">
-                                                        <% files.forEach((f, idx)=> { %>
-                                                            <a href="/<%= f %>" target="_blank" class="btn btn-sm btn-outline-danger" title="Buka PDF">
-                                                                <i class="fas fa-file-pdf"></i>
-                                                            </a>
-                                                        <% }) %>
-                                                    </div>
-                                                <% } else { %>
-                                                    <a href="/buku-tanah/edit/<%= r.id_buku_tanah %>#upload-file" 
-                                                       class="btn btn-sm btn-outline-primary" title="Upload PDF">
-                                                        <i class="fas fa-upload me-1"></i> Upload
-                                                    </a>
-                                                <% } %>
-                                            </td>
-
-                                            <td class="text-center">
-                                                <a href="/buku-tanah/<%= r.id_buku_tanah %>">
-                                                    <img src="/buku-tanah/<%= r.id_buku_tanah %>/qr.png" 
-                                                         alt="QR" class="img-thumbnail" style="max-width: 45px; height: auto;" />
-                                                </a>
-                                            </td>
-
-                                            <td class="text-center">
-                                                <div class="d-flex justify-content-center gap-1">
-                                                    <a href="/buku-tanah/<%= r.id_buku_tanah %>" class="btn btn-sm btn-info text-white" title="Lihat Detail">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="/buku-tanah/edit/<%= r.id_buku_tanah %>" class="btn btn-sm btn-warning text-white" title="Edit Data">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                    <form action="/buku-tanah/delete/<%= r.id_buku_tanah %>" method="post" style="display:inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
-                                                        <button type="submit" class="btn btn-sm btn-danger" title="Hapus Data">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <% }) %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="10" class="text-center py-5 text-muted">
-                                            <div class="d-flex flex-column align-items-center">
-                                                <i class="fas fa-folder-open fa-3x mb-3 text-secondary opacity-50"></i>
-                                                <h6 class="fw-bold">Belum ada data Buku Tanah</h6>
-                                                <small>Silakan tambahkan data baru melalui tombol Tambah.</small>
+                                                <input type="text" name="q" class="form-control border-start-0 bg-light"
+                                                    placeholder="Cari ID / Nomor Hak / Lokasi..."
+                                                    value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>">
+                                                <button class="btn btn-primary px-4" type="submit">Cari</button>
                                             </div>
-                                        </td>
-                                    </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-                    </div>
-            </div>
-            <div id="source-checkboxes" style="display:none;">
-                <label><input type="checkbox" name="col" value="id_buku_tanah" checked> ID</label>
-                <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor Hak</label>
-                <label><input type="checkbox" name="col" value="jenis_hak" checked> Jenis Hak</label>
-                <label><input type="checkbox" name="col" value="tahun_terbit" checked> Tahun</label>
-                <label><input type="checkbox" name="col" value="media" checked> Media</label>
-                <label><input type="checkbox" name="col" value="jumlah" checked> Jumlah</label>
-                <label><input type="checkbox" name="col" value="lokasi_penyimpanan" checked> Lokasi</label>
-                <label><input type="checkbox" name="col" value="files" checked> Files</label>
-            </div>
+                                        </form>
 
-        </section>
-    </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover align-middle" style="white-space: nowrap;">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Nomor Hak</th>
+                                                        <th>Jenis Hak</th>
+                                                        <th>Tahun</th>
+                                                        <th>Media</th>
+                                                        <th>Jumlah</th>
+                                                        <th>Lokasi</th>
+                                                        <th class="text-center">Files (PDF)</th>
+                                                        <th class="text-center">QR</th>
+                                                        <th class="text-center">Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% if (typeof records !=='undefined' && records && records.length) {
+                                                        %>
+                                                        <% records.forEach(r=> { %>
+                                                            <tr data-id="<%= r.id_buku_tanah %>">
+                                                                <td class="fw-bold text-secondary">
+                                                                    <%= r.id_buku_tanah %>
+                                                                </td>
+                                                                <td>
+                                                                    <%= r.nomor_hak || '-' %>
+                                                                </td>
+                                                                <td>
+                                                                    <span
+                                                                        class="badge bg-info text-dark bg-opacity-10 border border-info px-2 py-1">
+                                                                        <%= r.jenis_hak || '-' %>
+                                                                    </span>
+                                                                </td>
+                                                                <td>
+                                                                    <% let _year='-' ; const tv=r.tahun_terbit; if (tv)
+                                                                        { if (tv instanceof Date) {
+                                                                        _year=tv.getFullYear(); } else { const
+                                                                        s=String(tv).trim(); if (/^\d{4}$/.test(s)) {
+                                                                        _year=s; } else { const d=new Date(s);
+                                                                        _year=isNaN(d.getTime()) ? '-' :
+                                                                        d.getFullYear(); } } } %>
+                                                                        <%= _year %>
+                                                                </td>
+                                                                <td>
+                                                                    <%= r.media || '-' %>
+                                                                </td>
+                                                                <td>
+                                                                    <%= (r.jumlah !=null) ? r.jumlah : '-' %>
+                                                                </td>
+                                                                <td>
+                                                                    <i
+                                                                        class="fas fa-map-marker-alt text-danger me-1"></i>
+                                                                    <%= r.lokasi_penyimpanan || '-' %>
+                                                                </td>
 
-</main> 
-<%- include('../partials/list_template.ejs', { baseUrl: '/buku-tanah' , contentId: 'konten-buku-tanah' }) %>
+                                                                <td class="text-center">
+                                                                    <% let files=[]; if (r.files) { try {
+                                                                        files=JSON.parse(r.files); } catch(e) {
+                                                                        files=[]; } } %>
+
+                                                                        <% if (files.length) { %>
+                                                                            <div
+                                                                                class="d-flex justify-content-center gap-2">
+                                                                                <% files.forEach((f, idx)=> { %>
+                                                                                    <a href="/<%= f %>" target="_blank"
+                                                                                        class="btn btn-sm btn-outline-danger"
+                                                                                        title="Buka PDF">
+                                                                                        <i class="fas fa-file-pdf"></i>
+                                                                                    </a>
+                                                                                    <% }) %>
+                                                                            </div>
+                                                                            <% } else { %>
+                                                                                <a href="/buku-tanah/edit/<%= r.id_buku_tanah %>#upload-file"
+                                                                                    class="btn btn-sm btn-outline-primary"
+                                                                                    title="Upload PDF">
+                                                                                    <i class="fas fa-upload me-1"></i>
+                                                                                    Upload
+                                                                                </a>
+                                                                                <% } %>
+                                                                </td>
+
+                                                                <td class="text-center">
+                                                                    <!-- tambahkan data-qr-id & data-qr-url agar modal preview bisa bekerja -->
+                                                                    <a href="/buku-tanah/<%= r.id_buku_tanah %>"
+                                                                        data-qr-id="<%= r.id_buku_tanah %>"
+                                                                        data-qr-url="/buku-tanah/<%= r.id_buku_tanah %>/qr.png"
+                                                                        title="Lihat QR (klik untuk preview)">
+                                                                        <img src="/buku-tanah/<%= r.id_buku_tanah %>/qr.png"
+                                                                            alt="QR" class="img-thumbnail"
+                                                                            style="max-width: 45px; height: auto;" />
+                                                                    </a>
+                                                                </td>
+
+                                                                <td class="text-center">
+                                                                    <div class="d-flex justify-content-center gap-1">
+                                                                        <a href="/buku-tanah/<%= r.id_buku_tanah %>"
+                                                                            class="btn btn-sm btn-info text-white"
+                                                                            title="Lihat Detail">
+                                                                            <i class="fas fa-eye"></i>
+                                                                        </a>
+                                                                        <a href="/buku-tanah/edit/<%= r.id_buku_tanah %>"
+                                                                            class="btn btn-sm btn-warning text-white"
+                                                                            title="Edit Data">
+                                                                            <i class="fas fa-edit"></i>
+                                                                        </a>
+                                                                        <form
+                                                                            action="/buku-tanah/delete/<%= r.id_buku_tanah %>"
+                                                                            method="post" style="display:inline"
+                                                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                                                            <button type="submit"
+                                                                                class="btn btn-sm btn-danger"
+                                                                                title="Hapus Data">
+                                                                                <i class="fas fa-trash"></i>
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            <% }) %>
+                                                                <% } else { %>
+                                                                    <tr>
+                                                                        <td colspan="10"
+                                                                            class="text-center py-5 text-muted">
+                                                                            <div
+                                                                                class="d-flex flex-column align-items-center">
+                                                                                <i
+                                                                                    class="fas fa-folder-open fa-3x mb-3 text-secondary opacity-50"></i>
+                                                                                <h6 class="fw-bold">Belum ada data Buku
+                                                                                    Tanah</h6>
+                                                                                <small>Silakan tambahkan data baru
+                                                                                    melalui tombol Tambah.</small>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <% } %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="source-checkboxes" style="display:none;">
+                                    <label><input type="checkbox" name="col" value="id_buku_tanah" checked> ID</label>
+                                    <label><input type="checkbox" name="col" value="nomor_hak" checked> Nomor
+                                        Hak</label>
+                                    <label><input type="checkbox" name="col" value="jenis_hak" checked> Jenis
+                                        Hak</label>
+                                    <label><input type="checkbox" name="col" value="tahun_terbit" checked> Tahun</label>
+                                    <label><input type="checkbox" name="col" value="media" checked> Media</label>
+                                    <label><input type="checkbox" name="col" value="jumlah" checked> Jumlah</label>
+                                    <label><input type="checkbox" name="col" value="lokasi_penyimpanan" checked>
+                                        Lokasi</label>
+                                    <label><input type="checkbox" name="col" value="files" checked> Files</label>
+                                </div>
+
+            </section>
+        </div>
+
+    </main>
+    <%- include('../partials/list_template.ejs', { baseUrl: '/buku-tanah' , contentId: 'konten-buku-tanah' }) %>

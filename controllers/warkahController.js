@@ -5,6 +5,7 @@ const QRCode = require('qrcode');
 const fs = require('fs').promises;
 const fsSync = require('fs');
 const path = require('path');
+const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, TextRun, ImageRun } = require('docx');
 
 // safe model lookup
 const Warkah = db.warkah || (db.models && (db.models.warkah || db.models.Warkah));
@@ -89,23 +90,31 @@ exports.showIndex = async (req, res) => {
         };
 
         if (q) {
+            // LOGIKA PENCARIAN FLEKSIBEL WARKAH
+            const searchConditions = [
+                { nomor_di_208: { [Op.like]: `%${q}%` } },
+                { nomor_hak: { [Op.like]: `%${q}%` } },
+                { kode_klasifikasi: { [Op.like]: `%${q}%` } },
+                { lokasi_penyimpanan: { [Op.like]: `%${q}%` } },
+                { no_boks_definitif: { [Op.like]: `%${q}%` } },
+                // Pencarian Tahun
+                db.sequelize.where(
+                    db.sequelize.cast(db.sequelize.col('tahun_terbit'), 'char'),
+                    { [Op.like]: `%${q}%` }
+                )
+            ];
+
+            // Jika input berupa angka, masukkan juga pencarian by ID
             if (isValidId(q)) {
-                const r = await Warkah.findByPk(Number(q), baseOptions);
-                records = r ? [r] : [];
-            } else {
-                records = await Warkah.findAll({
-                    ...baseOptions,
-                    where: {
-                        [Op.or]: [
-                            { nomor_hak: { [Op.like]: `%${q}%` } },
-                            { nomor_di_208: { [Op.like]: `%${q}%` } },
-                            { kode_klasifikasi: { [Op.like]: `%${q}%` } },
-                            { lokasi_penyimpanan: { [Op.like]: `%${q}%` } },
-                            { no_boks_definitif: { [Op.like]: `%${q}%` } }
-                        ]
-                    }
-                });
+                searchConditions.push({ id_warkah: Number(q) });
             }
+
+            records = await Warkah.findAll({
+                ...baseOptions,
+                where: {
+                    [Op.or]: searchConditions
+                }
+            });
         } else {
             records = await Warkah.findAll(baseOptions);
         }
@@ -448,6 +457,7 @@ exports.download = async (req, res) => {
 
         const q = (req.query.q || '').toString().trim();
         const columnsParam = (req.query.columns || '').toString().trim();
+        const format = (req.query.format || 'csv').toString().toLowerCase(); // 'csv' atau 'docx'
 
         const ALLOWED_COLS = [
             'id_warkah', 'nomor_di_208', 'nomor_hak', 'tahun_terbit', 'kode_klasifikasi',
@@ -461,7 +471,10 @@ exports.download = async (req, res) => {
             ? columnsParam.split(',').map(c => c.trim()).filter(c => ALLOWED_COLS.includes(c))
             : ALLOWED_COLS.slice();
 
-        // bangun where (sama seperti showIndex)
+        // Pastikan id_warkah selalu disertakan untuk keperluan QR
+        const attributes = Array.from(new Set(['id_warkah', ...selectedCols]));
+
+        // build where (sama seperti showIndex)
         let where = undefined;
         if (q) {
             if (isValidId(q)) {
@@ -483,7 +496,7 @@ exports.download = async (req, res) => {
             where,
             order: [['id_warkah', 'DESC']],
             limit: 1000,
-            attributes: selectedCols
+            attributes
         });
 
         // helper format nilai (khusus tahun_terbit --> tampilkan tahun)
@@ -496,7 +509,6 @@ exports.download = async (req, res) => {
                 const d = new Date(s);
                 return isNaN(d.getTime()) ? s : String(d.getFullYear());
             }
-            // untuk teks panjang, tetap string
             return String(val);
         }
 
@@ -521,33 +533,113 @@ exports.download = async (req, res) => {
             keterangan: 'Keterangan'
         };
 
-        // escape CSV sederhana
-        const escapeCsv = (s) => {
-            const str = s == null ? '' : String(s);
-            if (str.indexOf('"') !== -1) {
-                return '"' + str.replace(/"/g, '""') + '"';
-            }
-            if (/[,\n\r]/.test(str) || /^\s|\s$/.test(str)) {
-                return `"${str.replace(/"/g, '""')}"`;
-            }
-            return str;
-        };
+        // ---------- CSV path ----------
+        if (format === 'csv') {
+            const escapeCsv = (s) => {
+                const str = s == null ? '' : String(s);
+                if (str.indexOf('"') !== -1) {
+                    return '"' + str.replace(/"/g, '""') + '"';
+                }
+                if (/[,\n\r]/.test(str) || /^\s|\s$/.test(str)) {
+                    return `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
 
-        const headers = selectedCols.map(c => headerMap[c] || c);
-        const rows = [headers.join(',')];
+            // gunakan selectedCols (tanpa memaksa id) untuk CSV supaya sesuai pilihan user
+            const csvCols = selectedCols.length ? selectedCols : ALLOWED_COLS.slice();
+            const headers = csvCols.map(c => headerMap[c] || c);
+            const rows = [headers.join(',')];
 
-        for (const rec of records) {
-            const plain = rec && typeof rec.toJSON === 'function' ? rec.toJSON() : rec;
-            const vals = selectedCols.map(col => escapeCsv(formatCell(col, plain[col])));
-            rows.push(vals.join(','));
+            for (const rec of records) {
+                const plain = rec && typeof rec.toJSON === 'function' ? rec.toJSON() : rec;
+                const vals = csvCols.map(col => escapeCsv(formatCell(col, plain[col])));
+                rows.push(vals.join(','));
+            }
+
+            const csvContent = rows.join('\r\n');
+            const filename = `warkah_${(new Date()).toISOString().replace(/[:.]/g, '')}.csv`;
+
+            res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            return res.send(csvContent);
         }
 
-        const csvContent = rows.join('\r\n');
-        const filename = `warkah_${(new Date()).toISOString().replace(/[:.]/g, '')}.csv`;
+        // ---------- DOCX path ----------
+        if (format === 'docx') {
+            const doc = new Document({ sections: [] });
 
-        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-        return res.send(csvContent);
+            // gunakan selectedCols untuk header (tampilkan apa yang user pilih)
+            const docCols = selectedCols.length ? selectedCols.slice() : ALLOWED_COLS.slice();
+            const headerCells = docCols.map(c => new TableCell({
+                children: [new Paragraph({ children: [new TextRun({ text: headerMap[c] || c, bold: true })] })],
+                margins: { top: 100, bottom: 100, left: 100, right: 100 }
+            }));
+            // tambahkan kolom QR di akhir
+            headerCells.push(new TableCell({
+                children: [new Paragraph({ children: [new TextRun({ text: 'QR', bold: true })] })],
+                margins: { top: 100, bottom: 100, left: 100, right: 100 }
+            }));
+
+            const rows = [new TableRow({ children: headerCells })];
+
+            const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+
+            for (const rec of records) {
+                const plain = rec && typeof rec.toJSON === 'function' ? rec.toJSON() : rec;
+
+                const rowCells = docCols.map(col => {
+                    const txt = formatCell(col, plain[col]);
+                    return new TableCell({
+                        children: [new Paragraph(String(txt || ''))]
+                    });
+                });
+
+                const recId = plain.id_warkah;
+                if (!recId) {
+                    rowCells.push(new TableCell({ children: [new Paragraph('No ID')] }));
+                } else {
+                    try {
+                        const detailUrl = `${baseUrl}/warkah/detail/${Number(recId)}`;
+                        const qrBuf = await QRCode.toBuffer(detailUrl, {
+                            type: 'png',
+                            errorCorrectionLevel: 'H',
+                            margin: 1,
+                            scale: 6
+                        });
+
+                        const imageRun = new ImageRun({
+                            data: qrBuf,
+                            transformation: { width: 80, height: 80 }
+                        });
+                        const imgPara = new Paragraph({ children: [imageRun] });
+
+                        rowCells.push(new TableCell({ children: [imgPara] }));
+                    } catch (qrErr) {
+                        console.error('Gagal generate QR untuk id', recId, qrErr);
+                        rowCells.push(new TableCell({ children: [new Paragraph('QR error')] }));
+                    }
+                }
+
+                rows.push(new TableRow({ children: rowCells }));
+            }
+
+            const table = new Table({
+                rows,
+                width: { size: 100, type: WidthType.PERCENTAGE }
+            });
+
+            doc.addSection({ children: [table] });
+
+            const buffer = await Packer.toBuffer(doc);
+
+            const filename = `warkah_${(new Date()).toISOString().replace(/[:.]/g, '')}.docx`;
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            return res.send(buffer);
+        }
+
+        return res.status(400).send('Format tidak didukung. Gunakan format=csv atau format=docx');
     } catch (err) {
         console.error('warkah.download error:', err);
         return res.status(500).send('Gagal membuat file download');
