@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { Op } = require('sequelize');
+const Sequelize = require('sequelize');
 const QRCode = require('qrcode');
 const fs = require('fs').promises;
 const fsSync = require('fs');
@@ -81,13 +82,44 @@ exports.showIndex = async (req, res) => {
         if (!ensureModelOrRespond(res)) return;
 
         const q = (req.query.q || '').toString().trim();
+        const filterYear = (req.query.year || '').toString().trim();
         let records = [];
 
         const baseOptions = {
-            order: [['id_buku_tanah', 'DESC']],
+            order: [['id_buku_tanah', 'ASC']],
             limit: 1000,
             attributes: { exclude: ['createdAt', 'updatedAt'] }
         };
+
+        // --- ambil daftar tahun unik dari DB (ascending) ---
+        let years = [];
+        try {
+            // coba menggunakan YEAR() (jika column bertipe DATE/DATETIME)
+            const yearRows = await BukuTanah.findAll({
+                attributes: [[Sequelize.fn('YEAR', Sequelize.col('tahun_terbit')), 'year']],
+                where: { tahun_terbit: { [Op.ne]: null } },
+                group: ['year'],
+                order: [[Sequelize.literal('year'), 'ASC']],
+                raw: true,
+                limit: 1000
+            });
+            years = yearRows.map(r => r.year).filter(y => y !== null && typeof y !== 'undefined').map(Number).filter(y => !Number.isNaN(y));
+            years = Array.from(new Set(years)).sort((a, b) => b - a);
+        } catch (e) {
+            console.error('Gagal fetch years using YEAR():', e);
+        }
+
+        // fallback: jika tidak ada hasil (mungkin tahun disimpan sebagai string), ambil distinct nilai yang match 4 digit
+        if (!years.length) {
+            try {
+                const [rows] = await db.sequelize.query(
+                    "SELECT DISTINCT tahun_terbit AS year FROM buku_tanah WHERE tahun_terbit REGEXP '^[0-9]{4}$' ORDER BY tahun_terbit ASC;"
+                );
+                years = rows.map(r => Number(r.year)).filter(y => !Number.isNaN(y));
+            } catch (e) {
+                console.error('Fallback fetch distinct tahun gagal:', e);
+            }
+        }
 
         if (q) {
             // PERBAIKAN: Masukkan semua kemungkinan pencarian ke dalam satu array OR
@@ -95,8 +127,8 @@ exports.showIndex = async (req, res) => {
                 { nomor_hak: { [Op.like]: `%${q}%` } },
                 { lokasi_penyimpanan: { [Op.like]: `%${q}%` } },
                 { no_boks_definitif: { [Op.like]: `%${q}%` } },
-                { jenis_hak: { [Op.like]: `%${q}%` } }, // Tambahkan ini agar jenis hak juga bisa dicari
-                { media: { [Op.like]: `%${q}%` } }      // Tambahkan ini agar media juga bisa dicari
+                { jenis_hak: { [Op.like]: `%${q}%` } },
+                { media: { [Op.like]: `%${q}%` } }
             ];
 
             // Jika input berupa angka valid, tambahkan pencarian berdasarkan ID juga
@@ -104,14 +136,33 @@ exports.showIndex = async (req, res) => {
                 searchConditions.push({ id_buku_tanah: Number(q) });
             }
 
+            // bangun where awal berdasarkan q
+            let whereQ = { [Op.or]: searchConditions };
+
+            // jika filterYear valid, gabungkan dengan AND
+            if (/^\d{4}$/.test(filterYear)) {
+                const yearNumber = Number(filterYear);
+                const yearCond = Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('tahun_terbit')), yearNumber);
+                // gabungkan keduanya
+                whereQ = { [Op.and]: [whereQ, yearCond] };
+            }
+
             records = await BukuTanah.findAll({
                 ...baseOptions,
-                where: {
-                    [Op.or]: searchConditions
-                }
+                where: whereQ
             });
         } else {
-            records = await BukuTanah.findAll(baseOptions);
+            // tidak ada q -> mungkin ada filterYear saja
+            let whereNoQ = undefined;
+            if (/^\d{4}$/.test(filterYear)) {
+                const yearNumber = Number(filterYear);
+                whereNoQ = Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('tahun_terbit')), yearNumber);
+            }
+
+            records = await BukuTanah.findAll({
+                ...baseOptions,
+                where: whereNoQ
+            });
         }
 
         const recordsPlain = Array.isArray(records)
@@ -123,6 +174,8 @@ exports.showIndex = async (req, res) => {
             user: req.session?.user || null,
             nama_karyawan: req.session?.user?.nama_karyawan || '',
             filter_q: q,
+            filter_year: filterYear,     // <-- kirim pilihan tahun saat ini ke view
+            years,                       // <-- kirim daftar tahun ke view
             error: req.query.error || null,
             success: req.query.success || null
         });
@@ -538,6 +591,8 @@ exports.download = async (req, res) => {
         const q = (req.query.q || '').toString().trim();
         const columnsParam = (req.query.columns || '').toString().trim();
         const format = (req.query.format || 'csv').toString().toLowerCase(); // 'csv' atau 'docx'
+        const yearParam = (req.query.year || '').toString().trim();
+        const year = /^\d{4}$/.test(yearParam) ? Number(yearParam) : null;
 
         const ALLOWED_COLS = [
             'id_buku_tanah', 'nomor_hak', 'jenis_hak', 'tahun_terbit', 'media',
@@ -569,9 +624,19 @@ exports.download = async (req, res) => {
             }
         }
 
+        if (year) {
+            const yearCond = Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('tahun_terbit')), year);
+            if (!where) {
+                where = yearCond;
+            } else {
+                // gabungkan existing where dan yearCond dengan AND
+                where = { [Op.and]: [where, yearCond] };
+            }
+        }
+
         const records = await BukuTanah.findAll({
             where,
-            order: [['id_buku_tanah', 'DESC']],
+            order: [['id_buku_tanah', 'ASC']],
             limit: 1000,
             attributes // gunakan attributes yang sudah memastikan id tersedia
         });

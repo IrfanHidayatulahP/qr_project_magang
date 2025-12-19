@@ -250,6 +250,28 @@
                 </div>
             </div>
 
+            <!-- FILTER TAHUN (opsional) -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Filter Tahun (opsional)</label>
+
+                <% if (typeof years !=='undefined' && Array.isArray(years) && years.length) { %>
+                    <select name="year" id="download-year" class="form-select">
+                        <option value="">Semua Tahun</option>
+                        <% years.forEach(function(y){ %>
+                            <option value="<%= y %>" <%=(typeof filter_year !=='undefined' &&
+                                String(filter_year)===String(y)) ? 'selected' : '' %>><%= y %>
+                            </option>
+                            <% }) %>
+                    </select>
+                    <div class="form-text small">Pilih tahun untuk memfilter data berdasarkan tahun terbit.</div>
+                    <% } else { %>
+                        <input type="number" name="year" id="download-year" class="form-control" placeholder="YYYY"
+                            min="1900" max="3000" />
+                        <div class="form-text small">Masukkan tahun (mis. 2023) untuk memfilter berdasarkan tahun
+                            terbit.</div>
+                        <% } %>
+            </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="submit" class="btn btn-success"><i class="fas fa-download me-1"></i> Download</button>
@@ -350,8 +372,16 @@
                 params.set('columns', checked.join(','));
                 if (q) params.set('q', q);
 
+                // ambil year input/select (dukungan untuk <select> dan <input>)
+                const yearInput = formDownload.querySelector('select[name="year"], input[name="year"]');
+                if (yearInput) {
+                    const y = (yearInput.value || '').toString().trim();
+                    if (y) params.set('year', y);
+                }
+
                 // redirect to download endpoint
                 window.location.href = `${BASE_URL}/download?` + params.toString();
+
             });
         }
 

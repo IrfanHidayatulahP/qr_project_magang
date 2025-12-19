@@ -1,6 +1,7 @@
 // controllers/suratUkurController.js
 const db = require('../config/db');
 const { Op } = require('sequelize');
+const Sequelize = require('sequelize');
 const QRCode = require('qrcode');
 const fs = require('fs').promises;
 const fsSync = require('fs');
@@ -72,23 +73,53 @@ function parseDateIndo(input) {
 }
 
 /** showIndex */
+/** showIndex */
 exports.showIndex = async (req, res) => {
     try {
         if (!ensureModelOrRespond(res)) return;
 
         const q = (req.query.q || '').toString().trim();
+        const filterYear = (req.query.year || '').toString().trim();
         let records = [];
 
         // exclude timestamps agar aman saat read
         const baseOptions = {
-            order: [['id_surat_ukur', 'DESC']],
+            order: [['id_surat_ukur', 'ASC']],
             limit: 1000,
             attributes: { exclude: ['createdAt', 'updatedAt'] }
         };
 
+        // --- ambil daftar tahun unik dari DB (ascending) ---
+        let years = [];
+        try {
+            const yearRows = await SuratUkur.findAll({
+                attributes: [[Sequelize.fn('YEAR', Sequelize.col('tahun_terbit')), 'year']],
+                where: { tahun_terbit: { [Op.ne]: null } },
+                group: ['year'],
+                order: [[Sequelize.literal('year'), 'ASC']],
+                raw: true,
+                limit: 1000
+            });
+            years = yearRows.map(r => r.year).filter(y => y !== null && typeof y !== 'undefined').map(Number).filter(y => !Number.isNaN(y));
+            years = Array.from(new Set(years)).sort((a, b) => b - a);
+        } catch (e) {
+            console.error('Gagal fetch years using YEAR():', e);
+        }
+
+        // fallback jika tidak ada hasil YEAR()
+        if (!years.length) {
+            try {
+                const [rows] = await db.sequelize.query(
+                    "SELECT DISTINCT tahun_terbit AS year FROM surat_ukur WHERE tahun_terbit REGEXP '^[0-9]{4}$' ORDER BY tahun_terbit ASC;"
+                );
+                years = rows.map(r => Number(r.year)).filter(y => !Number.isNaN(y));
+            } catch (e) {
+                console.error('Fallback fetch distinct tahun gagal:', e);
+            }
+        }
+
         if (q) {
             // LOGIKA PENCARIAN FLEKSIBEL
-            // Kita cari di semua kolom yang relevan sekaligus
             const searchConditions = [
                 { nomor_hak: { [Op.like]: `%${q}%` } },
                 { nomor_surat_ukur: { [Op.like]: `%${q}%` } },
@@ -101,19 +132,36 @@ exports.showIndex = async (req, res) => {
                 )
             ];
 
-            // Jika input berupa angka, tambahkan pencarian berdasarkan ID
             if (isValidId(q)) {
                 searchConditions.push({ id_surat_ukur: Number(q) });
             }
 
+            // where berdasarkan q
+            let whereQ = { [Op.or]: searchConditions };
+
+            // jika filterYear valid, gabungkan dengan AND YEAR(...)
+            if (/^\d{4}$/.test(filterYear)) {
+                const yearNumber = Number(filterYear);
+                const yearCond = Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('tahun_terbit')), yearNumber);
+                whereQ = { [Op.and]: [whereQ, yearCond] };
+            }
+
             records = await SuratUkur.findAll({
                 ...baseOptions,
-                where: {
-                    [Op.or]: searchConditions
-                }
+                where: whereQ
             });
         } else {
-            records = await SuratUkur.findAll(baseOptions);
+            // tidak ada q -> mungkin ada filterYear saja
+            let whereNoQ = undefined;
+            if (/^\d{4}$/.test(filterYear)) {
+                const yearNumber = Number(filterYear);
+                whereNoQ = Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('tahun_terbit')), yearNumber);
+            }
+
+            records = await SuratUkur.findAll({
+                ...baseOptions,
+                where: whereNoQ
+            });
         }
 
         const recordsPlain = Array.isArray(records)
@@ -125,6 +173,8 @@ exports.showIndex = async (req, res) => {
             user: req.session?.user || null,
             nama_karyawan: req.session?.user?.nama_karyawan || '',
             filter_q: q,
+            filter_year: filterYear, // <-- kirim pilihan tahun saat ini ke view
+            years,                   // <-- kirim daftar tahun ke view
             error: req.query.error || null,
             success: req.query.success || null
         });
@@ -528,7 +578,10 @@ exports.download = async (req, res) => {
 
         const q = (req.query.q || '').toString().trim();
         const columnsParam = (req.query.columns || '').toString().trim();
-        const format = (req.query.format || 'csv').toString().toLowerCase(); // 'csv' atau 'docx'
+        const format = (req.query.format || 'csv').toString().toLowerCase();
+        const yearParam = (req.query.year || '').toString().trim();
+        const year = /^\d{4}$/.test(yearParam) ? Number(yearParam) : null;
+
 
         const ALLOWED_COLS = [
             'id_surat_ukur', 'nomor_hak', 'jenis_hak', 'nomor_surat_ukur', 'tahun_terbit',
@@ -560,12 +613,24 @@ exports.download = async (req, res) => {
             }
         }
 
+        // tambahkan filter tahun jika ada
+        if (year) {
+            const yearCond = Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('tahun_terbit')), year);
+            if (!where) {
+                where = yearCond;
+            } else {
+                where = { [Op.and]: [where, yearCond] };
+            }
+        }
+
+        // lalu panggil findAll seperti semula:
         const records = await SuratUkur.findAll({
             where,
-            order: [['id_surat_ukur', 'DESC']],
+            order: [['id_surat_ukur', 'ASC']],
             limit: 1000,
             attributes
         });
+
 
         function formatCell(key, val) {
             if (val == null) return '';

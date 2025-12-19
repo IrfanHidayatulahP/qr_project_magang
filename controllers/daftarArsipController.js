@@ -127,6 +127,7 @@ exports.showIndex = async (req, res) => {
 
         const q = (req.query.q || '').toString().trim();
 
+        // Base options
         const options = {
             order: [['nomor_urut', 'ASC']],
             limit: 500,
@@ -134,13 +135,22 @@ exports.showIndex = async (req, res) => {
         };
 
         if (q) {
+            // LOGIKA PENCARIAN FLEKSIBEL
+            const searchConditions = [
+                { nomor_hak: { [Op.like]: `%${q}%` } },
+                { kode_klasifikasi: { [Op.like]: `%${q}%` } },
+                { nomor_item_arsip_uraian: { [Op.like]: `%${q}%` } },
+                { lokasi_simpan_bt_ruang_rak: { [Op.like]: `%${q}%` } }
+            ];
+
+            // Jika input berupa angka, cari juga berdasarkan ID atau Nomor Urut
+            if (isValidId(q)) {
+                searchConditions.push({ id_daftar_arsip: Number(q) });
+                searchConditions.push({ nomor_urut: Number(q) });
+            }
+
             options.where = {
-                [Op.or]: [
-                    { nomor_hak: { [Op.like]: `%${q}%` } },
-                    { kode_klasifikasi: { [Op.like]: `%${q}%` } },
-                    { nomor_item_arsip_uraian: { [Op.like]: `%${q}%` } },
-                    { lokasi_simpan_bt_ruang_rak: { [Op.like]: `%${q}%` } }
-                ]
+                [Op.or]: searchConditions
             };
         }
 

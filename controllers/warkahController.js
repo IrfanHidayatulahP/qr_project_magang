@@ -1,6 +1,7 @@
 // controllers/warkahController.js
 const db = require('../config/db');
 const { Op } = require('sequelize');
+const Sequelize = require('sequelize');
 const QRCode = require('qrcode');
 const fs = require('fs').promises;
 const fsSync = require('fs');
@@ -81,42 +82,86 @@ exports.showIndex = async (req, res) => {
         if (!ensureModelOrRespond(res)) return;
 
         const q = (req.query.q || '').toString().trim();
+        const filterYear = (req.query.year || '').toString().trim();
         let records = [];
 
         const baseOptions = {
-            order: [['id_warkah', 'DESC']],
+            order: [['id_warkah', 'ASC']],
             limit: 1000,
             attributes: { exclude: ['createdAt', 'updatedAt'] }
         };
 
+        // --- ambil daftar tahun unik dari DB (descending) ---
+        let years = [];
+        try {
+            const yearRows = await Warkah.findAll({
+                attributes: [[Sequelize.fn('YEAR', Sequelize.col('tahun_terbit')), 'year']],
+                where: { tahun_terbit: { [Op.ne]: null } },
+                group: ['year'],
+                order: [[Sequelize.literal('year'), 'DESC']],
+                raw: true,
+                limit: 1000
+            });
+            years = yearRows.map(r => r.year).filter(y => y !== null && typeof y !== 'undefined').map(Number).filter(y => !Number.isNaN(y));
+            years = Array.from(new Set(years)).sort((a, b) => b - a);
+        } catch (e) {
+            console.error('Gagal fetch years using YEAR():', e);
+        }
+
+        // fallback bila YEAR() tidak berhasil (kolom string 'YYYY' mis.)
+        if (!years.length) {
+            try {
+                const [rows] = await db.sequelize.query(
+                    "SELECT DISTINCT tahun_terbit AS year FROM warkah WHERE tahun_terbit REGEXP '^[0-9]{4}$' ORDER BY tahun_terbit DESC;"
+                );
+                years = rows.map(r => Number(r.year)).filter(y => !Number.isNaN(y));
+            } catch (e) {
+                console.error('Fallback fetch distinct tahun gagal:', e);
+            }
+        }
+
         if (q) {
-            // LOGIKA PENCARIAN FLEKSIBEL WARKAH
             const searchConditions = [
                 { nomor_di_208: { [Op.like]: `%${q}%` } },
                 { nomor_hak: { [Op.like]: `%${q}%` } },
                 { kode_klasifikasi: { [Op.like]: `%${q}%` } },
                 { lokasi_penyimpanan: { [Op.like]: `%${q}%` } },
                 { no_boks_definitif: { [Op.like]: `%${q}%` } },
-                // Pencarian Tahun
                 db.sequelize.where(
                     db.sequelize.cast(db.sequelize.col('tahun_terbit'), 'char'),
                     { [Op.like]: `%${q}%` }
                 )
             ];
 
-            // Jika input berupa angka, masukkan juga pencarian by ID
             if (isValidId(q)) {
                 searchConditions.push({ id_warkah: Number(q) });
             }
 
+            let whereQ = { [Op.or]: searchConditions };
+
+            // gabungkan filterYear jika ada
+            if (/^\d{4}$/.test(filterYear)) {
+                const yearNumber = Number(filterYear);
+                const yearCond = Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('tahun_terbit')), yearNumber);
+                whereQ = { [Op.and]: [whereQ, yearCond] };
+            }
+
             records = await Warkah.findAll({
                 ...baseOptions,
-                where: {
-                    [Op.or]: searchConditions
-                }
+                where: whereQ
             });
         } else {
-            records = await Warkah.findAll(baseOptions);
+            // tanpa q, bisa ada filterYear saja
+            let whereNoQ = undefined;
+            if (/^\d{4}$/.test(filterYear)) {
+                const yearNumber = Number(filterYear);
+                whereNoQ = Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('tahun_terbit')), yearNumber);
+            }
+
+            records = await Warkah.findAll({
+                ...baseOptions,
+                where: whereNoQ
+            });
         }
 
         const recordsPlain = Array.isArray(records)
@@ -128,6 +173,8 @@ exports.showIndex = async (req, res) => {
             user: req.session?.user || null,
             nama_karyawan: req.session?.user?.nama_karyawan || '',
             filter_q: q,
+            filter_year: filterYear, // <-- kirim pilihan tahun saat ini ke view
+            years,                   // <-- kirim daftar tahun ke view
             error: req.query.error || null,
             success: req.query.success || null
         });
@@ -457,7 +504,9 @@ exports.download = async (req, res) => {
 
         const q = (req.query.q || '').toString().trim();
         const columnsParam = (req.query.columns || '').toString().trim();
-        const format = (req.query.format || 'csv').toString().toLowerCase(); // 'csv' atau 'docx'
+        const format = (req.query.format || 'csv').toString().toLowerCase();
+        const yearParam = (req.query.year || '').toString().trim();
+        const year = /^\d{4}$/.test(yearParam) ? Number(yearParam) : null;
 
         const ALLOWED_COLS = [
             'id_warkah', 'nomor_di_208', 'nomor_hak', 'tahun_terbit', 'kode_klasifikasi',
@@ -492,9 +541,19 @@ exports.download = async (req, res) => {
             }
         }
 
+        // tambahkan filter tahun jika ada
+        if (year) {
+            const yearCond = Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('tahun_terbit')), year);
+            if (!where) {
+                where = yearCond;
+            } else {
+                where = { [Op.and]: [where, yearCond] };
+            }
+        }
+
         const records = await Warkah.findAll({
             where,
-            order: [['id_warkah', 'DESC']],
+            order: [['id_warkah', 'ASC']],
             limit: 1000,
             attributes
         });

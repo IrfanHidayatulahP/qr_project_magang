@@ -47,21 +47,25 @@ exports.showIndex = async (req, res) => {
         };
 
         if (q) {
+            // LOGIKA PENCARIAN FLEKSIBEL LOKASI
+            const searchConditions = [
+                { kode_lokasi: { [Op.like]: `%${q}%` } },
+                { ruangan: { [Op.like]: `%${q}%` } },
+                { no_rak: { [Op.like]: `%${q}%` } },
+                { notes: { [Op.like]: `%${q}%` } } // Tambahkan pencarian di catatan
+            ];
+
+            // Jika input berupa angka, masukkan juga pencarian by ID
             if (isValidId(q)) {
-                const r = await Lokasi.findByPk(Number(q), baseOptions);
-                records = r ? [r] : [];
-            } else {
-                records = await Lokasi.findAll({
-                    ...baseOptions,
-                    where: {
-                        [Op.or]: [
-                            { kode_lokasi: { [Op.like]: `%${q}%` } },
-                            { ruangan: { [Op.like]: `%${q}%` } },
-                            { no_rak: { [Op.like]: `%${q}%` } }
-                        ]
-                    }
-                });
+                searchConditions.push({ id_lokasi: Number(q) });
             }
+
+            records = await Lokasi.findAll({
+                ...baseOptions,
+                where: {
+                    [Op.or]: searchConditions
+                }
+            });
         } else {
             records = await Lokasi.findAll(baseOptions);
         }
