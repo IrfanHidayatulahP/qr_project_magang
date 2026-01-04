@@ -5,16 +5,17 @@
     <div id="konten-daftar-arsip">
         <section class="container-fluid">
             
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h3 class="fw-bold text-dark m-0">Daftar Arsip Vital</h3>
-                    <p class="text-muted small mb-0">Kelola gabungan data Buku Tanah, Surat Ukur, dan Warkah.</p>
-                </div>
+            <div class="d-none d-md-flex justify-content-between align-items-center mb-4 page-header">
+                <h3 class="fw-bold text-dark m-0">Daftar Arsip Vital</h3>
+
                 <div class="d-flex gap-2">
-                    <a class="btn btn-primary shadow-sm" href="/daftar-arsip/create">
-                        <i class="fas fa-plus-circle me-1"></i> Buat Daftar
+                    <a href="/daftar-arsip/create" class="btn btn-primary btn-dashboard">
+                        <i class="fas fa-plus me-1"></i> Tambah
                     </a>
-                    <button id="btn-open-download" class="btn btn-success shadow-sm" type="button">
+
+                    <button id="btn-open-download"
+                            class="btn btn-success btn-dashboard"
+                            type="button">
                         <i class="fas fa-download me-1"></i> Download
                     </button>
                 </div>
@@ -33,25 +34,31 @@
                 </div> 
             <% } %>
 
-            <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
-                <div class="card-body p-3">
-                    <form method="get" action="/daftar-arsip" class="mb-0 w-100">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0 ps-3">
-                                <i class="fas fa-search text-muted"></i>
-                            </span>
-                            <input type="text" name="q" class="form-control border-start-0 border-end-0 shadow-none" 
-                                placeholder="Cari berdasarkan Nomor Hak, Kode Klasifikasi, atau Uraian..." 
-                                value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>" />
-                            <button type="submit" class="btn btn-primary px-4 rounded-end">Cari Data</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
             <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
+                <div class="card-body p-4">
+                    <div class="d-none d-md-block">
+                        <form method="get" action="/daftar-arsip" class="mb-4">
+                            <div class="search-box">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+
+                                    <input type="text"
+                                        name="q"
+                                        class="form-control"
+                                        placeholder="Cari Nomor Hak / Kode Klasifikasi / Uraian"
+                                        value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>">
+
+                                    <button type="submit" class="btn btn-primary">
+                                        Cari
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="table-responsive d-none d-md-block">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
@@ -181,6 +188,157 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- MOBILE CARD VIEW -->
+                    <div class="d-block d-md-none">
+                        <!-- MOBILE HEADER -->
+                        <div class="mobile-header mb-3 px-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold m-0">Arsip Vital</h5>
+
+                                <div class="d-flex gap-2">
+                                    <a href="/daftar-arsip/create" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+
+                                    <button id="btn-open-download-mobile"
+                                            class="btn btn-success btn-sm"
+                                            type="button">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="px-2 pb-3 mt-2">
+                            <form method="get" action="/daftar-arsip">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="fas fa-search text-muted"></i>
+                                    </span>
+                                    <input type="text"
+                                        name="q"
+                                        class="form-control"
+                                        placeholder="Cari Nomor Hak / Kode / Uraian..."
+                                        value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>">
+                                    <button class="btn btn-primary" type="submit">
+                                        Cari
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <% if (records && records.length) { %>
+                            <% records.forEach(r => { %>
+
+                                <div class="card shadow-sm mb-3 border-0">
+                                    <div class="card-body">
+
+                                        <!-- HEADER CARD -->
+                                        <div class="mb-2">
+                                            <div class="fw-bold text-primary">
+                                                <%= r.nomor_hak || '-' %>
+                                            </div>
+
+                                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                                <span class="badge bg-light text-dark border">
+                                                    <i class="fas fa-tag me-1"></i>
+                                                    <%= r.kode_klasifikasi || '-' %>
+                                                </span>
+
+                                                <% if (r.jenis_arsip_vital) { %>
+                                                    <span class="badge bg-info bg-opacity-10 text-info border">
+                                                        <%= r.jenis_arsip_vital %>
+                                                    </span>
+                                                <% } %>
+                                            </div>
+                                        </div>
+
+                                        <!-- URAIAN -->
+                                        <div class="small text-muted mb-2">
+                                            <%= r.nomor_item_arsip_uraian || '-' %>
+                                        </div>
+
+                                        <% if (r.kurun_waktu_berkas) { %>
+                                            <div class="small text-muted mb-3">
+                                                <i class="far fa-calendar-alt me-1"></i>
+                                                Tahun: <strong><%= r.kurun_waktu_berkas %></strong>
+                                            </div>
+                                        <% } %>
+
+                                        <!-- LOKASI PENYIMPANAN -->
+                                        <div class="small mb-3">
+
+                                            <div class="mb-2">
+                                                <strong>
+                                                    <i class="fas fa-book me-1 text-primary"></i>
+                                                    Buku Tanah
+                                                </strong>
+                                                <div class="text-muted">
+                                                    <%= r.lokasi_simpan_bt_ruang_rak || '-' %>
+                                                    <% if (r.lokasi_simpan_bt_no_boks) { %>
+                                                        (Boks <%= r.lokasi_simpan_bt_no_boks %>)
+                                                    <% } %>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <strong>
+                                                    <i class="fas fa-ruler-combined me-1 text-success"></i>
+                                                    Surat Ukur
+                                                </strong>
+                                                <div class="text-muted">
+                                                    <%= r.lokasi_simpan_su_ruang_rak || '-' %>
+                                                    <% if (r.lokasi_simpan_su_no_boks) { %>
+                                                        (Boks <%= r.lokasi_simpan_su_no_boks %>)
+                                                    <% } %>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <strong>
+                                                    <i class="fas fa-file-archive me-1 text-warning"></i>
+                                                    Warkah
+                                                </strong>
+                                                <div class="text-muted">
+                                                    <%= r.lokasi_simpan_warkah_ruang_rak || '-' %>
+                                                    <% if (r.lokasi_simpan_warkah_no_boks) { %>
+                                                        (Boks <%= r.lokasi_simpan_warkah_no_boks %>)
+                                                    <% } %>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <!-- AKSI -->
+                                        <div class="d-flex gap-2">
+                                            <a href="/daftar-arsip/detail/<%= r.id_daftar_arsip %>"
+                                            class="btn btn-sm btn-outline-info w-100">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+
+                                            <form action="/daftar-arsip/delete/<%= r.id_daftar_arsip %>"
+                                                method="post"
+                                                class="w-100"
+                                                onsubmit="return confirm('Data ini akan dihapus permanen. Lanjutkan?');">
+                                                <button class="btn btn-sm btn-outline-danger w-100">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            <% }) %>
+                        <% } else { %>
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                <p>Belum ada data Daftar Arsip</p>
+                            </div>
+                        <% } %>
+
+                    </div>
                 </div>
             </div>
 
@@ -199,7 +357,6 @@
         </section>
     </div>
 
-</main> <%- include('../partials/list_template.ejs', { 
-    baseUrl: '/daftar-arsip', 
-    contentId: 'konten-daftar-arsip' 
-}) %>
+</main> 
+<%- include('../partials/list_template.ejs', { baseUrl: '/daftar-arsip', contentId: 'konten-daftar-arsip' }) %>
+<%- include('../partials/footer.ejs') %>

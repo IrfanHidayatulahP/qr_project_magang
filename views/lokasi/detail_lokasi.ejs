@@ -37,12 +37,16 @@
                     </nav>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="/lokasi" class="btn btn-outline-secondary btn-sm">
+                    <!-- DESKTOP -->
+                    <a href="/lokasi" 
+                    class="btn btn-outline-secondary btn-sm d-none d-md-inline-flex align-items-center">
                         <i class="fas fa-arrow-left me-2"></i>Kembali
                     </a>
-                    <a href="/lokasi/edit/<%= lokasi.id_lokasi %>"
-                        class="btn btn-warning btn-sm fw-bold text-dark shadow-sm">
-                        <i class="fas fa-edit me-2"></i>Edit Data
+
+                    <!-- MOBILE -->
+                    <a href="/lokasi" 
+                    class="d-inline d-md-none text-secondary fs-4">
+                        <i class="fas fa-arrow-left"></i>
                     </a>
                 </div>
             </div>
@@ -178,17 +182,29 @@
                         </div>
 
                         <div class="card-footer bg-light p-4 border-top">
+                            <!-- MOBILE: LAST UPDATED DI ATAS -->
+                            <div class="d-md-none mb-3">
+                                <small class="text-muted d-block">
+                                    Status: <span class="badge bg-secondary">Aktif</span>
+                                </small>
+                            </div>
+                            
                             <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">Status: <span class="badge bg-secondary">Aktif</span></small>
+                                <!-- DESKTOP -->
+                                <small class="text-muted d-none d-md-inline">Status: <span class="badge bg-secondary">Aktif</span></small>
 
-                                <div>
+                                 <div class="d-flex gap-2">
                                     <form action="/lokasi/delete/<%= lokasi.id_lokasi %>" method="post"
                                         onsubmit="return confirm('Apakah Anda yakin ingin menghapus lokasi ini? Data arsip yang tersimpan di sini mungkin kehilangan referensi.');"
                                         style="display:inline;">
                                         <button type="submit" class="btn btn-outline-danger btn-sm">
-                                            <i class="fas fa-trash-alt me-2"></i>Hapus Lokasi
+                                            <i class="fas fa-trash-alt me-2"></i>Hapus 
                                         </button>
                                     </form>
+                                    <a href="/lokasi/edit/<%= lokasi.id_lokasi %>"
+                                        class="btn btn-warning btn-sm fw-bold text-dark shadow-sm">
+                                        <i class="fas fa-edit me-2"></i>Edit 
+                                    </a>
                                 </div>
                             </div>
                         </div>

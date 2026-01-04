@@ -1,0 +1,248 @@
+/* ===============================
+   MOBILE HEADER - BUKU TANAH
+   =============================== */
+@media (max-width: 768px) {
+
+    /* Judul halaman */
+    .page-title,
+    .page-title h1,
+    h1.page-title {
+        font-size: 1.2rem !important;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+    }
+
+    /* Wrapper header halaman */
+    .page-header,
+    .page-header-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    /* Tombol Tambah & Download */
+    .page-header-actions .btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+
+    /* Susun tombol sejajar */
+    .page-header-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+
+    /* Icon di tombol */
+    .page-header-actions .btn i {
+        font-size: 0.9rem;
+    }
+
+}
+
+/* ===============================
+   MOBILE SEARCH BOX
+   =============================== */
+@media (max-width: 768px) {
+
+    /* wrapper search */
+    .search-box,
+    .search-container,
+    .filter-box {
+        margin-bottom: 1rem;
+    }
+
+    /* input group */
+    .search-box .input-group {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    /* icon search */
+    .search-box .input-group-text {
+        background: #fff;
+        border: none;
+        padding: 0.45rem 0.6rem;
+        color: #6c757d;
+    }
+
+    /* input */
+    .search-box input[type="text"] {
+        border: none;
+        font-size: 0.85rem;
+        padding: 0.45rem 0.6rem;
+    }
+
+    .search-box input:focus {
+        box-shadow: none;
+    }
+
+    /* tombol cari */
+    .search-box button,
+    .search-box .btn {
+        border: none;
+        font-size: 0.8rem;
+        padding: 0.45rem 0.7rem;
+        border-radius: 0;
+    }
+
+}
+
+/* ============================
+   MOBILE CARD – ARSIP (GLOBAL)
+   ============================ */
+@media (max-width: 768px) {
+
+    .mobile-arsip-card {
+        border-radius: 14px;
+    }
+
+    .mobile-arsip-card .badge {
+        font-size: 0.7rem;
+    }
+
+    .mobile-arsip-card .btn {
+        font-size: 0.75rem;
+        padding: 6px 8px;
+    }
+}
+
+/* ===============================
+   TOP HEADER - JUDUL TENGAH & TANGGAL KANAN
+   =============================== */
+
+/* DESKTOP VIEW */
+@media (min-width: 769px) {
+    header.top-header>.topbar-mobile {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        position: relative;
+    }
+
+    /* Hamburger di kiri */
+    .topbar-hamburger {
+        flex: 0 0 auto;
+        font-size: 1.25rem;
+        color: #333;
+        cursor: pointer;
+    }
+
+    /* Judul di tengah dengan absolute positioning */
+    .topbar-title {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 600;
+        white-space: nowrap;
+        color: #333;
+    }
+
+    /* Tanggal di kanan */
+    .topbar-date {
+        flex: 0 0 auto;
+        text-align: right;
+        font-size: 0.9rem;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+    }
+
+    .topbar-date i {
+        font-size: 0.85rem;
+    }
+}
+
+/* MOBILE VIEW */
+@media (max-width: 768px) {
+    header.top-header>.topbar-mobile {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0.75rem;
+        position: relative;
+    }
+
+    /* Hamburger di kiri */
+    .topbar-hamburger {
+        flex: 0 0 auto;
+        font-size: 1.3rem;
+        color: #333;
+        cursor: pointer;
+        z-index: 3;
+    }
+
+    /* Judul di tengah dengan absolute positioning */
+    .topbar-title {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #333;
+        max-width: 60%;
+    }
+
+    /* Tanggal di kanan */
+    .topbar-date {
+        flex: 0 0 auto;
+        text-align: right;
+        font-size: 0.75rem;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        white-space: nowrap;
+        z-index: 3;
+    }
+
+    .topbar-date i {
+        font-size: 0.75rem;
+    }
+
+    /* Untuk layar sangat kecil */
+    @media (max-width: 360px) {
+        .topbar-title {
+            font-size: 0.85rem;
+            max-width: 55%;
+        }
+
+        .topbar-date {
+            font-size: 0.7rem;
+        }
+    }
+}
+
+/* ================= add tamplate ================= */
+/* ================= MOBILE BACK BUTTON ================= */
+@media (max-width: 767.98px) {
+
+    /* Tombol Kembali: icon saja */
+    .add-form-page a.btn-outline-secondary.btn-sm {
+        border: none !important;
+        background: transparent !important;
+        padding: 6px 8px;
+        font-size: 0; /* sembunyikan teks */
+    }
+
+    .add-form-page a.btn-outline-secondary.btn-sm i {
+        font-size: 1.4rem;
+        margin-right: 0 !important;
+    }
+
+    .add-form-page a.btn-outline-secondary.btn-sm:hover {
+        background: rgba(0,0,0,0.05);
+        border-radius: 10px;
+    }
+}

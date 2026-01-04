@@ -1,64 +1,49 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // --- 1. FUNGSI TOGGLE SIDEBAR (Global) ---
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const body = document.body;
+            const isMobile = window.innerWidth <= 768;
 
-            // Toggle class 'collapsed' pada sidebar
-            sidebar.classList.toggle('collapsed');
-            
-            // Khusus Mobile: Toggle class 'show' 
-            // (karena di mobile, default-nya sidebar tersembunyi ke kiri)
-            if (window.innerWidth <= 768) {
+            if (isMobile) {
+                // MOBILE: buka/tutup sidebar
                 sidebar.classList.toggle('show');
-            }
-
-            // Simpan status ke LocalStorage & atur margin body
-            if (sidebar.classList.contains('collapsed')) {
-                body.classList.add('sidebar-closed');
-                localStorage.setItem('sidebarState', 'closed'); 
             } else {
-                body.classList.remove('sidebar-closed');
-                localStorage.setItem('sidebarState', 'open');
+                // DESKTOP: mini sidebar
+                sidebar.classList.toggle('collapsed');
+                body.classList.toggle('sidebar-closed');
+
+                localStorage.setItem(
+                    'sidebarState',
+                    sidebar.classList.contains('collapsed') ? 'closed' : 'open'
+                );
             }
         }
 
-        // --- 2. LOGIKA SAAT HALAMAN DIMUAT (DOMContentLoaded) ---
         document.addEventListener("DOMContentLoaded", function () {
-            
-            // A. Restore Status Sidebar (Ingat pilihan user terakhir)
-            const savedState = localStorage.getItem('sidebarState');
             const sidebar = document.getElementById('sidebar');
             const body = document.body;
 
-            if (savedState === 'closed') {
-                sidebar.classList.add('collapsed');
-                body.classList.add('sidebar-closed');
+            // Restore hanya untuk desktop
+            if (window.innerWidth > 768) {
+                const savedState = localStorage.getItem('sidebarState');
+                if (savedState === 'closed') {
+                    sidebar.classList.add('collapsed');
+                    body.classList.add('sidebar-closed');
+                }
             }
 
-            // B. Active Menu Highlight (Menandai menu yang sedang aktif)
+            // Menu aktif
             const currentPath = window.location.pathname;
-            const navLinks = document.querySelectorAll('.sidebar-link');
-
-            navLinks.forEach(link => {
+            document.querySelectorAll('.sidebar-link').forEach(link => {
                 const href = link.getAttribute('href');
-                link.classList.remove('active'); // Reset class active
-
-                // Logika Dashboard (Harus persis sama)
-                if (href === '/dashboard') {
-                    if (currentPath === '/dashboard' || currentPath === '/') {
-                        link.classList.add('active');
-                    }
-                } 
-                // Logika Halaman Lain (Bisa diawali dengan path yang sama)
-                // Contoh: '/buku-tanah/tambah' akan tetap mengaktifkan menu '/buku-tanah'
-                else {
-                    if (currentPath.startsWith(href)) {
-                        link.classList.add('active');
-                    }
-                }
+                link.classList.toggle(
+                    'active',
+                    href === '/dashboard'
+                        ? (currentPath === '/' || currentPath === '/dashboard')
+                        : currentPath.startsWith(href)
+                );
             });
         });
     </script>
