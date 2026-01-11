@@ -50,8 +50,7 @@ exports.login = async (req, res) => {
 
         req.session.user = {
             id_karyawan: karyawan.id_karyawan,
-            username: karyawan.username,
-            nama_karyawan: karyawan.nama_karyawan
+            role: karyawan.jabatan // simpan info yang diperlukan untuk otorisasi saja
         };
 
         return res.redirect('/dashboard');

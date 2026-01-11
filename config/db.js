@@ -45,19 +45,6 @@ try {
     });
 } catch (err) {
     console.warn('Tidak menemukan init-models, lewati inisialisasi model otomatis. Error:', err.message);
-    // Jika Anda memiliki model manual, import di sini, mis:
-    // const Barang = require('../models/barang')(sequelize, DataTypes);
-    // db.barang = Barang;
 }
-
-// Optional: test koneksi saat start (log lebih informatif)
-(async () => {
-    try {
-        await sequelize.authenticate();
-        console.log(`DB: berhasil terkoneksi ke ${DB_DIALECT}://${DB_HOST}:${DB_PORT}/${DB_NAME} (env=${env})`);
-    } catch (err) {
-        console.error('DB: gagal koneksi ->', err.message);
-    }
-})();
 
 module.exports = db;
