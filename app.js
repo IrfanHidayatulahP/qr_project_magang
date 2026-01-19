@@ -5,8 +5,6 @@ const session = require('express-session');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
-const cookieParser = require('cookie-parser');
-const helmet = require('helmet');
 
 const authRoutes = require('./routes/authRoutes');
 const bukuTanahRoutes = require('./routes/bukuTanahRoutes');
@@ -19,9 +17,6 @@ const app = express();
 
 // PORT default jika tidak diset di .env
 const PORT = process.env.PORT || 3000;
-
-app.use(cookieParser(process.env.SESSION_SECRET));
-app.use(helmet());
 
 // View engine EJS
 app.set('view engine', 'ejs');
@@ -71,17 +66,10 @@ app.use(express.json());
 
 // Session
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'secret_development',
   resave: false,
   saveUninitialized: false,
-  name: 'session_id', // Ganti nama default connect.sid agar tidak mudah ditebak
-  cookie: {
-    httpOnly: true,    // Mencegah akses JavaScript ke cookie (Proteksi XSS)
-    secure: process.env.NODE_ENV === 'production', // Hanya kirim lewat HTTPS di produksi
-    sameSite: 'strict', // Proteksi CSRF yang sangat kuat
-    signed: true,       // Memastikan cookie ditandatangani secara kriptografis
-    maxAge: 24 * 60 * 60 * 1000 // 1 hari
-  }
+  cookie: { maxAge: 1000 * 60 * 60 * 4 } // 4 jam
 }));
 
 // Mount Routes
@@ -92,19 +80,9 @@ app.use('/warkah', warkahRoutes);
 app.use('/daftar-arsip', daftarArsipRoutes);
 app.use('/lokasi', lokasiRoutes);
 
-// Global Error Handler
-app.use((err, req, res, next) => {
-  console.error(err.stack); // Tetap log detail di server untuk debugging
-
-  const status = err.status || 500;
-
-  // Jangan kirim objek 'err' mentah ke client
-  res.status(status).json({
-    success: false,
-    message: status === 500
-      ? 'Terjadi kesalahan internal pada sistem'
-      : err.message
-  });
+// 404 handler
+app.use((req, res, next) => {
+  res.status(404).send('Halaman tidak ditemukan');
 });
 
 // Start server

@@ -4,9 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - MyApp</title>
+    <title>Register - ARISTA BPN Sleman</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --deep-blue: #0C356A;
+            --mid-blue: #0174BE;
+            --gold: #FFC436;
+            --cream: #FFF0CE;
+            --white: #FFFFFF;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,40 +24,40 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #fbbf24 100%);
-            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, var(--deep-blue) 0%, var(--mid-blue) 100%);
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 15px;
+            overflow: hidden;
         }
 
-        /* Main Container */
         .register-container {
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
+            /* Sedikit lebih lebar untuk form pendaftaran */
         }
 
-        /* Logo Section */
+        /* Header Section */
         .register-header {
             text-align: center;
-            margin-bottom: 30px;
-            color: white;
+            margin-bottom: 15px;
         }
 
         .register-logo {
-            width: 100px;
-            height: 100px;
-            background-color: white;
-            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            background-color: var(--cream);
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
+            margin: 0 auto 10px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            padding: 15px;
+            border: 3px solid var(--gold);
+            padding: 10px;
         }
 
         .register-logo img {
@@ -57,318 +67,192 @@
         }
 
         .register-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--gold);
             letter-spacing: -0.5px;
+            margin-bottom: 2px;
         }
 
         .register-subtitle {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.85);
-            font-weight: 400;
+            font-size: 12px;
+            color: var(--cream);
+            opacity: 0.9;
         }
 
-        /* Card */
+        /* Card - Cream Theme */
         .auth-wrap {
-            background: white;
-            border-radius: 12px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-            animation: slideUp 0.4s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            background-color: var(--cream);
+            border-radius: 24px;
+            padding: 30px 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-bottom: 6px solid var(--gold);
         }
 
         .auth-wrap h2 {
-            font-size: 24px;
-            color: #1e3a8a;
-            margin-bottom: 24px;
-            font-weight: 700;
-        }
-
-        /* Alert Messages */
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
+            font-size: 22px;
+            color: var(--deep-blue);
             margin-bottom: 20px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideIn 0.3s ease-out;
+            font-weight: 700;
+            text-align: center;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        /* Grid System untuk Form */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
-        .alert-error {
-            background-color: #fee2e2;
-            border-left: 4px solid #dc2626;
-            color: #991b1b;
-        }
-
-        .alert-error::before {
-            content: "\f06a";
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            color: #dc2626;
-            flex-shrink: 0;
-        }
-
-        .alert-success {
-            background-color: #dcfce7;
-            border-left: 4px solid #16a34a;
-            color: #15803d;
-        }
-
-        .alert-success::before {
-            content: "\f058";
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            color: #16a34a;
-            flex-shrink: 0;
-        }
-
-        /* Form Group */
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 15px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #1e3a8a;
+            margin-bottom: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--deep-blue);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-container i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--mid-blue);
+            font-size: 14px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 11px 14px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
+            padding: 11px 12px 11px 40px;
+            border: 2px solid rgba(12, 53, 106, 0.1);
+            border-radius: 12px;
             font-size: 14px;
-            font-family: inherit;
             transition: all 0.3s ease;
-            background-color: #f9fafb;
+            background-color: var(--white);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #1e3a8a;
-            background-color: white;
-            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+            border-color: var(--mid-blue);
+            box-shadow: 0 0 0 3px rgba(1, 116, 190, 0.1);
         }
 
-        .form-group input::placeholder {
-            color: #9ca3af;
-        }
-
-        .form-group input:invalid:not(:placeholder-shown) {
-            border-color: #dc2626;
-        }
-
-        .form-group input:valid:not(:placeholder-shown) {
-            border-color: #16a34a;
-        }
-
-        /* Form Row for 2 columns on larger screens */
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .form-row .form-group {
-            margin-bottom: 0;
-        }
-
-        /* Progress Indicator */
-        .progress-steps {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-        }
-
-        .progress-step {
-            height: 4px;
-            flex: 1;
-            background-color: #e5e7eb;
-            border-radius: 2px;
-            transition: all 0.3s ease;
-        }
-
-        .progress-step.active {
-            background-color: #fbbf24;
-            box-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
-        }
-
-        /* Form Actions */
-        .form-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 28px;
-        }
-
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            text-align: center;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3);
-            background: linear-gradient(135deg, #1e40af 0%, #1e3f8f 100%);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        /* Login Link */
-        .login-link-container {
-            text-align: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .login-link-container p {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 0;
-        }
-
-        .small-link {
-            color: #1e3a8a;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border-bottom: 2px solid transparent;
-        }
-
-        .small-link:hover {
-            color: #fbbf24;
-            border-bottom-color: #fbbf24;
-        }
-
-        /* Password strength indicator */
+        /* Password Strength */
         .password-strength {
+            font-size: 10px;
+            font-weight: 700;
+            margin-top: 5px;
+            padding: 4px 8px;
+            border-radius: 4px;
             display: none;
-            margin-top: 6px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            text-align: center;
-            animation: slideIn 0.3s ease-out;
         }
 
         .password-strength.show {
             display: block;
         }
 
-        .password-strength.weak {
-            background-color: #fee2e2;
+        .weak {
+            background: #fee2e2;
             color: #991b1b;
-            border: 1px solid #fca5a5;
         }
 
-        .password-strength.medium {
-            background-color: #fef3c7;
+        .medium {
+            background: #fef3c7;
             color: #92400e;
-            border: 1px solid #fcd34d;
         }
 
-        .password-strength.strong {
-            background-color: #dcfce7;
+        .strong {
+            background: #dcfce7;
             color: #15803d;
-            border: 1px solid #86efac;
         }
 
-        /* Footer Info */
+        /* Button */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: var(--deep-blue);
+            color: var(--cream);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .btn:hover {
+            background-color: var(--mid-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(12, 53, 106, 0.3);
+        }
+
+        /* Footer Link */
+        .login-link-container {
+            text-align: center;
+            margin-top: 20px;
+            border-top: 1px solid rgba(12, 53, 106, 0.1);
+            padding-top: 15px;
+        }
+
+        .login-link-container p {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .small-link {
+            color: var(--mid-blue);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
         .register-footer {
             text-align: center;
-            margin-top: 30px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.7);
+            margin-top: 15px;
+            font-size: 11px;
+            color: var(--cream);
+            opacity: 0.8;
         }
 
-        /* Responsive */
-        @media (max-width: 600px) {
-            .auth-wrap {
-                padding: 30px 20px;
-            }
-
-            .register-logo {
-                width: 50px;
-                height: 50px;
-                font-size: 28px;
-            }
-
-            .register-title {
-                font-size: 24px;
-            }
-
-            .auth-wrap h2 {
-                font-size: 20px;
-                margin-bottom: 20px;
-            }
-
+        /* Responsive Mobile */
+        @media (max-width: 580px) {
             .form-row {
                 grid-template-columns: 1fr;
+                gap: 0;
             }
 
-            .form-row .form-group {
-                margin-bottom: 18px;
+            .form-group.full-width,
+            .form-group {
+                grid-column: span 1;
             }
 
-            .register-logo img {
-                width: 100%;
+            body {
+                overflow-y: auto;
                 height: auto;
-                object-fit: contain;
+                padding: 40px 15px;
+            }
+
+            .auth-wrap {
+                padding: 25px;
             }
         }
     </style>
@@ -376,133 +260,100 @@
 
 <body>
     <div class="register-container">
-        <!-- Header dengan Logo -->
-        <div class="register-header">
-            <div class="register-logo">
-                <img src="/images/logoSiArsip.png" alt="Logo SiArsip">
-            </div>
-            <h1 class="register-title">SiArsip</h1>
-            <p class="register-subtitle">Sistem Manajemen Data Perkantoran</p>
-        </div>
 
-        <!-- Register Card -->
-        <div class="auth-wrap">
+        <header class="register-header">
+            <div class="register-logo">
+                <img src="/images/arista_logo.png" alt="Logo">
+            </div>
+            <h1 class="register-title">ARISTA</h1>
+            <p class="register-subtitle">Kantor Pertanahan Kabupaten Sleman</p>
+        </header>
+
+        <main class="auth-wrap">
             <h2>Buat Akun Baru</h2>
 
-            <!-- Progress Indicator -->
-            <div class="progress-steps">
-                <div class="progress-step active"></div>
-                <div class="progress-step"></div>
-                <div class="progress-step"></div>
-                <div class="progress-step"></div>
-            </div>
-
-            <!-- Alert Messages -->
-            <!-- <div class="alert alert-error errors">
-                Username sudah terdaftar
-            </div> -->
-
-            <!-- Form Register -->
-            <form action="/register" method="post" novalidate id="registerForm">
-                <!-- Nama Lengkap -->
-                <div class="form-group">
-                    <label for="nama_karyawan">Nama Lengkap</label>
-                    <input id="nama_karyawan" name="nama_karyawan" type="text" placeholder="Masukkan nama lengkap Anda"
-                        value="<%= (old && old.nama_karyawan) ? old.nama_karyawan : '' %>" required
-                        autocomplete="name" />
-                </div>
-
-                <!-- Username -->
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input id="username" name="username" type="text" placeholder="Pilih username yang unik"
-                        value="<%= (old && old.username) ? old.username : '' %>" required autocomplete="username" />
-                </div>
-
-                <!-- Password & Confirm Password -->
+            <form action="/register" method="post" id="registerForm" novalidate>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input id="password" name="password" type="password" placeholder="Minimal 8 karakter" required
-                            autocomplete="new-password" minlength="8" />
-                        <div class="password-strength" id="passwordStrength"></div>
+                    <div class="form-group full-width">
+                        <label>Nama Lengkap</label>
+                        <div class="input-container">
+                            <i class="fas fa-id-card"></i>
+                            <input name="nama_karyawan" type="text" placeholder="Nama sesuai identitas"
+                                value="<%= (old && old.nama_karyawan) ? old.nama_karyawan : '' %>" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Username</label>
+                        <div class="input-container">
+                            <i class="fas fa-user-circle"></i>
+                            <input name="username" type="text" placeholder="Pilih username unik"
+                                value="<%= (old && old.username) ? old.username : '' %>" required>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="confirm_password">Konfirmasi Password</label>
-                        <input id="confirm_password" name="confirm_password" type="password"
-                            placeholder="Ulangi password Anda" required autocomplete="new-password" minlength="8" />
+                        <label>Password</label>
+                        <div class="input-container">
+                            <i class="fas fa-key"></i>
+                            <input id="password" name="password" type="password" placeholder="Min. 8 Karakter" required>
+                        </div>
+                        <div id="passwordStrength" class="password-strength"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Konfirmasi</label>
+                        <div class="input-container">
+                            <i class="fas fa-check-double"></i>
+                            <input id="confirm_password" name="confirm_password" type="password"
+                                placeholder="Ulangi password" required>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Submit Button -->
-                <div class="form-actions">
-                    <button class="btn" type="submit">
-                        <i class="fas fa-user-plus"></i> Buat Akun
-                    </button>
-                </div>
+                <button class="btn" type="submit">
+                    Daftar Sekarang <i class="fas fa-user-plus"></i>
+                </button>
             </form>
 
-            <!-- Login Link -->
             <div class="login-link-container">
-                <p>Sudah punya akun?
-                    <a class="small-link" href="/login">Login di sini</a>
-                </p>
+                <p>Sudah memiliki akun? <a class="small-link" href="/login">Masuk di sini</a></p>
             </div>
-        </div>
+        </main>
 
-        <!-- Footer -->
-        <div class="register-footer">
-            <p>&copy; 2025 MyApp. Semua hak dilindungi.</p>
-        </div>
+        <footer class="register-footer">
+            <p>&copy; 2026 <strong>ARISTA BPN Sleman</strong></p>
+        </footer>
     </div>
 
     <script>
-        // Password strength indicator
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirm_password');
         const strengthIndicator = document.getElementById('passwordStrength');
 
-        function checkPasswordStrength(password) {
-            let strength = 0;
-
-            if (password.length >= 8) strength++;
-            if (password.length >= 12) strength++;
-            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-            if (/[0-9]/.test(password)) strength++;
-            if (/[^a-zA-Z0-9]/.test(password)) strength++;
-
-            return strength;
-        }
-
         passwordInput.addEventListener('input', function () {
-            if (this.value.length > 0) {
-                const strength = checkPasswordStrength(this.value);
+            const val = this.value;
+            if (val.length > 0) {
                 strengthIndicator.classList.add('show');
-                strengthIndicator.classList.remove('weak', 'medium', 'strong');
-
-                if (strength <= 2) {
-                    strengthIndicator.classList.add('weak');
-                    strengthIndicator.textContent = '⚠ Password Lemah';
-                } else if (strength <= 3) {
-                    strengthIndicator.classList.add('medium');
-                    strengthIndicator.textContent = '✓ Password Sedang';
+                if (val.length < 8) {
+                    strengthIndicator.className = 'password-strength show weak';
+                    strengthIndicator.textContent = 'Terlalu Pendek';
+                } else if (val.length < 12) {
+                    strengthIndicator.className = 'password-strength show medium';
+                    strengthIndicator.textContent = 'Cukup Kuat';
                 } else {
-                    strengthIndicator.classList.add('strong');
-                    strengthIndicator.textContent = '✓✓ Password Kuat';
+                    strengthIndicator.className = 'password-strength show strong';
+                    strengthIndicator.textContent = 'Sangat Kuat';
                 }
             } else {
                 strengthIndicator.classList.remove('show');
             }
         });
 
-        // Validate password match
-        const form = document.getElementById('registerForm');
-        form.addEventListener('submit', function (e) {
+        document.getElementById('registerForm').addEventListener('submit', function (e) {
             if (passwordInput.value !== confirmPasswordInput.value) {
                 e.preventDefault();
-                alert('Password tidak cocok!');
-                confirmPasswordInput.focus();
+                alert('Konfirmasi password tidak cocok!');
             }
         });
     </script>

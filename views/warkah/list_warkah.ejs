@@ -73,7 +73,6 @@
                                     <th>Jumlah</th>
                                     <th>Lokasi</th>
                                     <th class="text-center">Files (PDF)</th>
-                                    <th class="text-center">QR</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -137,15 +136,6 @@
                                             </td>
 
                                             <td class="text-center">
-                                                <a href="/warkah/<%= r.id_warkah %>">
-                                                    <img src="/warkah/<%= r.id_warkah %>/qr.png" 
-                                                         alt="QR" class="img-thumbnail" 
-                                                         style="width:50px; height:50px; object-fit:contain;"
-                                                         onerror="this.style.display='none';" />
-                                                </a>
-                                            </td>
-
-                                            <td class="text-center">
                                                 <div class="d-flex justify-content-center gap-1">
                                                     <a href="/warkah/<%= r.id_warkah %>" class="btn btn-sm btn-info text-white" title="Lihat">
                                                         <i class="fas fa-eye"></i>
@@ -180,43 +170,45 @@
                     <!-- MOBILE CARD VIEW -->
                     <div class="d-block d-md-none">
 
+                        <div class="mobile-header mb-3 px-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold m-0">Warkah</h5>
+                                <div class="d-flex gap-2">
+                                    <a href="/warkah/create" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+
+                                    <button id="btn-open-download-mobile"
+                                            class="btn btn-success btn-sm"
+                                            type="button">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-block d-md-none mb-3 px-2">
+                        <!-- MOBILE SEARCH -->
+                            <form method="get" action="/warkah">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="fas fa-search text-muted"></i>
+                                    </span>
+                                    <input type="text"
+                                        name="q"
+                                        class="form-control"
+                                        placeholder="Cari ID / No DI 208 / Nomor Hak"
+                                        value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>">
+                                    <button class="btn btn-primary" type="submit">Cari</button>
+                                </div>
+                            </form>
+                        </div>
+
                         <% if (Array.isArray(records) && records.length) { %>
                             <% records.forEach(r => { %>
 
-                                <div class="d-block d-md-none mb-3 px-2">
 
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h5 class="fw-bold m-0">Warkah</h5>
-
-                                        <div class="d-flex gap-2">
-                                            <a href="/warkah/create" class="btn btn-primary btn-sm">
-                                                <i class="fas fa-plus"></i>
-                                            </a>
-
-                                            <button id="btn-open-download-mobile"
-                                                    class="btn btn-success btn-sm"
-                                                    type="button">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- MOBILE SEARCH -->
-                                    <form method="get" action="/warkah">
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-white">
-                                                <i class="fas fa-search text-muted"></i>
-                                            </span>
-                                            <input type="text"
-                                                name="q"
-                                                class="form-control"
-                                                placeholder="Cari ID / No DI 208 / Nomor Hak"
-                                                value="<%= (typeof filter_q !== 'undefined') ? filter_q : '' %>">
-                                            <button class="btn btn-primary" type="submit">Cari</button>
-                                        </div>
-                                    </form>
-
-                                </div>
+                                
 
                                 <div class="card mb-3 shadow-sm border-0 mobile-arsip-card">
                                     <div class="card-body">
@@ -224,20 +216,18 @@
                                         <!-- HEADER -->
                                         <div class="d-flex justify-content-between align-items-start mb-2">
                                             <div>
-                                                <div class="fw-bold text-primary">
-                                                    Warkah #<%= r.id_warkah %>
-                                                </div>
-                                                <small class="text-muted">
+                                                
+                                                <small class="fw-bold text-primary">
                                                     No. DI 208: <%= r.nomor_di_208 || '-' %>
                                                 </small>
-                                            </div>
+                                            </div>        
+                                        </div>
 
-                                            <% if(r.kode_klasifikasi) { %>
+                                        <% if(r.kode_klasifikasi) { %>
                                                 <span class="badge bg-secondary bg-opacity-10 text-dark border">
                                                     <%= r.kode_klasifikasi %>
                                                 </span>
-                                            <% } %>
-                                        </div>
+                                        <% } %>
 
                                         <!-- BODY -->
                                         <div class="small mb-2">
@@ -252,7 +242,7 @@
                                             </div>
                                         </div>
 
-                                        <!-- FILE & QR -->
+                                        <!-- FILE -->
                                         <div class="d-flex justify-content-between align-items-center mb-3">
 
                                             <!-- FILE -->
@@ -271,14 +261,6 @@
                                                     </a>
                                                 <% } %>
                                             </div>
-
-                                            <!-- QR -->
-                                            <a href="/warkah/<%= r.id_warkah %>">
-                                                <img src="/warkah/<%= r.id_warkah %>/qr.png"
-                                                    alt="QR"
-                                                    style="width:45px;height:45px;object-fit:contain"
-                                                    onerror="this.style.display='none';">
-                                            </a>
                                         </div>
 
                                         <!-- ACTION -->

@@ -105,6 +105,32 @@
                 <% } %>
             </div>
 
+            <!-- QR CODE -->
+            <div class="mt-4 text-center">
+                <h6 class="text-secondary fw-bold mb-2">
+                    <i class="fas fa-qrcode me-1"></i> QR Code Dokumen
+                </h6>
+
+                <% if (buku.qr_path) { %>
+                    <img 
+                        src="/<%= buku.qr_path %>" 
+                        alt="QR Buku Tanah"
+                        style="max-width:180px"
+                        class="border rounded p-2 bg-white"
+                    >
+
+                    <div class="mt-2">
+                        <a href="/buku-tanah/qr/<%= buku.id_buku_tanah %>" 
+                        class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-download"></i> Download QR
+                        </a>
+                    </div>
+                <% } else { %>
+                    <div class="text-muted small">QR belum tersedia</div>
+                <% } %>
+            </div>
+
+
             <!-- Files detail -->
             <div class="mt-4">
                 <h6 class="text-secondary small fw-bold mb-2">Dokumen (PDF)</h6>

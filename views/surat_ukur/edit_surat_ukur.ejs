@@ -37,28 +37,28 @@
         </div>
 
         <% 
-            let _tahunInput = '';
+            let dateVal = '';
             if (surat.tahun_terbit) {
-                const tv = surat.tahun_terbit;
-                if (tv instanceof Date || Object.prototype.toString.call(tv) === '[object Date]') {
-                    _tahunInput = tv.toISOString().split('T')[0];
+                const d = new Date (surat.tahun_terbit);
+                if (surat.tahun_terbit) {
+                const d = new Date(surat.tahun_terbit);
+                if (!isNaN(d.getTime())) {
+                    dateVal = d.toISOString().split('T')[0];
                 } else {
-                    const s = String(tv).trim();
-                    if (/^\d{4}$/.test(s)) {
-                        _tahunInput = s;
-                    } else {
-                        const d = new Date(s);
-                        _tahunInput = isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
-                    }
+                    dateVal = surat.tahun_terbit;
                 }
             }
+            }
         %>
+        
         <div class="col-md-6">
             <label for="tahun_terbit" class="form-label fw-semibold text-dark small">Tahun Terbit</label>
-            <input type="text" class="form-control" name="tahun_terbit" id="tahun_terbit"
-                   placeholder="YYYY atau DD-MM-YYYY"
-                   value="<%= _tahunInput %>">
+            <input type="date" class="form-control" name="tahun_terbit" id="tahun_terbit"
+                   placeholder="YYYY-MM-DD atau YYYY"
+                   value="<%= dateVal %>">
         </div>
+
+        
 
         <div class="col-md-6">
             <label for="media" class="form-label fw-semibold text-dark small">Media Arsip</label>

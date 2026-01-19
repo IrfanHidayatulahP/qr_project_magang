@@ -160,6 +160,7 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'daftar_arsip_vital',
+    hasTrigger: true,
     timestamps: true,
     indexes: [
       {

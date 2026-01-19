@@ -3,54 +3,66 @@
 <main class="main-content">
 
     <% 
-       let displayArsip = (typeof totalArsip !== 'undefined') ? totalArsip : 0; 
-       let displayTotalDokumen = (typeof totalDokumen !== 'undefined') ? totalDokumen : 0; 
-       let displayDokumenBulanIni = (typeof dokumenBulanIni !== 'undefined') ? dokumenBulanIni : 0; 
+       let displayArsip=(typeof totalArsip !=='undefined' ) ? totalArsip : 0; 
+       let displayTotalDokumen=(typeof totalDokumen !=='undefined' ) ? totalDokumen : 0; 
+       let displayDokumenBulanIni=(typeof dokumenBulanIni !=='undefined' ) ? dokumenBulanIni : 0; 
     %>
 
     <div class="mb-4">
-        <h3 class="fw-bold text-dark">Dashboard Overview</h3>
+        <h3 class="fw-bold" style="color: var(--deep-blue);">Dashboard Overview</h3>
         <p class="text-muted">Berikut ringkasan data pertanahan</p>
     </div>
 
     <div class="row g-4 mb-5">
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm text-white h-100" style="background-color: #FFC107; border-radius: 12px;">
+            <div class="card border-0 shadow-sm h-100"
+                style="background-color: var(--gold); border-radius: 12px; color: var(--deep-blue);">
                 <div class="card-body p-4">
                     <h6 class="text-uppercase mb-2 opacity-75 fw-bold">Total Arsip</h6>
-                    <h2 class="fw-bold mb-0 fs-1 fs-md-2"><%= displayArsip %></h2>
+                    <h2 class="fw-bold mb-0 fs-1">
+                        <%= displayArsip %>
+                    </h2>
                 </div>
             </div>
         </div>
+
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm text-white h-100" style="background-color: #17A2B8; border-radius: 12px;">
+            <div class="card border-0 shadow-sm text-white h-100"
+                style="background-color: var(--mid-blue); border-radius: 12px;">
                 <div class="card-body p-4">
                     <h6 class="text-uppercase mb-2 opacity-75 fw-bold">Total Dokumen</h6>
-                    <h2 class="fw-bold mb-0 fs-1 fs-md-2"><%= displayTotalDokumen %></h2>
+                    <h2 class="fw-bold mb-0 fs-1">
+                        <%= displayTotalDokumen %>
+                    </h2>
                 </div>
             </div>
         </div>
+
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm text-white h-100" style="background-color: #DC3545; border-radius: 12px;">
+            <div class="card border-0 shadow-sm text-white h-100"
+                style="background-color: var(--deep-blue); border-radius: 12px;">
                 <div class="card-body p-4">
                     <h6 class="text-uppercase mb-2 opacity-75 fw-bold">Dokumen Bulan Ini</h6>
-                    <h2 class="fw-bold display-4 mb-0"><%= displayDokumenBulanIni %></h2>
+                    <h2 class="fw-bold fs-1 mb-0" style="color: var(--gold);">
+                        <%= displayDokumenBulanIni %>
+                    </h2>
                 </div>
             </div>
         </div>
     </div>
 
-    <h4 class="fw-bold text-secondary mb-3">Menu Pengelolaan</h4>
+    <h4 class="fw-bold mb-3" style="color: var(--mid-blue);">Menu Pengelolaan</h4>
 
     <div class="row g-4">
-        
+
         <div class="col-lg-5 col-md-12 col-12">
-             <a href="/lokasi" class="text-decoration-none">
-                <div class="card border-0 shadow-sm card-hover bg-primary text-white h-100" style="border-radius: 16px;">
+            <a href="/lokasi" class="text-decoration-none">
+                <div class="card border-0 shadow-sm card-hover text-white h-100"
+                    style="background-color: var(--deep-blue); border-radius: 16px;">
                     <div class="card-body text-center py-5 d-flex flex-column justify-content-center align-items-center">
-                        <i class="fas fa-map-marked-alt fa-4x mb-4"></i>
+                        <i class="fas fa-map-marked-alt fa-4x mb-4" style="color: var(--gold);"></i>
                         <h4 class="fw-bold m-0">Kelola Lokasi Penyimpanan</h4>
-                        <p class="mt-2 opacity-75">Atur Rak, Lemari, dan Ruangan</p>
+                        <p class="mt-2 opacity-75" style="color: var(--cream);">Atur Rak, Lemari, dan Ruangan</p>
                     </div>
                 </div>
             </a>
@@ -58,57 +70,89 @@
 
         <div class="col-lg-7 col-md-12">
             <div class="row g-4">
+                
                 <div class="col-md-6 col-12">
                     <a href="/buku-tanah" class="text-decoration-none">
-                        <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
+                        <div class="card border-0 shadow-sm card-hover"
+                            style="background-color: var(--cream); border-radius: 16px;">
                             <div class="card-body text-center py-4">
-                                <i class="fas fa-book fa-3x mb-3 text-dark"></i>
-                                <h5 class="fw-bold text-dark m-0">Buku Tanah</h5>
+                                <i class="fas fa-book fa-3x mb-3" style="color: var(--deep-blue);"></i>
+                                <h5 class="fw-bold m-0" style="color: var(--deep-blue);">Buku Tanah</h5>
                             </div>
                         </div>
                     </a>
                 </div>
+
                 <div class="col-md-6 col-12">
                     <a href="/surat-ukur" class="text-decoration-none">
-                        <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
+                        <div class="card border-0 shadow-sm card-hover"
+                            style="background-color: var(--cream); border-radius: 16px;">
                             <div class="card-body text-center py-4">
-                                <i class="fas fa-ruler-combined fa-3x mb-3 text-dark"></i>
-                                <h5 class="fw-bold text-dark m-0">Surat Ukur</h5>
+                                <i class="fas fa-ruler-combined fa-3x mb-3" style="color: var(--deep-blue);"></i>
+                                <h5 class="fw-bold m-0" style="color: var(--deep-blue);">Surat Ukur</h5>
                             </div>
                         </div>
                     </a>
                 </div>
+
                 <div class="col-md-6 col-12">
                     <a href="/warkah" class="text-decoration-none">
-                        <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
+                        <div class="card border-0 shadow-sm card-hover"
+                            style="background-color: var(--cream); border-radius: 16px;">
                             <div class="card-body text-center py-4">
-                                <i class="fas fa-file-invoice fa-3x mb-3 text-dark"></i>
-                                <h5 class="fw-bold text-dark m-0">Warkah</h5>
+                                <i class="fas fa-file-invoice fa-3x mb-3" style="color: var(--deep-blue);"></i>
+                                <h5 class="fw-bold m-0" style="color: var(--deep-blue);">Warkah</h5>
                             </div>
                         </div>
                     </a>
                 </div>
+
                 <div class="col-md-6 col-12">
                     <a href="/daftar-arsip" class="text-decoration-none">
-                        <div class="card border-0 shadow-sm card-hover bg-white" style="border-radius: 16px;">
+                        <div class="card border-0 shadow-sm card-hover"
+                            style="background-color: var(--cream); border-radius: 16px;">
                             <div class="card-body text-center py-4">
-                                <i class="fas fa-list fa-3x mb-3 text-dark"></i>
-                                <h5 class="fw-bold text-dark m-0">Daftar Arsip</h5>
+                                <i class="fas fa-list fa-3x mb-3" style="color: var(--deep-blue);"></i>
+                                <h5 class="fw-bold m-0" style="color: var(--deep-blue);">Daftar Arsip</h5>
                             </div>
                         </div>
                     </a>
                 </div>
             </div>
         </div>
-        
+
     </div>
 
     <style>
-        .card-hover { transition: transform 0.2s; }
+        /* DEFINISI WARNA (Sama persis dengan Login) */
+        :root {
+            --deep-blue: #0C356A;
+            --mid-blue: #0174BE;
+            --gold: #FFC436;
+            --cream: #FFF0CE;
+            --white: #FFFFFF;
+        }
+
+        /* Styling Main Content */
+        .main-content {
+            background-color: #F8FAFC; /* Background abu-abu sangat muda agar kartu pop-up */
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        /* Efek Hover pada Kartu */
+        .card-hover {
+            transition: all 0.3s ease;
+            border: 1px solid transparent !important;
+        }
+
         .card-hover:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
             cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+            /* Shadow Biru Dongker saat hover */
+            box-shadow: 0 15px 30px rgba(12, 53, 106, 0.2) !important;
+            /* Border Emas tipis saat hover */
+            border: 1px solid var(--gold) !important;
         }
     </style>
 

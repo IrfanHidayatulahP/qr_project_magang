@@ -1,11 +1,52 @@
 <style>
-    .letter-spacing-1 { letter-spacing: 1px; }
-    .border-dashed { border-style: dashed !important; border-color: #dee2e6; }
+    /* --- TEMA ARISTA --- */
+    :root {
+        --deep-blue: #0C356A;
+        --mid-blue: #0174BE;
+        --gold: #FFC436;
+        --cream: #FFF0CE;
+        --border-color: #E2E8F0;
+    }
+
+    /* Label Data */
+    .letter-spacing-1 { 
+        letter-spacing: 0.5px;
+        font-weight: 700;
+        color: var(--mid-blue); /* Label warna biru menengah */
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    /* Isi Data */
+    .detail-value {
+        color: #334155;
+        font-weight: 500;
+        font-size: 1rem;
+    }
+
+    /* Area File / Preview */
+    .border-dashed { 
+        border-style: dashed !important; 
+        border-width: 2px;
+        border-color: var(--gold) !important; /* Aksen Gold untuk bingkai file */
+        background-color: #fffbeb; /* Kuning sangat muda */
+        border-radius: 8px;
+    }
+
     .text-justify { text-align: justify; }
     
-    /* Garis pemisah vertikal di layar besar (Utility Class untuk isi konten) */
+    /* Garis Pemisah Vertikal */
     @media (min-width: 768px) {
-        .border-end-md { border-right: 1px solid #dee2e6; }
+        .border-end-md { 
+            border-right: 1px solid var(--border-color); 
+        }
+    }
+
+    /* Styling Card Detail */
+    .card {
+        border-top: 4px solid var(--deep-blue) !important; /* Aksen atas */
     }
 </style>
 

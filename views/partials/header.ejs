@@ -4,27 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyApp - Dashboard Admin</title>
+    <title>SiArsip - Dashboard Admin</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <style>
-        /* --- GLOBAL VARIABLES --- */
+        /* --- GLOBAL VARIABLES (PALETTE 2) --- */
         :root {
-            --primary-color: #1e40af;
-            --secondary-color: #fbbf24;
-            --dark-color: #1e3a8a;
+            --deep-blue: #0C356A;
+            /* Primary Dark */
+            --mid-blue: #0174BE;
+            /* Accent Blue */
+            --gold: #FFC436;
+            /* Secondary/Highlight */
+            --cream: #FFF0CE;
+            /* Background Light */
             --sidebar-width: 260px;
             --sidebar-width-collapsed: 80px;
             --header-height: 70px;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8f9fa;
             overflow-x: hidden;
-            /* Mencegah scroll horizontal */
         }
 
         a {
@@ -38,11 +44,12 @@
             top: 0;
             width: var(--sidebar-width);
             height: 100vh;
-            background: linear-gradient(135deg, var(--dark-color) 0%, var(--primary-color) 100%);
+            background: linear-gradient(180deg, var(--deep-blue) 0%, #082a54 100%);
             z-index: 1000;
             display: flex;
             flex-direction: column;
             transition: all 0.3s ease;
+            border-right: 1px solid rgba(255, 240, 206, 0.1);
         }
 
         .sidebar.collapsed {
@@ -57,31 +64,19 @@
             justify-content: center;
             gap: 12px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .brand-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--secondary-color);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: var(--dark-color);
-            flex-shrink: 0;
+            background-color: rgba(0, 0, 0, 0.1);
         }
 
         .brand-text {
-            color: white;
-            font-weight: 700;
+            color: var(--gold);
+            font-weight: 800;
+            font-size: 1.4rem;
             white-space: nowrap;
             transition: opacity 0.3s;
+            letter-spacing: 0.5px;
         }
 
         .sidebar.collapsed .brand-text {
-            opacity: 0;
-            width: 0;
             display: none;
         }
 
@@ -100,48 +95,72 @@
             align-items: center;
             gap: 15px;
             padding: 12px 15px;
-            color: rgba(255, 255, 255, 0.8);
-            border-radius: 8px;
+            color: var(--cream);
+            opacity: 0.8;
+            border-radius: 10px;
             transition: all 0.2s;
             white-space: nowrap;
+            justify-content: center;
         }
 
-        .sidebar-link:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--secondary-color);
+        .sidebar:not(.collapsed) .sidebar-link {
+            justify-content: flex-start;
+        }
+
+        .sidebar.collapsed .sidebar-link:hover {
+            background: rgba(255, 240, 206, 0.1);
+            color: var(--gold);
+            opacity: 1;
+            transform: none;
+        }
+
+        .sidebar:not(.collapsed) .sidebar-link:hover {
             transform: translateX(5px);
         }
 
         .sidebar-link.active {
-            background-color: var(--secondary-color);
-            color: var(--dark-color);
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: var(--gold);
+            color: var(--deep-blue);
+            font-weight: 700;
+            opacity: 1;
+            box-shadow: 0 4px 12px rgba(255, 196, 54, 0.3);
         }
 
         .sidebar-link i {
             width: 24px;
             text-align: center;
             font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar-link span {
+            transition: opacity 0.3s ease, max-width 0.3s ease;
+            overflow: hidden;
+            max-width: 150px;
+        }
+
+        .sidebar.collapsed .sidebar-link span {
+            opacity: 0;
+            max-width: 0;
         }
 
         .nav-section-title {
             padding: 15px 15px 5px;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.75rem;
-            font-weight: 700;
+            color: var(--gold);
+            opacity: 0.5;
+            font-size: 0.7rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            transition: opacity 0.3s ease, max-width 0.3s ease;
+            overflow: hidden;
+            max-width: 150px;
         }
 
-        .sidebar.collapsed .nav-section-title,
-        .sidebar.collapsed .sidebar-link span {
-            display: none;
-        }
-
-        .sidebar.collapsed .sidebar-link {
-            justify-content: center;
-            padding: 12px;
+        .sidebar.collapsed .nav-section-title {
+            opacity: 0;
+            max-width: 0;
+            padding: 15px 0 5px;
         }
 
         /* --- TOP HEADER --- */
@@ -150,70 +169,157 @@
             top: 0;
             right: 0;
             left: 0;
-            background: #59bbd1;
+            background-color: #ffffff;
             z-index: 999;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-bottom: 2px solid var(--cream);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
         }
 
         /* DESKTOP VIEW */
         @media (min-width: 769px) {
             .top-header {
                 left: var(--sidebar-width);
-                height: var(--header-height);
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
                 padding: 0 30px;
             }
 
-            .top-header>.topbar-mobile {
+            .topbar-mobile {
                 width: 100%;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: space-between !important;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
                 position: relative;
             }
 
-            /* Hamburger di kiri */
             .topbar-hamburger {
-                flex: 0 0 auto;
-                font-size: 1.25rem;
-                z-index: 3;
-                color: #333;
+                color: var(--deep-blue);
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
-            /* Judul di tengah */
             .topbar-title {
                 position: absolute;
                 left: 50%;
                 transform: translateX(-50%);
-                flex: 0 0 auto;
-                text-align: center;
                 font-size: 1.1rem;
-                font-weight: 600;
-                white-space: nowrap;
-                color: #333;
+                font-weight: 700;
+                color: var(--deep-blue);
+                margin: 0;
             }
 
-            /* Tanggal di kanan */
             .topbar-date {
-                flex: 0 0 auto;
-                text-align: right;
-                font-size: 0.9rem;
-                color: #6c757d;
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--mid-blue);
+                background: var(--cream);
+                padding: 6px 14px;
+                border-radius: 20px;
                 display: flex;
                 align-items: center;
-                gap: 0.35rem;
-                white-space: nowrap;
+                gap: 8px;
             }
 
-            .topbar-date i {
-                font-size: 0.85rem;
+            body.sidebar-closed .top-header {
+                left: var(--sidebar-width-collapsed);
             }
         }
 
-        body.sidebar-closed .top-header {
-            left: var(--sidebar-width-collapsed);
+        /* --- MOBILE RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .sidebar.collapsed {
+                width: 260px;
+            }
+
+            .top-header {
+                left: 0 !important;
+                width: 100%;
+                padding: 0 15px;
+                justify-content: space-between;
+            }
+
+            .topbar-mobile {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .topbar-hamburger {
+                color: var(--deep-blue);
+                min-width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                background: var(--cream);
+                border: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.2s;
+                flex-shrink: 0;
+            }
+
+            .topbar-hamburger:active {
+                background: var(--gold);
+            }
+
+            .topbar-title {
+                position: static;
+                transform: none;
+                font-size: 0.9rem;
+                font-weight: 700;
+                color: var(--deep-blue);
+                margin: 0;
+                flex: 1;
+                text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .topbar-date {
+                background: var(--cream);
+                padding: 5px 10px;
+                border-radius: 8px;
+                font-size: 0.7rem;
+                color: var(--deep-blue);
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .topbar-date i {
+                font-size: 0.8rem;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(12, 53, 106, 0.4);
+                z-index: 998;
+                backdrop-filter: blur(4px);
+            }
+
+            .sidebar.show~.sidebar-overlay {
+                display: block;
+            }
         }
 
         /* --- MAIN CONTENT WRAPPER --- */
@@ -229,137 +335,70 @@
             margin-left: var(--sidebar-width-collapsed);
         }
 
-        /* Toggle Button */
-        #toggleBtn {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            color: #333;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
-
-            /* 1. Reset Sidebar di Mobile */
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            /* Saat sidebar muncul di mobile */
-            .sidebar.show {
-                transform: translateX(0);
-                box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
-            }
-
-            /* Hapus efek 'collapsed' (mini sidebar) di mobile */
-            .sidebar.collapsed {
-                width: var(--sidebar-width);
-                transform: translateX(-100%);
-            }
-
-            /* Tampilkan teks menu meskipun class collapsed aktif */
-            .sidebar.collapsed .brand-text,
-            .sidebar.collapsed .sidebar-link span,
-            .sidebar.collapsed .nav-section-title {
-                display: block !important;
-                opacity: 1 !important;
-                width: auto !important;
-            }
-
-            /* 2. Header & Content Full Width */
-            .top-header {
-                left: 0 !important;
-                width: 100%;
-                height: var(--header-height);
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .top-header>.topbar-mobile {
-                width: 100%;
-                display: flex !important;
-                flex-direction: row !important;
-                align-items: center !important;
-                justify-content: space-between !important;
-                padding: 0.75rem;
-                position: relative;
-            }
-
-            /* Hamburger di kiri */
-            .topbar-hamburger {
-                flex: 0 0 auto;
-                font-size: 1.3rem;
-                z-index: 3;
-                color: #333;
-            }
-
-            /* Judul di tengah */
-            .topbar-title {
-                position: absolute;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
-                flex: 0 0 auto;
-                text-align: center;
-                font-size: 1rem;
-                font-weight: 600;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                color: #333;
-                max-width: 60%;
-            }
-
-            /* Tanggal di kanan */
-            .topbar-date {
-                flex: 0 0 auto;
-                text-align: right;
-                font-size: 0.75rem;
-                color: #6c757d;
-                display: flex;
-                align-items: center;
-                gap: 0.25rem;
-                white-space: nowrap;
-                z-index: 3;
-            }
-
-            .topbar-date i {
-                font-size: 0.75rem;
-            }
-
-            /* Untuk layar sangat kecil */
-            @media (max-width: 360px) {
-                .topbar-title {
-                    font-size: 0.85rem;
-                    max-width: 55%;
-                }
-
-                .topbar-date {
-                    font-size: 0.7rem;
-                }
-            }
-
             .main-content {
                 margin-left: 0 !important;
-                padding: 15px !important;
+                padding: 20px;
             }
+        }
 
-            /* 3. Overlay Hitam */
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 998;
-                backdrop-filter: blur(2px);
-            }
+        #toggleBtn {
+            background: var(--cream);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            color: var(--deep-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
 
-            .sidebar.show~.sidebar-overlay {
-                display: block;
-            }
+        #toggleBtn:hover {
+            background: var(--gold);
+        }
+
+        /* Logout khusus */
+        .sidebar-link.text-warning {
+            color: var(--gold) !important;
+            margin-top: auto;
+            border: 1px dashed rgba(255, 196, 54, 0.3);
+        }
+
+        .sidebar-link.text-warning:hover {
+            background: #cc3300;
+            color: white !important;
+            border-color: transparent;
+        }
+
+        /* Tooltip untuk sidebar collapsed */
+        .sidebar.collapsed .sidebar-link {
+            position: relative;
+        }
+
+        .sidebar.collapsed .sidebar-link::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            margin-left: 12px;
+            background-color: var(--deep-blue);
+            color: var(--gold);
+            padding: 8px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 1001;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar.collapsed .sidebar-link:hover::after {
+            opacity: 1;
         }
     </style>
 </head>
@@ -370,120 +409,122 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand d-flex justify-content-between px-3">
             <div class="d-flex align-items-center gap-2">
-                <img src="/images/logoSiWika.png" alt="Logo" style="height: 40px; width: auto;">
-                <div class="brand-text">SiWika</div>
+                <img src="/images/arista_logo.png" alt="Logo" style="height: 35px; width: auto;">
+                <div class="brand-text">SiArsip</div>
             </div>
 
-            <!-- TOMBOL CLOSE (MOBILE ONLY) -->
             <button class="btn btn-sm text-white d-md-none" onclick="toggleSidebar()">
-                <i class="fas fa-times fs-5"></i>
+                <i class="fas fa-times fs-5" style="color: var(--gold);"></i>
             </button>
         </div>
 
         <nav class="sidebar-nav">
-            <a href="/dashboard" class="sidebar-link"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+            <a href="/dashboard" class="sidebar-link" data-tooltip="Dashboard"><i class="fas fa-th-large"></i>
+                <span>Dashboard</span></a>
 
-            <div class="nav-section-title">Arsip Tanah</div>
-            <a href="/buku-tanah" class="sidebar-link"><i class="fas fa-book"></i> <span>Buku Tanah</span></a>
-            <a href="/surat-ukur" class="sidebar-link"><i class="fas fa-ruler-combined"></i> <span>Surat Ukur</span></a>
-            <a href="/warkah" class="sidebar-link"><i class="fas fa-file-invoice"></i> <span>Warkah</span></a>
-            <a href="/daftar-arsip" class="sidebar-link"><i class="fas fa-list"></i> <span>Daftar Arsip</span></a>
+            <div class="nav-section-title">Manajemen Arsip</div>
+            <a href="/buku-tanah" class="sidebar-link" data-tooltip="Buku Tanah"><i class="fas fa-book"></i> <span>Buku
+                    Tanah</span></a>
+            <a href="/surat-ukur" class="sidebar-link" data-tooltip="Surat Ukur"><i class="fas fa-map"></i> <span>Surat
+                    Ukur</span></a>
+            <a href="/warkah" class="sidebar-link" data-tooltip="Warkah"><i class="fas fa-file-alt"></i>
+                <span>Warkah</span></a>
+            <a href="/daftar-arsip" class="sidebar-link" data-tooltip="Daftar Arsip"><i class="fas fa-archive"></i>
+                <span>Daftar Arsip</span></a>
 
-            <div class="nav-section-title">Alat</div>
-            <a href="/lokasi" class="sidebar-link"><i class="fas fa-map-marker-alt"></i> <span>Lokasi</span></a>
-            <a href="/logout" class="sidebar-link mt-4 text-warning"><i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span></a>
+            <div class="nav-section-title">Pengaturan</div>
+            <a href="/lokasi" class="sidebar-link" data-tooltip="Lokasi Rak"><i class="fas fa-database"></i>
+                <span>Lokasi Rak</span></a>
+
+            <a href="/logout" class="sidebar-link mt-4 text-warning" data-tooltip="Logout">
+                <i class="fas fa-power-off"></i> <span>Logout</span>
+            </a>
         </nav>
     </aside>
 
     <header class="top-header">
         <div class="topbar-mobile">
-
-            <!-- KIRI: HAMBURGER -->
             <button id="toggleBtn" onclick="toggleSidebar()" class="topbar-hamburger">
                 <i class="fas fa-bars"></i>
             </button>
 
-            <!-- TENGAH: JUDUL -->
             <div class="topbar-title">
-                Dashboard Admin
+                Sistem Informasi Arsip
             </div>
 
-            <!-- KANAN: TANGGAL -->
             <div class="topbar-date">
-                <i class="fas fa-calendar-alt"></i>
-                <span>
-                    <%= new Date().toLocaleDateString('id-ID', { day: 'numeric' , month: 'short' , year: 'numeric' }) %>
-                </span>
+                <i class="fas fa-calendar-day"></i>
+                <span id="currentDate"></span>
             </div>
-
         </div>
     </header>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // --- 1. LOGIC TOGGLE SIDEBAR ---
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const body = document.body;
 
-            // Toggle Sidebar
-            sidebar.classList.toggle('collapsed');
-
-            // Toggle Logic Mobile
             if (window.innerWidth <= 768) {
                 sidebar.classList.toggle('show');
-            }
-
-            // Atur class di BODY untuk menggeser Main Content & Header
-            if (sidebar.classList.contains('collapsed')) {
-                body.classList.add('sidebar-closed');
-                localStorage.setItem('sidebarState', 'closed');
             } else {
-                body.classList.remove('sidebar-closed');
-                localStorage.setItem('sidebarState', 'open');
+                sidebar.classList.toggle('collapsed');
+                if (sidebar.classList.contains('collapsed')) {
+                    body.classList.add('sidebar-closed');
+                    localStorage.setItem('sidebarState', 'closed');
+                } else {
+                    body.classList.remove('sidebar-closed');
+                    localStorage.setItem('sidebarState', 'open');
+                }
             }
         }
 
-        // --- 2. LOGIC SAAT HALAMAN DIMUAT (Event Listener) ---
         document.addEventListener("DOMContentLoaded", function () {
+            // Set current date
+            const dateElement = document.getElementById('currentDate');
+            dateElement.textContent = new Date().toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
 
-            // A. Restore Posisi Sidebar (Ingat pilihan user: tutup/buka)
-            const savedState = localStorage.getItem('sidebarState');
-            const sidebar = document.getElementById('sidebar');
-            const body = document.body;
+            // Restore sidebar state on desktop
+            if (window.innerWidth > 768) {
+                const savedState = localStorage.getItem('sidebarState');
+                const sidebar = document.getElementById('sidebar');
+                const body = document.body;
 
-            if (savedState === 'closed') {
-                sidebar.classList.add('collapsed');
-                body.classList.add('sidebar-closed');
+                if (savedState === 'closed') {
+                    sidebar.classList.add('collapsed');
+                    body.classList.add('sidebar-closed');
+                }
             }
 
-            // B. Active Menu Highlight (Agar menu menyala sesuai halaman)
+            // Set active link
             const currentPath = window.location.pathname;
             const navLinks = document.querySelectorAll('.sidebar-link');
 
             navLinks.forEach(link => {
                 const href = link.getAttribute('href');
-                link.classList.remove('active'); // Reset dulu
-
-                // Logika Dashboard (Strict check)
                 if (href === '/dashboard') {
                     if (currentPath === '/dashboard' || currentPath === '/') {
                         link.classList.add('active');
                     }
+                } else if (currentPath.startsWith(href) && href !== '#') {
+                    link.classList.add('active');
                 }
-                // Logika Halaman Lain (Starts With)
-                // Contoh: Buka '/buku-tanah/tambah', maka menu '/buku-tanah' tetap nyala
-                else {
-                    if (currentPath.startsWith(href)) {
-                        link.classList.add('active');
-                    }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function () {
+                const sidebar = document.getElementById('sidebar');
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('show');
                 }
             });
         });
     </script>
-
 </body>
 
 </html>

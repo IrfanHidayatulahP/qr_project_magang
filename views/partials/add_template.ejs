@@ -1,32 +1,68 @@
 <style>
-    .letter-spacing-1 {
-        letter-spacing: 1px;
+    /* --- TEMA ARISTA --- */
+    :root {
+        --deep-blue: #0C356A;
+        --mid-blue: #0174BE;
+        --gold: #FFC436;
+        --cream: #FFF0CE;
+        --white: #FFFFFF;
+        --border-color: #E2E8F0;
     }
 
+    /* Utilitas Teks */
+    .letter-spacing-1 {
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        color: var(--deep-blue);
+        text-transform: uppercase;
+        font-size: 0.85rem;
+    }
+
+    /* Area Upload File (Dashed) */
     .border-dashed {
         border-style: dashed !important;
-        border-color: #dee2e6;
+        border-width: 2px !important;
+        border-color: #cbd5e1 !important; /* Abu-abu soft */
+        background-color: #f8fafc;
+        transition: all 0.3s ease;
+    }
+
+    .border-dashed:hover {
+        border-color: var(--mid-blue) !important;
+        background-color: rgba(1, 116, 190, 0.05);
+    }
+
+    /* Input Focus: Biru Menengah (ARISTA Blue) */
+    .form-control, .form-select {
+        border: 1px solid var(--border-color);
+        color: var(--deep-blue);
     }
 
     .form-control:focus,
     .form-select:focus {
-        border-color: #1e40af;
-        box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.1);
+        border-color: var(--mid-blue);
+        box-shadow: 0 0 0 0.25rem rgba(1, 116, 190, 0.15);
     }
 
+    /* Input Group Icon */
     .input-group-text {
-        background-color: #f8f9fa;
-        border-color: #ced4da;
+        background-color: var(--cream); /* Aksen Cream */
+        border-color: var(--border-color);
+        color: var(--deep-blue);
     }
 
+    /* Keterangan File */
     .file-selected-list {
         font-size: .875rem;
-        color: #6b7280;
-        margin-top: 6px;
+        color: #64748b;
+        margin-top: 8px;
+        font-style: italic;
     }
 
     .file-selected-list em {
-        color: #374151;
+        color: var(--mid-blue);
+        font-weight: 600;
+        font-style: normal;
     }
 </style>
 

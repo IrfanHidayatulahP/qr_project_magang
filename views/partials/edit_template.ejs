@@ -1,29 +1,58 @@
 <style>
-    .letter-spacing-1 {
-        letter-spacing: 1px;
+    /* --- TEMA ARISTA --- */
+    :root {
+        --deep-blue: #0C356A;
+        --mid-blue: #0174BE;
+        --gold: #FFC436;       /* Kuning Emas ARISTA */
+        --cream: #FFF0CE;
+        --border-color: #E2E8F0;
     }
 
+    /* Label Form */
+    .letter-spacing-1 {
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        color: var(--deep-blue);
+        text-transform: uppercase;
+        font-size: 0.85rem;
+    }
+
+    /* Area Upload (Edit Mode) */
     .border-dashed {
         border-style: dashed !important;
-        border-color: #dee2e6;
+        border-width: 2px;
+        border-color: #cbd5e1;
+        background-color: #ffffff;
     }
 
-    /* Fokus Input Warna Kuning (Ciri Khas Edit) */
+    /* Fokus Input Warna EMAS (Ciri Khas Edit ARISTA) */
+    .form-control, .form-select {
+        border: 1px solid var(--border-color);
+        color: var(--deep-blue);
+    }
+
     .form-control:focus,
     .form-select:focus {
-        border-color: #ffc107;
-        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.2);
+        border-color: var(--gold); /* Fokus warna Emas */
+        box-shadow: 0 0 0 0.25rem rgba(255, 196, 54, 0.25); /* Shadow Emas transparan */
     }
 
+    /* Input Group Icon */
     .input-group-text {
-        background-color: #f8f9fa;
-        border-color: #ced4da;
+        background-color: var(--cream); /* Aksen Cream */
+        border-color: var(--border-color);
+        color: var(--deep-blue);
     }
 
+    /* Text Helper File */
     .file-selected-list {
         font-size: .875rem;
-        color: #6b7280;
+        color: #64748b;
         margin-top: 6px;
+    }
+    
+    .file-selected-list strong {
+        color: #d97706; /* Warna oranye gelap untuk highlight nama file */
     }
 </style>
 

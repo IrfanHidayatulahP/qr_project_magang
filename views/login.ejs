@@ -4,9 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SiWika</title>
+    <title>Login - ARISTA BPN Sleman</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --deep-blue: #0C356A;
+            --mid-blue: #0174BE;
+            --gold: #FFC436;
+            --cream: #FFF0CE;
+            --white: #FFFFFF;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,137 +24,89 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #fbbf24 100%);
-            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, var(--deep-blue) 0%, var(--mid-blue) 100%);
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            overflow: hidden;
         }
 
-        /* Main Container */
         .login-container {
             width: 100%;
-            max-width: 420px;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        /* Logo Section */
+        /* Header Section */
         .login-header {
             text-align: center;
-            margin-bottom: 30px;
-            color: white;
         }
 
         .login-logo {
-            width: 100px; /* Lebar logo */
-            height: 100px; /* Tinggi logo */
-            background-color: white; /* Background putih agar logo png transparan terlihat jelas */
-            border-radius: 50%; /* Membuat lingkaran */
+            /* --- UKURAN CONTAINER --- */
+            width: 120px;
+            height: 120px;
+            background-color: var(--cream);
+            border-radius: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            overflow: hidden; /* Agar gambar tidak keluar dari lingkaran */
-            padding: 15px; /* Padding agar logo tidak terlalu mepet tepi */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 4px solid var(--gold);
+            
+            /* --- PERBAIKAN UTAMA: HAPUS PADDING --- */
+            padding: 0; /* Menghapus jarak ke dalam agar gambar bisa penuh */
+            overflow: hidden; /* Memastikan gambar tidak keluar dari border radius */
         }
 
         .login-logo img {
+            /* --- MEMASTIKAN GAMBAR MENGISI PENUH --- */
             width: 100%;
-            height: auto;
-            object-fit: contain;
+            height: 100%;
+            object-fit: contain; /* Gambar akan menyesuaikan diri tanpa gepeng */
+            display: block;
         }
 
         .login-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--gold);
             letter-spacing: -0.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 5px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .login-subtitle {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 400;
+            font-size: 13px;
+            color: var(--cream);
+            font-weight: 500;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        /* Card */
+        /* Auth Card */
         .auth-wrap {
-            background: white;
-            border-radius: 16px; /* Lebih membulat */
+            background-color: var(--cream);
+            border-radius: 30px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-            animation: slideUp 0.4s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-bottom: 8px solid var(--gold);
+            position: relative;
         }
 
         .auth-wrap h2 {
-            font-size: 24px;
-            color: #1e3a8a;
-            margin-bottom: 24px;
+            font-size: 26px;
+            color: var(--deep-blue);
+            margin-bottom: 30px;
             font-weight: 700;
-            text-align: center; /* Judul 'Masuk' di tengah */
-        }
-
-        /* Alert Messages */
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .alert-error {
-            background-color: #fee2e2;
-            border-left: 4px solid #dc2626;
-            color: #991b1b;
-        }
-
-        .alert-error::before {
-            content: "\f06a";
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            color: #dc2626;
-        }
-
-        .alert-success {
-            background-color: #dcfce7;
-            border-left: 4px solid #16a34a;
-            color: #15803d;
-        }
-
-        .alert-success::before {
-            content: "\f058";
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            color: #16a34a;
+            text-align: center;
         }
 
         /* Form Group */
@@ -154,119 +116,117 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #4b5563; /* Warna label lebih soft */
+            margin-bottom: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--deep-blue);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-container i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--mid-blue);
+            font-size: 18px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px 14px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid rgba(12, 53, 106, 0.1);
+            border-radius: 14px;
+            font-size: 15px;
             font-family: inherit;
             transition: all 0.3s ease;
-            background-color: #f9fafb;
+            background-color: var(--white);
+            color: var(--deep-blue);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #1e3a8a;
-            background-color: white;
-            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1); /* Efek glow */
+            border-color: var(--mid-blue);
+            box-shadow: 0 0 0 4px rgba(1, 116, 190, 0.1);
         }
 
-        .form-group input::placeholder {
-            color: #9ca3af;
-        }
-
-        /* Form Actions */
-        .form-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 28px;
-        }
-
+        /* Button */
         .btn {
-            padding: 14px 20px; /* Tombol sedikit lebih besar */
+            width: 100%;
+            padding: 16px;
             border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 700;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 800;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-decoration: none;
-            text-align: center;
-            letter-spacing: 0.5px;
+            background-color: var(--deep-blue);
+            color: var(--cream);
             text-transform: uppercase;
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 10px;
         }
 
         .btn:hover {
+            background-color: var(--mid-blue);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3);
-            background: linear-gradient(135deg, #1e40af 0%, #1e3f8f 100%);
+            box-shadow: 0 8px 20px rgba(12, 53, 106, 0.3);
         }
 
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        /* Register Link */
+        /* Footer Link */
         .register-link-container {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 25px;
+            border-top: 1px solid rgba(12, 53, 106, 0.1);
             padding-top: 20px;
-            border-top: 1px solid #f3f4f6;
         }
 
         .register-link-container p {
             font-size: 14px;
-            color: #6b7280;
-            margin-bottom: 0;
+            color: #555;
+            font-weight: 500;
         }
 
         .small-link {
-            color: #1e3a8a;
+            color: var(--mid-blue);
             text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border-bottom: 1px solid transparent;
+            font-weight: 700;
         }
 
         .small-link:hover {
-            color: #fbbf24; /* Aksen kuning saat hover */
-            border-bottom-color: #fbbf24;
+            color: var(--deep-blue);
+            text-decoration: underline;
         }
 
-        /* Footer Info */
         .login-footer {
             text-align: center;
-            margin-top: 30px;
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--cream);
+            opacity: 0.8;
+            font-weight: 500;
         }
 
-        /* Responsive */
-        @media (max-width: 480px) {
+        /* Responsive height adjustment */
+        @media (max-height: 700px) {
             .auth-wrap {
-                padding: 30px 20px;
+                padding: 30px;
             }
 
-            .login-logo {
-                width: 80px;
-                height: 80px;
+            .form-group {
+                margin-bottom: 15px;
             }
 
-            .login-title {
-                font-size: 24px;
+            .login-container {
+                gap: 15px;
             }
         }
     </style>
@@ -274,61 +234,56 @@
 
 <body>
     <div class="login-container">
-        
-        <div class="login-header">
-            <div class="login-logo">
-                <img src="/images/logoSiArsip.png" alt="Logo SiArsip">
-            </div>
-            <h1 class="login-title">SiArsip</h1>
-            <p class="login-subtitle">Sistem Manajemen Kearsipan BPN Sleman</p>
-        </div>
 
-        <div class="auth-wrap">
-            <h2>Masuk</h2>
+        <header class="login-header">
+            <div class="login-logo">
+                <img src="/images/arista_logo.png" alt="Logo">
+            </div>
+            <h1 class="login-title">ARISTA</h1>
+            <p class="login-subtitle">Arsip Digital Terintegrasi</p>
+        </header>
+
+        <main class="auth-wrap">
+            <h2>Sign In</h2>
 
             <% if (typeof error !=='undefined' && error) { %>
-                <div class="alert alert-error errors">
+                <div style="background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; display: flex; align-items: center; gap: 10px; border-left: 4px solid #ef4444;">
+                    <i class="fas fa-exclamation-circle"></i>
                     <%= error %>
-                </div>
-            <% } %>
-
-            <% if (typeof success !=='undefined' && success) { %>
-                <div class="alert alert-success errors">
-                    <%= success %>
                 </div>
             <% } %>
 
             <form action="/login" method="post" novalidate>
                 <div class="form-group">
-                    <label for="username">Username</label>
-                    <input id="username" name="username" type="text"
-                        placeholder="Masukkan username Anda"
-                        value="<%= (typeof old !== 'undefined' && old.username) ? old.username : '' %>" 
-                        required
-                        autocomplete="username" />
+                    <label>Username</label>
+                    <div class="input-container">
+                        <i class="fas fa-user-circle"></i>
+                        <input name="username" type="text" placeholder="Masukkan username"
+                            value="<%= (typeof old !== 'undefined' && old.username) ? old.username : '' %>" required>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input id="password" name="password" type="password"
-                        placeholder="Masukkan password Anda" required autocomplete="current-password" />
+                    <label>Password</label>
+                    <div class="input-container">
+                        <i class="fas fa-key"></i>
+                        <input name="password" type="password" placeholder="Masukkan password" required>
+                    </div>
                 </div>
 
-                <div class="form-actions">
-                    <button class="btn" type="submit">
-                        <i class="fas fa-sign-in-alt me-2"></i> Masuk
-                    </button>
-                </div>
+                <button class="btn" type="submit">
+                    Masuk Ke Sistem <i class="fas fa-arrow-right"></i>
+                </button>
             </form>
 
             <div class="register-link-container">
-                <p>Belum punya akun? <a class="small-link" href="/register">Daftar di sini</a></p>
+                <p>Belum punya akses? <a class="small-link" href="/register">Hubungi Admin</a></p>
             </div>
-        </div>
+        </main>
 
-        <div class="login-footer">
-            <p>&copy; 2025 SiWika. Kantor Pertanahan Kabupaten Sleman.</p>
-        </div>
+        <footer class="login-footer">
+            <p>&copy; 2026 <strong>ARISTA BPN Sleman</strong></p>
+        </footer>
     </div>
 </body>
 
